@@ -10,3 +10,10 @@ const nextConfig: NextConfig = {
 };
 
 export default nextConfig;
+
+// Makes Cloudflare bindings available in `next dev`.
+// Note: OpenNext's *Worker preview* doesn't run on Windows, but `next dev`
+// does — that's our local dev loop. Cloudflare builds on Linux, where the
+// full adapter is supported.
+import { initOpenNextCloudflareForDev } from "@opennextjs/cloudflare";
+initOpenNextCloudflareForDev();

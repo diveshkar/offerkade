@@ -13,6 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://offerceylon.lk"),
   title: "OfferCeylon — Sri Lanka's offers in one place",
   description:
     "Browse the best current deals and offers across Sri Lanka, free. Restaurants, shops, furniture, and more — updated daily.",
