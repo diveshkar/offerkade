@@ -4,18 +4,17 @@ export default function Home() {
   return (
     <div className="flex flex-1 flex-col items-center justify-center bg-gradient-to-b from-amber-50 via-white to-white px-6 text-center dark:from-[#0b1220] dark:via-[#0b1220] dark:to-black">
       <main className="flex w-full max-w-2xl flex-col items-center gap-6 py-20">
-        {/* Brand lockup: map + O/C cards + "Offer Ceylon" wordmark.
-            The tagline is intentionally NOT part of the image - it is rendered
-            as text below so it stays readable, themeable and indexable. */}
-        <Image
-          src="/brand/logo-lockup.webp"
-          alt="OfferCeylon"
-          width={720}
-          height={973}
-          priority
-          unoptimized
-          className="h-auto w-[200px] sm:w-[240px]"
-        />
+        <div className="rounded-3xl bg-[#10182b] px-7 py-6 shadow-xl shadow-zinc-900/10 ring-1 ring-zinc-900/5 dark:shadow-none dark:ring-white/10">
+          <Image
+            src="/brand/logo-lockup.webp"
+            alt="OfferCeylon"
+            width={720}
+            height={973}
+            priority
+            unoptimized
+            className="h-auto w-[180px] sm:w-[210px]"
+          />
+        </div>
 
         {/* Tagline (real text, not baked into the logo) */}
         <p className="text-xs font-semibold uppercase tracking-[0.2em] text-zinc-500 dark:text-zinc-400">
