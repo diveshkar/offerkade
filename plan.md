@@ -1,10 +1,10 @@
-# OfferCeylon — Complete Project Plan (Website)
+# OfferCeylon - Complete Project Plan (Website)
 
-> **Name:** **OfferCeylon** (decided). Domain target: `offerceylon.lk`. *(The project folder/repo is still named `offerkade` — rename later when convenient; it's cosmetic.)*
+> **Name:** **OfferCeylon** (decided). Domain target: `offerceylon.lk`. *(The project folder/repo is still named `offerkade` - rename later when convenient; it's cosmetic.)*
 
-> A Sri Lankan offers website. Businesses post their current deals (restaurants, shops, furniture, drinks — anything) as posters. Users browse them free by category and location. Offers auto-delete the moment they expire. Built to run at near-zero monthly cost, monetized later through ads, then promo-code leads, then subscriptions.
+> A Sri Lankan offers website. Businesses post their current deals (restaurants, shops, furniture, drinks - anything) as posters. Users browse them free by category and location. Offers auto-delete the moment they expire. Built to run at near-zero monthly cost, monetized later through ads, then promo-code leads, then subscriptions.
 
-**One-line pitch:** *Sri Lanka's offers in one place — save money every day.*
+**One-line pitch:** *Sri Lanka's offers in one place - save money every day.*
 
 ---
 
@@ -14,13 +14,13 @@
 |---|---|---|
 | **Domain** | `offerceylon.lk` | Address + branded email |
 | **DNS + CDN + SSL** | Cloudflare | Fast global delivery, free HTTPS |
-| **Hosting** | Cloudflare Pages | Serves the site, auto-deploys from GitHub |
-| **Frontend** | Next.js (React, App Router, TypeScript, Tailwind) | The site — SEO-friendly pages |
+| **Hosting** | Cloudflare Workers (via `@opennextjs/cloudflare`) | Serves the site, auto-deploys from GitHub. Full Next.js support (SSR/dynamic), so no rework needed in Phase 4. |
+| **Frontend** | Next.js (React, App Router, TypeScript, Tailwind) | The site - SEO-friendly pages |
 | **Database** | Supabase (Postgres) | Offers, businesses, categories, admins |
 | **Auth** | Supabase Auth | Admin login only |
 | **File storage** | Supabase Storage (+ CDN) | Poster images |
 | **Image compression** | **Browser-side** (`browser-image-compression`) | Resize → WebP → ~150KB *before upload* |
-| **Submission gateway** | Supabase Edge Function (Deno) + **Cloudflare Turnstile** | The only writer of offers — blocks spam |
+| **Submission gateway** | Supabase Edge Function (Deno) + **Cloudflare Turnstile** | The only writer of offers - blocks spam |
 | **Scheduled jobs** | Supabase pg_cron → Edge Function (expiry) + Cloudflare Worker cron (keep-alive) | Nightly expiry + weekly DB ping |
 | **Inbox email** | Zoho Mail (free) or Cloudflare Email Routing | `hello@offerceylon.lk` |
 | **Sending email** | Brevo or Resend (free tier) | Approval / rejection / expiry notices |
@@ -28,14 +28,14 @@
 | **Code + CI/CD** | GitHub | Version control, auto-deploy on push |
 | **Analytics** | Cloudflare Web Analytics | Traffic stats, privacy-friendly |
 
-**Why this stack:** genuinely free to start (no credit card, no forced pay-as-you-go) and SEO-friendly — critical, since Google search and social links are the traffic engine. **No Flutter, no mobile app** — this is a website only.
+**Why this stack:** genuinely free to start (no credit card, no forced pay-as-you-go) and SEO-friendly - critical, since Google search and social links are the traffic engine. **No Flutter, no mobile app** - this is a website only.
 
 ### ⚠️ Key architecture decisions (these correct earlier drafts)
 
-1. **Compression runs in the browser, not on a server.** `sharp` is a native Node module and **cannot run** on Supabase Edge Functions (Deno) or Cloudflare Pages (Edge runtime) — the two places the old plan assumed. Instead, the browser compresses the image to WebP *before upload* using `browser-image-compression`. Zero server cost, works on the free stack, no native dependency.
-2. **All submissions go through ONE Edge Function — never a direct client insert.** With no user login, a public "insert" RLS policy would let bots write unlimited junk straight to the database/storage. Instead, the form calls a single Supabase Edge Function (service role) that: verifies a **Turnstile** token → accepts the pre-compressed image → uploads to Storage → inserts the offer as `pending`. RLS then forbids all public writes. This closes the spam hole *and* the storage-write hole in one move.
+1. **Compression runs in the browser, not on a server.** `sharp` is a native Node module and **cannot run** on Supabase Edge Functions (Deno) or Cloudflare Pages (Edge runtime) - the two places the old plan assumed. Instead, the browser compresses the image to WebP *before upload* using `browser-image-compression`. Zero server cost, works on the free stack, no native dependency.
+2. **All submissions go through ONE Edge Function - never a direct client insert.** With no user login, a public "insert" RLS policy would let bots write unlimited junk straight to the database/storage. Instead, the form calls a single Supabase Edge Function (service role) that: verifies a **Turnstile** token → accepts the pre-compressed image → uploads to Storage → inserts the offer as `pending`. RLS then forbids all public writes. This closes the spam hole *and* the storage-write hole in one move.
 3. **Store the storage object *path*, not just the CDN URL.** To delete a file you need its key (e.g. `posters/abc.webp`), not the public URL. The `offers` table has `poster_path` / `poster_thumb_path` columns used by the expiry job.
-4. **`view_count` is bumped via a `SECURITY DEFINER` RPC**, not a client UPDATE — because RLS forbids public writes to `offers`. A tiny Postgres function increments just that one counter.
+4. **`view_count` is bumped via a `SECURITY DEFINER` RPC**, not a client UPDATE - because RLS forbids public writes to `offers`. A tiny Postgres function increments just that one counter.
 
 ---
 
@@ -45,27 +45,27 @@
 |---|---|---|
 | Build + seeding | **≈ LKR 400/mo** (domain only, amortized) | All services on free tier |
 | Early launch (a few thousand visitors) | **≈ LKR 400/mo** | Still free tier; Supabase won't pause once real traffic arrives |
-| Scaling (tens of thousands) | **~$45–50/mo** | Paid email + maybe Cloudflare Pro — covered by ad/sub income by then |
+| Scaling (tens of thousands) | **~$45-50/mo** | Paid email + maybe Cloudflare Pro - covered by ad/sub income by then |
 
-**Decision (locked):** **No Supabase Pro until subscription revenue is coming in.** Until then, stay entirely on free tiers — the keep-alive Worker (Phase 7b) neutralizes the only real free-tier risk (the 7-day pause). Pro's $25/mo (backups + no pausing) gets added *only after* paying subscribers exist to fund it.
+**Decision (locked):** **No Supabase Pro until subscription revenue is coming in.** Until then, stay entirely on free tiers - the keep-alive Worker (Phase 7b) neutralizes the only real free-tier risk (the 7-day pause). Pro's $25/mo (backups + no pausing) gets added *only after* paying subscribers exist to fund it.
 
 **Only guaranteed cost to start: the domain, paid yearly.**
-- `offerceylon.lk` ≈ LKR 3,000–7,500/year
+- `offerceylon.lk` ≈ LKR 3,000-7,500/year
 - `offerceylon.com` (optional, brand protection) ≈ $11/year
 
-**Reality check on "free forever":** the free tier is genuinely enough to *build and launch*. But a *proper* product a business relies on eventually wants **Supabase Pro ($25/mo)** for backups + no cold-starts. Budget for it as the one honest recurring cost — small, and deferrable until you have traction.
+**Reality check on "free forever":** the free tier is genuinely enough to *build and launch*. But a *proper* product a business relies on eventually wants **Supabase Pro ($25/mo)** for backups + no cold-starts. Budget for it as the one honest recurring cost - small, and deferrable until you have traction.
 
-### Supabase free tier — what actually matters
+### Supabase free tier - what actually matters
 | Resource | Free limit | What it means |
 |---|---|---|
 | **File storage** | **1 GB** | Non-issue. With nightly auto-delete of expired posters you only ever hold *active* offers (~a few hundred ≈ 3% of the tier). |
-| **Database** | **500 MB** | Text rows only — images don't count. Hundreds of thousands of offers fit. |
-| **Storage egress** | **5 GB/month** | The real constraint. Mitigate with **Cloudflare caching in front** (proper `Cache-Control` headers) so repeat views never hit Supabase. *Note: this needs correct cache headers — it is not automatic just from using CDN URLs.* |
-| **Auth** | 50,000 MAU | Never hit — only admins log in. |
+| **Database** | **500 MB** | Text rows only - images don't count. Hundreds of thousands of offers fit. |
+| **Storage egress** | **5 GB/month** | The real constraint. Mitigate with **Cloudflare caching in front** (proper `Cache-Control` headers) so repeat views never hit Supabase. *Note: this needs correct cache headers - it is not automatic just from using CDN URLs.* |
+| **Auth** | 50,000 MAU | Never hit - only admins log in. |
 | **Edge Functions** | 500,000 invocations/month | Nightly expiry + submissions use a tiny fraction. |
 | **Inactivity** | **Pauses after 7 days of no DB activity** | ⚠️ This is about *inactivity*, NOT storage size. During quiet build weeks it can sleep. **Fix: the keep-alive Worker below.** Once real traffic exists it never triggers. |
 
-*Limits shift — confirm at supabase.com/pricing when you sign up.*
+*Limits shift - confirm at supabase.com/pricing when you sign up.*
 
 ---
 
@@ -91,12 +91,12 @@
 
 ---
 
-## Phase 1 — Foundation & Setup
+## Phase 1 - Foundation & Setup
 
 **Goal:** Domain, accounts, and a skeleton Next.js site that auto-deploys.
 
-### Your half — accounts & domain (only you can do these)
-- **Register `offerceylon.lk`** *(placeholder name)* through a local LK registrar (LK Domain Registry / accredited provider). `.lk` cannot be bought at Cloudflare. **Before buying, confirm the registrar lets you set custom nameservers** — a few cheap resellers lock you to their DNS; avoid those.
+### Your half - accounts & domain (only you can do these)
+- **Register `offerceylon.lk`** through a local LK registrar (LK Domain Registry / accredited provider). `.lk` cannot be bought at Cloudflare. **Before buying, confirm the registrar lets you set custom nameservers** - a few cheap resellers lock you to their DNS; avoid those.
 - Create free accounts: **GitHub, Cloudflare, Supabase**, and email (**Zoho Mail** free, or **Cloudflare Email Routing** forwarding to Gmail).
 - (Later) Brevo/Resend account for transactional email.
 
@@ -104,21 +104,29 @@
 1. Register `offerceylon.lk` at the LK registrar.
 2. Add the domain to Cloudflare (free plan) → Cloudflare gives you **two nameservers**.
 3. At the LK registrar, **change the nameservers to Cloudflare's two**. (`.lk` allows custom nameservers.)
-4. Wait for propagation (minutes–hours).
-5. In **Cloudflare Pages**, add `offerceylon.lk` as a **custom domain** → auto DNS record + free SSL.
+4. Wait for propagation (minutes-hours).
+5. In the **Cloudflare Worker** settings, add `offerceylon.lk` as a **custom domain** → auto DNS record + free SSL.
 → Result: the Next.js site served on `https://offerceylon.lk`, free HTTPS + CDN. Cost = domain only.
 
-### My half — the skeleton (in progress)
-- **Next.js app scaffolded** ✅ (TypeScript, App Router, Tailwind, ESLint) — done, in `C:\Users\Efito\Desktop\offerkade`.
-- Next: branded placeholder homepage → `git init` + first commit → push to GitHub → connect Cloudflare Pages (auto-deploy on every push).
+### ✅ The skeleton (DONE)
+- **Next.js 16 app scaffolded** (TypeScript, App Router, Tailwind, ESLint), builds clean.
+- Branded OfferCeylon coming-soon homepage + brand assets (favicon, icon, apple-icon, OG image).
+- **GitHub repo** live: `github.com/diveshkar/offerkade`.
+- **Cloudflare Workers deploy working** via `@opennextjs/cloudflare` + `wrangler.jsonc`.
+  - Build command: `npx opennextjs-cloudflare build`
+  - Deploy command: `npx opennextjs-cloudflare deploy`
+  - **Live at: https://offerceylon.divesh-kar.workers.dev** (auto-deploys on every push to `main`)
 
-**Deliverable:** Domain live with SSL, all accounts created, empty branded site deploying automatically from GitHub.
+> ⚠️ **Windows caveat:** OpenNext's local *Worker preview* (`opennextjs-cloudflare preview`) does **not** work on Windows - it 500s. This is a known OpenNext limitation, not a config bug. Cloudflare's builders run Linux, where it works fine.
+> **Local dev loop = `npm run dev` (`next dev`), which works normally on Windows.** To test Cloudflare-specific behaviour, push and use the deploy preview. If this ever becomes limiting, WSL is the fix.
+
+**Deliverable:** ✅ Accounts created, branded site auto-deploying from GitHub to a live URL. *(Domain deferred to Phase 9 by choice.)*
 
 **Cost:** Domain only.
 
 ---
 
-## Phase 2 — Database & Backend
+## Phase 2 - Database & Backend
 
 **Goal:** The Postgres database in Supabase that everything depends on, locked down with RLS.
 
@@ -148,7 +156,7 @@
 | icon | text | optional |
 | sort_order | int | display order |
 
-### `offers` — the heart of the site
+### `offers` - the heart of the site
 | Column | Type | Notes |
 |---|---|---|
 | id | uuid (PK) | `gen_random_uuid()` |
@@ -201,15 +209,15 @@
 | renews_at | timestamptz | |
 
 ### Indexes
-- `offers(status, end_date)` — public page + cleanup job
-- `offers(category_id)`, `offers(city)` — filtering
-- `offers(is_featured, created_at)` — featured-first ordering
-- `businesses(slug)`, `categories(slug)` — lookups
+- `offers(status, end_date)` - public page + cleanup job
+- `offers(category_id)`, `offers(city)` - filtering
+- `offers(is_featured, created_at)` - featured-first ordering
+- `businesses(slug)`, `categories(slug)` - lookups
 
 ### Row Level Security (RLS)
 - **Public read:** anyone `SELECT`s offers where `status = 'approved'` AND `end_date >= today`. Admins can read all statuses (for moderation).
 - **Public write: FORBIDDEN.** No public insert/update/delete on any table. The submission Edge Function (service role) is the only writer of new offers. This is the key spam fix.
-- **`view_count`:** bumped only through a `SECURITY DEFINER` RPC that increments that single column — nothing else.
+- **`view_count`:** bumped only through a `SECURITY DEFINER` RPC that increments that single column - nothing else.
 - **Admin only:** all `UPDATE` / `DELETE` on offers, all writes to `businesses` / `subscriptions`, via the `admins` table.
 - **Storage:** public read on the posters bucket; writes only via the Edge Function's service role.
 
@@ -219,9 +227,9 @@
 
 ---
 
-## Phase 3 — Image Pipeline (browser-side)
+## Phase 3 - Image Pipeline (browser-side)
 
-**Goal:** Every poster shrunk *in the browser before upload* so storage + egress stay free and pages load fast — no visible quality loss. A 6MB phone photo → ~150KB, ~40× smaller, looks identical on screen.
+**Goal:** Every poster shrunk *in the browser before upload* so storage + egress stay free and pages load fast - no visible quality loss. A 6MB phone photo → ~150KB, ~40× smaller, looks identical on screen.
 
 **Pipeline (runs in the user's browser, on submit):**
 1. **Validate:** JPG/PNG/WebP only; reject over 5MB (enforced in the form).
@@ -249,7 +257,7 @@ const thumb = await imageCompression(file, {
 ```
 
 ### ⚠️ Serve via CDN with proper cache headers (from day one)
-Supabase free gives 5 GB egress/month. Put **Cloudflare caching in front** and set `Cache-Control` so repeat views are served from Cloudflare's edge and never re-hit Supabase. This — not merely "using a CDN URL" — is what protects the egress quota.
+Supabase free gives 5 GB egress/month. Put **Cloudflare caching in front** and set `Cache-Control` so repeat views are served from Cloudflare's edge and never re-hit Supabase. This - not merely "using a CDN URL" - is what protects the egress quota.
 
 **Storage math:** ~150KB poster + ~30KB thumb ≈ 180KB/offer → 1 GB holds ~5,500. With Phase 7 auto-delete you only store *active* offers (200 live ≈ 36 MB ≈ 3%). Storage never becomes a problem.
 
@@ -259,16 +267,16 @@ Supabase free gives 5 GB egress/month. Put **Cloudflare caching in front** and s
 
 ---
 
-## Phase 4 — Public Website
+## Phase 4 - Public Website
 
-**Goal:** The pages users visit — clean, fast, mobile-first.
+**Goal:** The pages users visit - clean, fast, mobile-first.
 
 **Pages**
-- **Home / Offers grid** — poster thumbnails; featured pinned top, newest first. Filters: **category**, **city**, **"Ending soon"** tab. Search box (Postgres full-text — a real advantage over the app plan). Shows only `status = approved` AND `end_date >= today`.
-- **Offer detail** (`/offer/:id`) — full poster, title, description, business info, WhatsApp/call buttons, valid-until date. Bumps `view_count` via the RPC. (Later: promo code + how to redeem.)
-- **Business profile** (`/business/:slug`) — logo, info, their current offers.
+- **Home / Offers grid** - poster thumbnails; featured pinned top, newest first. Filters: **category**, **city**, **"Ending soon"** tab. Search box (Postgres full-text - a real advantage over the app plan). Shows only `status = approved` AND `end_date >= today`.
+- **Offer detail** (`/offer/:id`) - full poster, title, description, business info, WhatsApp/call buttons, valid-until date. Bumps `view_count` via the RPC. (Later: promo code + how to redeem.)
+- **Business profile** (`/business/:slug`) - logo, info, their current offers.
 - **Submit an offer** → Phase 5.
-- **Static:** About, Contact, Privacy Policy, Terms — *required for AdSense later + legally needed (see Risks)*.
+- **Static:** About, Contact, Privacy Policy, Terms - *required for AdSense later + legally needed (see Risks)*.
 
 ### ⏰ "Expiring soon" badge (computed, zero cost)
 ```
@@ -276,36 +284,36 @@ days_left = end_date - today
 days_left <= 2  → "⏰ Expiring soon" badge (red/orange)
 days_left <= 0  → nightly job deletes it (Phase 7)
 ```
-Lifecycle: **live → last 2 days show urgency → end date passes → deleted.** No expired offers ever shown. The "Ending soon" set is also your best social content — urgency converts.
+Lifecycle: **live → last 2 days show urgency → end date passes → deleted.** No expired offers ever shown. The "Ending soon" set is also your best social content - urgency converts.
 
 **Design/tech notes**
-- **Mobile-first** — most SL users are on phones.
-- **SEO is the free traffic engine.** Note: on **Cloudflare Pages, Next.js ISR/SSR behave differently than on Vercel** (needs the `@cloudflare/next-on-pages` adapter). Confirm the rendering mode works on Pages early — or use **SSG + client-side fetch** for dynamic bits. Per-offer `<title>`/meta, clean URLs, sitemap.
+- **Mobile-first** - most SL users are on phones.
+- **SEO is the free traffic engine.** Per-offer `<title>`/meta, clean URLs, sitemap. *(Resolved in Phase 1: the `@opennextjs/cloudflare` adapter is already set up, so SSR/ISR/dynamic routes work on Cloudflare Workers - no rework or SSG-fallback needed.)*
 - **Fast:** WebP thumbnails, lazy-load, Cloudflare-cached.
 
 **Not in v1 (deliberately):** visitor logins, comments, ratings, wishlists.
 
-**Deliverable:** Working public site — offers grid, filters, expiring-soon badges, SEO pages.
+**Deliverable:** Working public site - offers grid, filters, expiring-soon badges, SEO pages.
 
 **Cost:** LKR 0.
 
 ---
 
-## Phase 5 — Business Submission (Edge Function + Turnstile)
+## Phase 5 - Business Submission (Edge Function + Turnstile)
 
-**Goal:** Let any business submit easily — while you keep control via approval and block bots.
+**Goal:** Let any business submit easily - while you keep control via approval and block bots.
 
 **Form fields:** business name (select existing or new), contact email + phone + optional WhatsApp, city, offer title, category, description, **poster image** (max 5MB → browser-compressed via Phase 3), start date + **end date** (required), and an invisible **Cloudflare Turnstile** widget.
 
 **Flow (the secure path)**
 1. User fills form; browser compresses the poster (Phase 3).
 2. Form calls the **submission Edge Function** with the compressed images + a **Turnstile token**.
-3. Edge Function (service role): **verifies the Turnstile token** → uploads images to Storage → inserts the offer as `status = 'pending'` with zeroed counters. *(No direct client insert exists — RLS forbids it.)*
+3. Edge Function (service role): **verifies the Turnstile token** → uploads images to Storage → inserts the offer as `status = 'pending'` with zeroed counters. *(No direct client insert exists - RLS forbids it.)*
 4. "Thanks! Your offer is under review."
 5. You're emailed about the new pending offer (Phase 7).
 6. You approve/reject (Phase 6). On approval → live.
 
-**No login required to submit in v1** — Turnstile + the Edge Function gateway give the anti-abuse protection that a login would otherwise provide. Add business accounts later once volume grows.
+**No login required to submit in v1** - Turnstile + the Edge Function gateway give the anti-abuse protection that a login would otherwise provide. Add business accounts later once volume grows.
 
 **Deliverable:** Public submission form → Edge Function → moderation queue, bot-protected.
 
@@ -313,18 +321,18 @@ Lifecycle: **live → last 2 days show urgency → end date passes → deleted.*
 
 ---
 
-## Phase 6 — Admin Panel & Moderation
+## Phase 6 - Admin Panel & Moderation
 
 **Goal:** A private dashboard to review and manage everything.
 
 **Access:** Supabase Auth, restricted to the `admins` table (enforced by RLS). Admins can read all offer statuses.
 
 **Features**
-- **Pending queue** — poster preview + **Approve / Reject** (reject asks a reason, optionally emailed).
-- **All offers** — search/filter, edit, feature/unfeature, manually expire or delete.
-- **Businesses** — view, verify (`verified = true`), edit.
-- **Quick-add** — a fast form for *you* to post offers yourself (critical for Phase 8 seeding).
-- **Stats dashboard** — total offers, active offers, businesses, views, top offers — the numbers you'll show advertisers/subscribers later.
+- **Pending queue** - poster preview + **Approve / Reject** (reject asks a reason, optionally emailed).
+- **All offers** - search/filter, edit, feature/unfeature, manually expire or delete.
+- **Businesses** - view, verify (`verified = true`), edit.
+- **Quick-add** - a fast form for *you* to post offers yourself (critical for Phase 8 seeding).
+- **Stats dashboard** - total offers, active offers, businesses, views, top offers - the numbers you'll show advertisers/subscribers later.
 
 **Moderation rules:** reject spam/fake/expired-on-arrival/low-quality; fix wrong category/city; verify legit businesses to build trust.
 
@@ -334,16 +342,16 @@ Lifecycle: **live → last 2 days show urgency → end date passes → deleted.*
 
 ---
 
-## Phase 7 — Automation
+## Phase 7 - Automation
 
-**Goal:** The site runs itself — expired offers delete automatically, the DB stays awake, emails send themselves.
+**Goal:** The site runs itself - expired offers delete automatically, the DB stays awake, emails send themselves.
 
 ### 7a. Auto-delete on expiry (the storage saver)
-**pg_cron triggers an Edge Function nightly** (pg_cron alone can't delete storage objects — it calls the function via `pg_net`; the Edge Function does the deletion with the service role):
+**pg_cron triggers an Edge Function nightly** (pg_cron alone can't delete storage objects - it calls the function via `pg_net`; the Edge Function does the deletion with the service role):
 1. Find offers where `end_date < today` AND `status = 'approved'`.
 2. **Delete poster + thumbnail from Storage using `poster_path` / `poster_thumb_path`** (not the URL) → space freed.
 3. Set `status = 'expired'` → gone from the public site.
-4. **Keep the text row** (title, business, dates) — nearly free, and becomes an asset: *"OfferCeylon has published 800 offers from 150 businesses"* is a strong sponsorship/subscription pitch line.
+4. **Keep the text row** (title, business, dates) - nearly free, and becomes an asset: *"OfferCeylon has published 800 offers from 150 businesses"* is a strong sponsorship/subscription pitch line.
 
 ```sql
 -- pg_cron nightly: find expired, hand paths to the Edge Function to delete
@@ -351,14 +359,14 @@ select id, poster_path, poster_thumb_path from offers
 where status = 'approved' and end_date < current_date;
 -- Edge Function: delete those storage objects → update status = 'expired'
 ```
-**No grace period** — urgency is handled *before* expiry by the "Expiring soon" badge, so users never see dead offers.
+**No grace period** - urgency is handled *before* expiry by the "Expiring soon" badge, so users never see dead offers.
 
 **Cost:** ~30 invocations/month vs 500,000 free = $0.
 
-### 7b. Keep-alive (prevents the 7-day pause) — FREE
-A **Cloudflare Worker cron trigger** runs **every 3 days** (not 6 — leaves margin if one run fails before the 7-day deadline) and makes one tiny Supabase query, which resets the inactivity clock. It must hit the *database*, not the cached homepage.
+### 7b. Keep-alive (prevents the 7-day pause) - FREE
+A **Cloudflare Worker cron trigger** runs **every 3 days** (not 6 - leaves margin if one run fails before the 7-day deadline) and makes one tiny Supabase query, which resets the inactivity clock. It must hit the *database*, not the cached homepage.
 ```js
-// Cloudflare Worker — cron: 0 3 */3 * *  (every 3 days, 3 AM)
+// Cloudflare Worker - cron: 0 3 */3 * *  (every 3 days, 3 AM)
 export default {
   async scheduled(event, env, ctx) {
     await fetch(`${env.SUPABASE_URL}/rest/v1/categories?select=id&limit=1`, {
@@ -367,7 +375,7 @@ export default {
   }
 };
 ```
-Once real traffic exists this is redundant, but it costs nothing to leave running. *(Chosen over GitHub Actions cron, which auto-disables after 60 days of repo inactivity — a bad silent-failure mode.)*
+Once real traffic exists this is redundant, but it costs nothing to leave running. *(Chosen over GitHub Actions cron, which auto-disables after 60 days of repo inactivity - a bad silent-failure mode.)*
 
 ### 7c. Transactional emails (Brevo/Resend free tier)
 - New submission → notify admin
@@ -381,77 +389,77 @@ Once real traffic exists this is redundant, but it costs nothing to leave runnin
 
 ---
 
-## Phase 8 — Content Seeding
+## Phase 8 - Content Seeding
 
 **Goal:** Never launch empty. A site with 50 live offers looks alive; an empty one dies. **This is the real work.**
 
-**Narrow start:** pick **one city + one category** — e.g. **Colombo restaurant offers**. Be the best at one thing, then expand.
+**Narrow start:** pick **one city + one category** - e.g. **Colombo restaurant offers**. Be the best at one thing, then expand.
 
 **Tasks**
-- Manually collect **30–50 real offers** — photograph posters at shops, or (with permission — see Risks) pull from businesses' Facebook/Instagram.
+- Manually collect **30-50 real offers** - photograph posters at shops, or (with permission - see Risks) pull from businesses' Facebook/Instagram.
 - Post them via admin **quick-add**.
 - Set the category list to match what you actually have.
-- Message 10–20 local businesses (WhatsApp/visit): *"I'll list your current offer free — send me your poster."* (This also solves the copyright question — the business is handing you the poster.)
+- Message 10-20 local businesses (WhatsApp/visit): *"I'll list your current offer free - send me your poster."* (This also solves the copyright question - the business is handing you the poster.)
 
-**Success check:** before launch the site should feel *full and current* — real posters, real businesses, recent dates.
+**Success check:** before launch the site should feel *full and current* - real posters, real businesses, recent dates.
 
-**Deliverable:** 30–50 live, real offers in your chosen niche.
+**Deliverable:** 30-50 live, real offers in your chosen niche.
 
 **Cost:** LKR 0 (just your time).
 
 ---
 
-## Phase 9 — Launch & Audience Growth
+## Phase 9 - Launch & Audience Growth
 
-**Goal:** Get eyeballs. The audience already lives on social — meet them there.
+**Goal:** Get eyeballs. The audience already lives on social - meet them there.
 
 **Channels (from day one)**
-- **Instagram** — best daily offer as post + story.
-- **TikTok** — "top 3 deals this week" shorts.
-- **WhatsApp broadcast / channel** — daily deal blast; very effective locally.
-- **Facebook** — SL deal-hunting groups.
-- **Google (SEO)** — long-term free traffic; rank for "pizza offers Colombo" etc.
+- **Instagram** - best daily offer as post + story.
+- **TikTok** - "top 3 deals this week" shorts.
+- **WhatsApp broadcast / channel** - daily deal blast; very effective locally.
+- **Facebook** - SL deal-hunting groups.
+- **Google (SEO)** - long-term free traffic; rank for "pizza offers Colombo" etc.
 
 **The model:** the website is the **archive**; social is the **megaphone**. Every post links back to an offer. Best content angle: the "Ending soon" offers.
 
-**Growth loop:** post deal on social → traffic to site → businesses notice → they submit offers → more content → more posts. That's how you break chicken-and-egg. Bonus: partner with 1–2 businesses to promote the site to *their* customers.
+**Growth loop:** post deal on social → traffic to site → businesses notice → they submit offers → more content → more posts. That's how you break chicken-and-egg. Bonus: partner with 1-2 businesses to promote the site to *their* customers.
 
 **Launch checklist**
 - Site full of real offers (Phase 8 done)
 - Social accounts branded (logo, `hello@offerceylon.lk`)
 - Static pages live (About, Privacy, Terms)
 - Sitemap submitted to Google Search Console
-- **Post consistently — daily for ~6 months.** Consistency makes or breaks this.
+- **Post consistently - daily for ~6 months.** Consistency makes or breaks this.
 
-**Milestones (give yourself room — solo + learning the stack)**
-- Months 1–2: site + 50 offers + social live *(learning Next.js + Supabase takes time — don't cram it into 4 weeks)*
-- Months 3–5: daily posting, a few thousand monthly visitors, first self-submitted offers
-- Months 5–7: steady traffic, ready to monetize
+**Milestones (give yourself room - solo + learning the stack)**
+- Months 1-2: site + 50 offers + social live *(learning Next.js + Supabase takes time - don't cram it into 4 weeks)*
+- Months 3-5: daily posting, a few thousand monthly visitors, first self-submitted offers
+- Months 5-7: steady traffic, ready to monetize
 
 **Deliverable:** Public launch, active daily social presence, growing traffic.
 
-**Cost:** LKR 0 (Supabase Pro optional here — see Cost Summary).
+**Cost:** LKR 0 (Supabase Pro optional here - see Cost Summary).
 
 ---
 
-## Phase 10 — Monetization
+## Phase 10 - Monetization
 
-**Goal:** Turn traffic into income — in the right order. Don't monetize an empty site.
+**Goal:** Turn traffic into income - in the right order. Don't monetize an empty site.
 
-### Stage A — Google AdSense (covers costs, not profit)
-- **When:** only after real content + traffic. AdSense rejects thin/scraped sites — a deals aggregator of reposted posters is exactly what it scrutinizes, so lean on original write-ups + permissioned content.
-- **Reality:** SL CPM ~$0.50–$3 per 1,000 pageviews. Modest — treat it as covering the domain.
-- **Payout:** $100 threshold — cash arrives slowly. Pay early domain years out of pocket.
+### Stage A - Google AdSense (covers costs, not profit)
+- **When:** only after real content + traffic. AdSense rejects thin/scraped sites - a deals aggregator of reposted posters is exactly what it scrutinizes, so lean on original write-ups + permissioned content.
+- **Reality:** SL CPM ~$0.50-$3 per 1,000 pageviews. Modest - treat it as covering the domain.
+- **Payout:** $100 threshold - cash arrives slowly. Pay early domain years out of pocket.
 
-### Stage B — Direct ads & sponsorships (better than AdSense)
-- Sell homepage banners / sponsored slots directly to **banks and big retailers** — they pay far more than ad networks.
+### Stage B - Direct ads & sponsorships (better than AdSense)
+- Sell homepage banners / sponsored slots directly to **banks and big retailers** - they pay far more than ad networks.
 
-### Stage C — Promo-code / lead tracking (the real value proof)
+### Stage C - Promo-code / lead tracking (the real value proof)
 - Each offer has a unique promo code. Users show it in-store; you log redemptions.
 - Then you can tell a business: *"OfferCeylon sent you 40 customers this month."*
-- **Build this before charging** — the hard number is what makes businesses pay.
+- **Build this before charging** - the hard number is what makes businesses pay.
 
-### Stage D — Subscriptions (the endgame)
+### Stage D - Subscriptions (the endgame)
 - Once businesses see proven leads: **Featured** (pinned/highlighted) and **Premium** (unlimited offers, priority, analytics), tracked via `subscriptions`. Charge monthly. Works far better *after* Stage C.
 
 **Order (do not skip ahead):**
@@ -476,11 +484,11 @@ Once real traffic exists this is redundant, but it costs nothing to leave runnin
 
 # Risk & Reality Check
 - **Financial risk: near zero.** Only guaranteed cost is the yearly domain. Supabase Pro ($25/mo) is optional until you go properly live.
-- **Copyright / IP.** Reposting businesses' posters without permission is a real risk (and can hurt AdSense approval). Prefer the permissioned model — *"send me your poster"* — and add a visible **takedown process**.
-- **Sri Lanka PDPA.** You collect emails/phones — the Privacy Policy must reflect the Personal Data Protection Act, not be a generic template.
-- **Cloudflare Pages ≠ Vercel** for Next.js SSR/ISR — validate the rendering mode early (adapter or SSG-fallback).
+- **Copyright / IP.** Reposting businesses' posters without permission is a real risk (and can hurt AdSense approval). Prefer the permissioned model - *"send me your poster"* - and add a visible **takedown process**.
+- **Sri Lanka PDPA.** You collect emails/phones - the Privacy Policy must reflect the Personal Data Protection Act, not be a generic template.
+- **Cloudflare Pages ≠ Vercel** for Next.js SSR/ISR - validate the rendering mode early (adapter or SSG-fallback).
 - **Real risk: motivation.** The slow early months of manually posting to a small audience are what kill projects like this. Commit to ~6 months of consistent daily posting.
-- **Competition exists** (MyPromo.lk, Promo.lk, Findit.lk) — that proves demand. Win by being more focused, faster, better at social. A decade-old competitor still earns only a few hundred $/month from ads — so plan for the leads/subscription model, not ads.
+- **Competition exists** (MyPromo.lk, Promo.lk, Findit.lk) - that proves demand. Win by being more focused, faster, better at social. A decade-old competitor still earns only a few hundred $/month from ads - so plan for the leads/subscription model, not ads.
 - **The website is the easy 10%.** The 90% is hustle: collecting offers and growing the audience.
 
 ---
@@ -500,7 +508,7 @@ Once real traffic exists this is redundant, but it costs nothing to leave runnin
 - [ ] Deploy nightly expiry (pg_cron → Edge Function, delete by path) (Phase 7)
 - [ ] Deploy **keep-alive Worker cron (every 3 days)** (Phase 7)
 - [ ] Wire transactional emails (Phase 7)
-- [ ] Seed 30–50 real offers in one niche (Phase 8)
+- [ ] Seed 30-50 real offers in one niche (Phase 8)
 - [ ] Add About/Privacy/Terms + submit sitemap to Search Console
 - [ ] Launch + start daily social posting (Phase 9)
 - [ ] After traffic: AdSense → direct ads → promo codes → subscriptions (Phase 10)
