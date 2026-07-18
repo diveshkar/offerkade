@@ -223,6 +223,12 @@
 
 **Deliverable:** Tables, indexes, RLS policies, and the `view_count` RPC live; categories seeded.
 
+### ✅ Phase 2 (DONE)
+- Supabase project created (region: Singapore, ref `dvjvzouybtisjkwhtqkf`).
+- Schema applied via `supabase/schema_all.sql`: 6 tables (`businesses`, `categories`, `offers`, `admins`, `redemptions`, `subscriptions`), all indexes, RLS, `is_admin()` + `bump_view_count()` RPCs, 10 categories seeded.
+- **RLS verified live:** public reads only approved/non-expired offers; public writes to `offers`/`categories` **blocked**; `service_role` writes bypass RLS; `bump_view_count` callable by anon.
+- App wired: `@supabase/supabase-js` + `server-only` installed; `lib/supabase/client.ts` (anon) + `lib/supabase/admin.ts` (service role); `lib/database.types.ts`; `.env.local` configured (gitignored).
+
 **Cost:** LKR 0.
 
 ---
@@ -499,7 +505,7 @@ Once real traffic exists this is redundant, but it costs nothing to leave runnin
 - [ ] Create Cloudflare, Supabase, GitHub, Zoho/email accounts
 - [ ] Nameservers → Cloudflare; email routing set up
 - [ ] Finish skeleton homepage → `git init` → push to GitHub → Cloudflare Pages auto-deploy
-- [ ] Create tables + indexes + RLS + `view_count` RPC + seed categories (Phase 2)
+- [x] Create tables + indexes + RLS + `view_count` RPC + seed categories (Phase 2)
 - [ ] Build **browser-side** compression (Phase 3)
 - [ ] Put **Cloudflare cache in front of Storage** (protects 5 GB egress)
 - [ ] Build offers grid + filters + "Ending soon" + expiring-soon badge (Phase 4)
