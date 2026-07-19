@@ -21,7 +21,7 @@ export default function SubmitPage() {
       <p>
         <a
           href="mailto:hello@offerceylon.lk?subject=New%20offer%20listing"
-          className="inline-block rounded-lg bg-amber-500 px-5 py-2.5 font-semibold text-[#10182b] hover:bg-amber-400"
+          className="inline-block rounded-xl bg-gradient-to-b from-accent to-accent-strong px-6 py-3 font-semibold text-brand shadow-lg shadow-accent/25 transition hover:brightness-105 active:scale-[0.98]"
         >
           Email your offer →
         </a>

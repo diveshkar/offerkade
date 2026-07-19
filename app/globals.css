@@ -1,26 +1,79 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* ============================================================
+   OfferCeylon design tokens
+   Brand: deep navy ink + warm amber accent, editorial spacing.
+   ============================================================ */
+@theme {
+  /* Brand palette */
+  --color-brand: #10182b;        /* primary navy */
+  --color-brand-light: #1b2540;  /* hover navy */
+  --color-ink: #0b1220;          /* darkest surface (dark bg) */
+  --color-ink-soft: #111a2e;     /* card surface on dark */
+  --color-accent: #f5a524;       /* warm premium amber */
+  --color-accent-strong: #e8930c;
+
+  /* Fonts */
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+:root {
+  --background: #f7f6f3; /* warm paper, not stark white */
+  --foreground: #141c30;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: #0b1220;
+    --foreground: #e8eaf0;
   }
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Selection + focus — small details that read as "finished" */
+::selection {
+  background: #f5a524;
+  color: #10182b;
+}
+
+:focus-visible {
+  outline: 2px solid #f5a524;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Hide scrollbars on horizontal chip rails (still scrollable) */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* Soft rise animation for page content */
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.animate-rise {
+  animation: rise 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
 }

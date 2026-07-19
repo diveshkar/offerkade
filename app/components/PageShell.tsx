@@ -12,12 +12,24 @@ export default function PageShell({
   return (
     <>
       <SiteHeader />
-      <main className="mx-auto w-full max-w-3xl flex-1 px-4 py-10">
-        <h1 className="mb-6 text-3xl font-extrabold tracking-tight text-zinc-900 dark:text-zinc-50">
-          {title}
-        </h1>
-        <div className="prose-ok flex flex-col gap-4 leading-7 text-zinc-600 dark:text-zinc-300">
-          {children}
+      <main className="flex-1">
+        {/* Compact navy band keeps brand continuity on inner pages */}
+        <section className="relative overflow-hidden bg-ink pb-12 pt-12 text-white">
+          <div
+            aria-hidden
+            className="pointer-events-none absolute -top-24 left-1/2 h-64 w-[36rem] -translate-x-1/2 rounded-full bg-accent/10 blur-3xl"
+          />
+          <div className="relative mx-auto max-w-3xl px-4 sm:px-6">
+            <h1 className="text-balance text-3xl font-extrabold tracking-tight sm:text-4xl">
+              {title}
+            </h1>
+          </div>
+        </section>
+
+        <div className="mx-auto max-w-3xl px-4 py-10 sm:px-6">
+          <div className="animate-rise flex flex-col gap-4 leading-7 text-zinc-600 dark:text-zinc-300">
+            {children}
+          </div>
         </div>
       </main>
       <SiteFooter />

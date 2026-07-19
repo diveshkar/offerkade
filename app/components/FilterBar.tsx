@@ -30,57 +30,75 @@ export default function FilterBar({
   }
 
   return (
-    <div className="flex flex-col gap-3">
-      {/* Search + city + ending-soon */}
-      <div className="flex flex-col gap-2 sm:flex-row">
+    <div className="flex flex-col gap-4">
+      {/* Row 1: search / city / ending soon */}
+      <div className="flex flex-col gap-2.5 sm:flex-row">
         <form
           onSubmit={(e) => {
             e.preventDefault();
             update({ q: search || null });
           }}
-          className="flex flex-1 gap-2"
+          className="relative flex-1"
+          role="search"
         >
+          <span
+            aria-hidden
+            className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400"
+          >
+            🔍
+          </span>
           <input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search offers…"
-            className="flex-1 rounded-lg border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-amber-500 dark:border-white/15 dark:bg-[#0b1220]"
+            placeholder="Search pizza, sofas, coffee…"
+            aria-label="Search offers"
+            className="h-11 w-full rounded-xl border border-zinc-200 bg-white pl-10 pr-24 text-[15px] shadow-sm outline-none transition placeholder:text-zinc-400 focus:border-accent focus:ring-2 focus:ring-accent/30 dark:border-white/10 dark:bg-ink-soft"
           />
           <button
             type="submit"
-            className="rounded-lg bg-[#10182b] px-4 py-2 text-sm font-semibold text-white hover:bg-[#1b2540]"
+            className="absolute right-1.5 top-1/2 h-8 -translate-y-1/2 rounded-lg bg-brand px-4 text-sm font-semibold text-white transition hover:bg-brand-light active:scale-[0.97]"
           >
             Search
           </button>
         </form>
 
-        <select
-          value={activeCity}
-          onChange={(e) => update({ city: e.target.value || null })}
-          className="rounded-lg border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-amber-500 dark:border-white/15 dark:bg-[#0b1220]"
-        >
-          <option value="">All cities</option>
-          {cities.map((c) => (
-            <option key={c} value={c}>
-              {c}
-            </option>
-          ))}
-        </select>
+        <div className="flex gap-2.5">
+          <select
+            value={activeCity}
+            onChange={(e) => update({ city: e.target.value || null })}
+            aria-label="Filter by city"
+            className="h-11 flex-1 cursor-pointer appearance-none rounded-xl border border-zinc-200 bg-white px-4 pr-9 text-sm font-medium shadow-sm outline-none transition focus:border-accent sm:flex-none dark:border-white/10 dark:bg-ink-soft"
+            style={{
+              backgroundImage:
+                "url(\"data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' fill='none'%3E%3Cpath d='M1 1.5 6 6.5 11 1.5' stroke='%23a1a1aa' stroke-width='1.8' stroke-linecap='round'/%3E%3C/svg%3E\")",
+              backgroundRepeat: 'no-repeat',
+              backgroundPosition: 'right 0.9rem center',
+            }}
+          >
+            <option value="">All cities</option>
+            {cities.map((c) => (
+              <option key={c} value={c}>
+                {c}
+              </option>
+            ))}
+          </select>
 
-        <button
-          onClick={() => update({ ending: endingSoon ? null : '1' })}
-          className={`rounded-lg border px-4 py-2 text-sm font-semibold ${
-            endingSoon
-              ? 'border-red-600 bg-red-600 text-white'
-              : 'border-zinc-300 text-zinc-700 hover:border-red-400 dark:border-white/15 dark:text-zinc-200'
-          }`}
-        >
-          ⏰ Ending soon
-        </button>
+          <button
+            onClick={() => update({ ending: endingSoon ? null : '1' })}
+            aria-pressed={endingSoon}
+            className={`h-11 whitespace-nowrap rounded-xl border px-4 text-sm font-semibold shadow-sm transition active:scale-[0.97] ${
+              endingSoon
+                ? 'border-red-500 bg-red-500 text-white shadow-red-500/25'
+                : 'border-zinc-200 bg-white text-zinc-600 hover:border-red-300 hover:text-red-500 dark:border-white/10 dark:bg-ink-soft dark:text-zinc-300'
+            }`}
+          >
+            ⏰ Ending soon
+          </button>
+        </div>
       </div>
 
-      {/* Category chips */}
-      <div className="flex flex-wrap gap-2">
+      {/* Row 2: category rail */}
+      <div className="scrollbar-hide -mx-1 flex gap-2 overflow-x-auto px-1 pb-0.5">
         <Chip active={!activeCat} onClick={() => update({ category: null })}>
           All
         </Chip>
@@ -90,7 +108,7 @@ export default function FilterBar({
             active={activeCat === c.slug}
             onClick={() => update({ category: c.slug })}
           >
-            {c.icon} {c.name}
+            <span aria-hidden>{c.icon}</span> {c.name}
           </Chip>
         ))}
       </div>
@@ -110,10 +128,11 @@ function Chip({
   return (
     <button
       onClick={onClick}
-      className={`whitespace-nowrap rounded-full border px-3 py-1 text-sm font-medium transition ${
+      aria-pressed={active}
+      className={`whitespace-nowrap rounded-full border px-3.5 py-1.5 text-[13px] font-medium transition active:scale-[0.96] ${
         active
-          ? 'border-amber-500 bg-amber-500 text-[#10182b]'
-          : 'border-zinc-300 text-zinc-700 hover:border-amber-400 dark:border-white/15 dark:text-zinc-200'
+          ? 'border-brand bg-brand text-white shadow-md shadow-brand/20 dark:border-accent dark:bg-accent dark:text-brand'
+          : 'border-zinc-200 bg-white text-zinc-600 hover:border-accent/60 hover:text-zinc-900 dark:border-white/10 dark:bg-ink-soft dark:text-zinc-300 dark:hover:text-white'
       }`}
     >
       {children}
