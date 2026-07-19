@@ -1,56 +1,142 @@
-import Image from "next/image";
+import { Suspense } from 'react';
+import SiteHeader from '@/app/components/SiteHeader';
+import SiteFooter from '@/app/components/SiteFooter';
+import FilterBar from '@/app/components/FilterBar';
+import OfferCard from '@/app/components/OfferCard';
+import { getCategories, getActiveCities, listOffers } from '@/lib/queries/offers';
 
-export default function Home() {
+// Always render fresh: offers change and expire daily.
+export const dynamic = 'force-dynamic';
+
+type SP = { [k: string]: string | string[] | undefined };
+
+export default async function Home({ searchParams }: { searchParams: Promise<SP> }) {
+  const sp = await searchParams;
+  const one = (v: string | string[] | undefined) => (Array.isArray(v) ? v[0] : v);
+
+  const filters = {
+    categorySlug: one(sp.category),
+    city: one(sp.city),
+    endingSoon: one(sp.ending) === '1',
+    search: one(sp.q),
+  };
+
+  const [categories, cities, offers] = await Promise.all([
+    getCategories(),
+    getActiveCities(),
+    listOffers(filters),
+  ]);
+
+  const hasFilters = Boolean(
+    filters.categorySlug || filters.city || filters.endingSoon || filters.search,
+  );
+
   return (
-    <div className="flex flex-1 flex-col items-center justify-center bg-gradient-to-b from-amber-50 via-white to-white px-6 text-center dark:from-[#0b1220] dark:via-[#0b1220] dark:to-black">
-      <main className="flex w-full max-w-2xl flex-col items-center gap-6 py-20">
-        <div className="rounded-3xl bg-[#10182b] px-7 py-6 shadow-xl shadow-zinc-900/10 ring-1 ring-zinc-900/5 dark:shadow-none dark:ring-white/10">
-          <Image
-            src="/brand/logo-lockup.webp"
-            alt="OfferCeylon"
-            width={720}
-            height={973}
-            priority
-            unoptimized
-            className="h-auto w-[180px] sm:w-[210px]"
+    <>
+      <SiteHeader />
+      <main className="flex-1">
+        {/* ===== Hero ===== */}
+        <section className="relative overflow-hidden bg-coal-deep pb-24 pt-16 text-paper sm:pb-32 sm:pt-24">
+          {/* Gold ambient glows */}
+          <div
+            aria-hidden
+            className="pointer-events-none absolute -right-24 -top-28 h-96 w-96 rounded-full bg-flame/15 blur-3xl"
           />
+          <div
+            aria-hidden
+            className="pointer-events-none absolute -bottom-32 left-[-8%] h-80 w-80 rounded-full bg-flame/8 blur-3xl"
+          />
+          {/* Hairline ring ornament */}
+          <div
+            aria-hidden
+            className="pointer-events-none absolute -right-40 top-1/2 hidden h-[480px] w-[480px] -translate-y-1/2 rounded-full border border-flame/15 lg:block"
+          />
+          <div
+            aria-hidden
+            className="pointer-events-none absolute -right-24 top-1/2 hidden h-[320px] w-[320px] -translate-y-1/2 rounded-full border border-flame/10 lg:block"
+          />
+
+          <div className="relative mx-auto max-w-6xl px-4 sm:px-6">
+            <p className="mb-5 flex items-center gap-3 text-xs font-semibold uppercase tracking-[0.22em] text-flame">
+              <span className="h-px w-8 bg-flame/60" aria-hidden />
+              Sri Lanka&apos;s daily offers hub
+            </p>
+
+            <h1 className="font-display max-w-2xl text-balance text-5xl font-semibold leading-[1.05] sm:text-7xl">
+              The island&apos;s best offers,
+              <br />
+              <em className="text-flame-bright">gathered daily.</em>
+            </h1>
+
+            <p className="mt-6 max-w-xl text-pretty text-base leading-7 text-paper/70 sm:text-lg">
+              Restaurants, shops, furniture, coffee. Live deals from real businesses across Sri
+              Lanka, free to browse. When an offer ends, it disappears.
+            </p>
+
+            {/* Trust row */}
+            <div className="mt-8 flex flex-wrap items-center gap-x-7 gap-y-2 text-[13px] text-paper/55">
+              <span className="flex items-center gap-2">
+                <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" aria-hidden />
+                {offers.length} live right now
+              </span>
+              <span className="flex items-center gap-2">
+                <span className="h-1.5 w-1.5 rounded-full bg-flame" aria-hidden />
+                Free to browse
+              </span>
+              <span className="flex items-center gap-2">
+                <span className="h-1.5 w-1.5 rounded-full bg-sky-400" aria-hidden />
+                Always current
+              </span>
+            </div>
+          </div>
+        </section>
+
+        {/* ===== Floating filter card ===== */}
+        <div className="relative z-10 mx-auto -mt-12 max-w-6xl px-4 sm:-mt-14 sm:px-6">
+          <div className="animate-rise rounded-3xl border border-coal/10 bg-paper-soft/95 p-4 shadow-[0_28px_60px_-28px_rgba(18,13,10,0.45)] backdrop-blur-xl sm:p-5 dark:border-white/10 dark:bg-coal-soft/95">
+            <Suspense fallback={<div className="h-[104px]" />}>
+              <FilterBar categories={categories} cities={cities} />
+            </Suspense>
+          </div>
         </div>
 
-        {/* Tagline (real text, not baked into the logo) */}
-        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-zinc-500 dark:text-zinc-400">
-          Sri Lanka&apos;s Daily Offers Hub
-        </p>
+        {/* ===== Grid ===== */}
+        <section className="mx-auto max-w-6xl px-4 py-12 sm:px-6">
+          <div className="mb-6 flex items-baseline justify-between">
+            <h2 className="font-display text-2xl font-semibold tracking-tight text-coal-deep dark:text-paper">
+              {hasFilters ? 'Matching offers' : "Today's offers"}
+            </h2>
+            <p className="text-sm text-coal/50 dark:text-paper/50">
+              {offers.length} {offers.length === 1 ? 'offer' : 'offers'}
+            </p>
+          </div>
 
-        <h1 className="mt-2 text-4xl font-extrabold leading-tight tracking-tight text-zinc-900 sm:text-5xl dark:text-zinc-50">
-          Sri Lanka&apos;s offers,
-          <br />
-          <span className="text-amber-500">all in one place.</span>
-        </h1>
-
-        <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-          Restaurants, shops, furniture, drinks. Every current deal on the
-          island, free to browse. Save money every day.
-        </p>
-
-        <span className="rounded-full border border-amber-300 bg-amber-100 px-4 py-1.5 text-sm font-semibold text-amber-800 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-400">
-          🚧 Coming soon
-        </span>
-
-        {/* Business CTA (real submission form arrives in Phase 5) */}
-        <div className="mt-4 flex flex-col items-center gap-3 text-sm text-zinc-500 dark:text-zinc-500">
-          <p>Are you a business with a current offer?</p>
-          <a
-            href="mailto:hello@offerceylon.lk"
-            className="font-medium text-amber-600 underline-offset-4 hover:underline dark:text-amber-400"
-          >
-            Get listed free →
-          </a>
-        </div>
+          {offers.length === 0 ? (
+            <div className="rounded-3xl border border-dashed border-coal/20 bg-paper-soft/60 px-6 py-24 text-center dark:border-white/15 dark:bg-white/[0.03]">
+              <p className="text-4xl">🔎</p>
+              <p className="font-display mt-4 text-xl font-semibold text-coal-deep dark:text-paper">
+                No offers found
+              </p>
+              <p className="mt-1 text-sm text-coal/50 dark:text-paper/50">
+                Try clearing filters, or check back soon. New deals land daily.
+              </p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-5 lg:grid-cols-4">
+              {offers.map((o, i) => (
+                <div
+                  key={o.id}
+                  className="animate-rise h-full"
+                  style={{ animationDelay: `${Math.min(i * 45, 360)}ms` }}
+                >
+                  <OfferCard offer={o} />
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
       </main>
-
-      <footer className="pb-8 text-xs text-zinc-400 dark:text-zinc-600">
-        © {new Date().getFullYear()} OfferCeylon · Sri Lanka
-      </footer>
-    </div>
+      <SiteFooter />
+    </>
   );
 }

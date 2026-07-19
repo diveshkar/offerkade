@@ -20,11 +20,11 @@
 | **Auth** | Supabase Auth | Admin login only |
 | **File storage** | Supabase Storage (+ CDN) | Poster images |
 | **Image compression** | **Browser-side** (`browser-image-compression`) | Resize → WebP → ~150KB *before upload* |
-| **Submission gateway** | Supabase Edge Function (Deno) + **Cloudflare Turnstile** | The only writer of offers - blocks spam |
+| **Offer authoring** | Supabase Auth (shop login) + Next.js server action | Approved shops post their own offers; RLS enforces ownership |
 | **Scheduled jobs** | Supabase pg_cron → Edge Function (expiry) + Cloudflare Worker cron (keep-alive) | Nightly expiry + weekly DB ping |
 | **Inbox email** | Zoho Mail (free) or Cloudflare Email Routing | `hello@offerceylon.lk` |
 | **Sending email** | Brevo or Resend (free tier) | Approval / rejection / expiry notices |
-| **Bot protection** | Cloudflare Turnstile (free CAPTCHA) | On the submission form |
+| **Bot protection** | Login + one-time shop approval | Replaces Turnstile — no anonymous writes possible |
 | **Code + CI/CD** | GitHub | Version control, auto-deploy on push |
 | **Analytics** | Cloudflare Web Analytics | Traffic stats, privacy-friendly |
 
@@ -33,7 +33,7 @@
 ### ⚠️ Key architecture decisions (these correct earlier drafts)
 
 1. **Compression runs in the browser, not on a server.** `sharp` is a native Node module and **cannot run** on Supabase Edge Functions (Deno) or Cloudflare Pages (Edge runtime) - the two places the old plan assumed. Instead, the browser compresses the image to WebP *before upload* using `browser-image-compression`. Zero server cost, works on the free stack, no native dependency.
-2. **All submissions go through ONE Edge Function - never a direct client insert.** With no user login, a public "insert" RLS policy would let bots write unlimited junk straight to the database/storage. Instead, the form calls a single Supabase Edge Function (service role) that: verifies a **Turnstile** token → accepts the pre-compressed image → uploads to Storage → inserts the offer as `pending`. RLS then forbids all public writes. This closes the spam hole *and* the storage-write hole in one move.
+2. **Offers are written by logged-in, approved shops — never anonymously.** *(Updated 2026-07-19 — replaces the old Turnstile/Edge-Function gateway.)* Shops authenticate via Supabase Auth and are approved once by an admin. An authenticated **Next.js server action** (service role) then accepts the pre-compressed image → uploads to Storage → inserts the offer as `approved`. **RLS lets a shop touch only its own approved business's offers**, and forbids all anonymous writes. Login + one-time approval closes the spam hole and the storage-write hole — no CAPTCHA needed.
 3. **Store the storage object *path*, not just the CDN URL.** To delete a file you need its key (e.g. `posters/abc.webp`), not the public URL. The `offers` table has `poster_path` / `poster_thumb_path` columns used by the expiry job.
 4. **`view_count` is bumped via a `SECURITY DEFINER` RPC**, not a client UPDATE - because RLS forbids public writes to `offers`. A tiny Postgres function increments just that one counter.
 
@@ -82,7 +82,7 @@
 2. Database & Backend (Postgres + RLS)
 3. Image Pipeline (browser compression + CDN)
 4. Public Website (browse offers)
-5. Business Submission (Edge Function + Turnstile)
+5. Shop Accounts & Dashboard (Supabase Auth)
 6. Admin Panel & Moderation
 7. Automation (expiry job + keep-alive + emails)
 8. Content Seeding (fill before launch)
@@ -309,27 +309,59 @@ Lifecycle: **live → last 2 days show urgency → end date passes → deleted.*
 
 **Deliverable:** Working public site - offers grid, filters, expiring-soon badges, SEO pages.
 
+### ✅ Phase 4 (DONE)
+- Data layer `lib/queries/offers.ts` — list+filters, get offer, get business, `bumpViewCount` RPC.
+- Home offers grid: featured-first, filters (category/city/ending-soon) + search; `OfferCard` with "⏰ expiring soon" badge.
+- Offer detail `/offer/[id]` — poster, description, valid-until, WhatsApp/call/website, view_count bump (verified → 1).
+- Business profile `/business/[slug]`; static About/Contact/Privacy (PDPA)/Terms; `/submit` placeholder (Phase 5).
+- SEO: per-page metadata + OG, `sitemap.xml` (static+offers+businesses), `robots.txt`; shared header/footer; `ComingSoon` preserved for launch.
+- Dev seed `scripts/seed-dev.mjs` (3 businesses, 8 offers, tagged `seed@dev` — `--clean` to remove).
+- **Verified in-browser** (grid, all filters, detail, business page, sitemap) + production build clean.
+- ⏳ Full-text search uses `ilike` for now (fine at this scale); Postgres `tsvector` is a later upgrade.
+
 **Cost:** LKR 0.
 
 ---
 
-## Phase 5 - Business Submission (Edge Function + Turnstile)
+## 🔑 Roles & Access Model (LOCKED — supersedes earlier "no-login" drafts)
 
-**Goal:** Let any business submit easily - while you keep control via approval and block bots.
+Three roles. Decided 2026-07-19.
 
-**Form fields:** business name (select existing or new), contact email + phone + optional WhatsApp, city, offer title, category, description, **poster image** (max 5MB → browser-compressed via Phase 3), start date + **end date** (required), and an invisible **Cloudflare Turnstile** widget.
+| Role | Login? | What they do |
+|---|---|---|
+| **Visitor** (shopper) | **No login, ever** | Browse, search, filter, view offers, tap "Get deal" (reveals promo code), WhatsApp/Call, redeem in-store |
+| **Shop owner** (offer provider) | **Yes — Supabase Auth** | Register → admin approves the *shop* (one time) → post offers from a dashboard → **offers go live instantly** → manage own offers → (later) subscribe |
+| **Admin** (you) | Yes | Approve/reject shops, remove bad offers, quick-add own offers, view stats |
 
-**Flow (the secure path)**
-1. User fills form; browser compresses the poster (Phase 3).
-2. Form calls the **submission Edge Function** with the compressed images + a **Turnstile token**.
-3. Edge Function (service role): **verifies the Turnstile token** → uploads images to Storage → inserts the offer as `status = 'pending'` with zeroed counters. *(No direct client insert exists - RLS forbids it.)*
-4. "Thanks! Your offer is under review."
-5. You're emailed about the new pending offer (Phase 7).
-6. You approve/reject (Phase 6). On approval → live.
+**Key decisions:**
+- **Shops register and log in** (Supabase Auth), NOT an anonymous public form. → **Cloudflare Turnstile + the submission Edge Function are DROPPED** — login + one-time shop approval is the anti-abuse gate.
+- **Approve the shop, not each offer.** Once a shop is approved, its offers publish **instantly** (admin can still remove any offer). No per-offer moderation queue.
+- **Visitors never log in.** Value is proven without it: count "Get deal" code-reveals (leads) + shop-confirmed redemptions.
 
-**No login required to submit in v1** - Turnstile + the Edge Function gateway give the anti-abuse protection that a login would otherwise provide. Add business accounts later once volume grows.
+**Schema additions needed (small):**
+- `businesses.owner_id uuid` → FK to the shop's Supabase Auth user.
+- `businesses.status text` → `pending` / `approved` / `rejected` (drives dashboard access).
+- **RLS:** an authenticated user may insert/update/delete offers **only** for a business they own **and** whose `status = 'approved'`; may read/update their own business row; may self-insert a business as `pending`.
+- **"Get deal" code-reveal counter** — a tiny `SECURITY DEFINER` RPC (like `bump_view_count`) incrementing a leads counter.
 
-**Deliverable:** Public submission form → Edge Function → moderation queue, bot-protected.
+---
+
+## Phase 5 - Shop Accounts & Dashboard (Supabase Auth)
+
+**Goal:** Shops register, get approved once, then self-serve post & manage their offers.
+
+**Flow**
+1. Shop signs up (email/password or magic link via Supabase Auth) and fills business details → a `businesses` row is created with `owner_id = auth.uid()`, `status = 'pending'`.
+2. "Thanks! Your shop is under review." (Admin approves in Phase 6.)
+3. Once approved, the shop dashboard unlocks:
+   - **New offer** form: title, category, description, city, **poster** (max 5MB → browser-compressed via Phase 3), start + **end date** (required). On submit → offer inserted as `approved` (trusted) with a unique `promo_code`, **live immediately**.
+   - **My offers**: list/edit/delete own offers; feature is admin-only.
+   - **My redemptions** (Phase 10): confirm codes honoured in-store.
+4. Poster upload: an authenticated **Next.js server action** verifies the user owns an approved business, uploads via service role (Phase 3 `uploadPoster`), inserts the offer. *(Replaces the old Edge Function + Turnstile path.)*
+
+**RLS enforces ownership** — a shop can only ever touch its own approved business's offers.
+
+**Deliverable:** Shop signup + login + gated dashboard that posts/manages offers going live instantly.
 
 **Cost:** LKR 0.
 
@@ -337,20 +369,20 @@ Lifecycle: **live → last 2 days show urgency → end date passes → deleted.*
 
 ## Phase 6 - Admin Panel & Moderation
 
-**Goal:** A private dashboard to review and manage everything.
+**Goal:** A private dashboard for you to run the platform.
 
-**Access:** Supabase Auth, restricted to the `admins` table (enforced by RLS). Admins can read all offer statuses.
+**Access:** Supabase Auth, restricted to the `admins` table (enforced by RLS). Admins read/write everything.
 
 **Features**
-- **Pending queue** - poster preview + **Approve / Reject** (reject asks a reason, optionally emailed).
-- **All offers** - search/filter, edit, feature/unfeature, manually expire or delete.
-- **Businesses** - view, verify (`verified = true`), edit.
-- **Quick-add** - a fast form for *you* to post offers yourself (critical for Phase 8 seeding).
-- **Stats dashboard** - total offers, active offers, businesses, views, top offers - the numbers you'll show advertisers/subscribers later.
+- **Shop approvals** — pending-shop queue → **Approve / Reject** (reject asks a reason, optionally emailed). This is the main gate now.
+- **All offers** — search/filter, edit, feature/unfeature, manually expire or **remove** any offer (even from approved shops).
+- **Businesses** — view, verify (`verified = true`), edit, suspend.
+- **Quick-add** — a fast form for *you* to post offers yourself (critical for Phase 8 seeding).
+- **Stats dashboard** — total/active offers, shops, views, **code-reveals (leads)**, redemptions, top offers — the numbers you'll show advertisers/subscribers later.
 
-**Moderation rules:** reject spam/fake/expired-on-arrival/low-quality; fix wrong category/city; verify legit businesses to build trust.
+**Moderation rules:** reject spam/fake shops at approval; remove bad offers; fix wrong category/city; verify legit businesses to build trust.
 
-**Deliverable:** Working admin dashboard with approve/reject + quick-add.
+**Deliverable:** Working admin dashboard — approve/reject shops, remove offers, quick-add, stats.
 
 **Cost:** LKR 0.
 
@@ -484,9 +516,9 @@ Once real traffic exists this is redundant, but it costs nothing to leave runnin
 ---
 
 # End-to-End Data Flow
-1. **Business submits** (Phase 5) → poster **compressed in browser** (Phase 3) → **Edge Function verifies Turnstile, uploads, inserts** as `pending` (Phase 2).
-2. **Admin approves** (Phase 6) → `approved`, goes live.
-3. **User browses** (Phase 4) → filters by category/city/ending-soon → views offer (RPC bumps `view_count`) → (later) uses promo code.
+1. **Shop registers** (Phase 5) → **admin approves the shop once** (Phase 6). Approved shop posts an offer → poster **compressed in browser** (Phase 3) → authenticated **server action uploads + inserts** as `approved` (goes live instantly), RLS enforcing ownership.
+2. **Admin** can remove any offer or suspend a shop at any time (Phase 6).
+3. **Visitor browses** (Phase 4, no login) → filters by category/city/ending-soon → views offer (RPC bumps `view_count`) → taps "Get deal" to reveal the promo code (leads counter).
 4. **Last 2 days** → "⏰ Expiring soon" badge drives urgency.
 5. **Redemption logged** (Phase 10) → proves value.
 6. **Nightly job** (Phase 7): `end_date` passed → pg_cron → Edge Function deletes images by path, sets `expired`, keeps text.
@@ -516,9 +548,10 @@ Once real traffic exists this is redundant, but it costs nothing to leave runnin
 - [x] Create tables + indexes + RLS + `view_count` RPC + seed categories (Phase 2)
 - [x] Build **browser-side** compression (Phase 3)
 - [~] Put **Cloudflare cache in front of Storage** (protects 5 GB egress) — *per-object `Cache-Control` set; edge-proxy deferred*
-- [ ] Build offers grid + filters + "Ending soon" + expiring-soon badge (Phase 4)
-- [ ] Build submission form → **Edge Function + Turnstile** (Phase 5)
-- [ ] Build admin approve/reject + quick-add (Phase 6)
+- [x] Build offers grid + filters + "Ending soon" + expiring-soon badge (Phase 4)
+- [ ] Add `businesses.owner_id` + `status`, ownership RLS, "get deal" leads RPC (Phase 5 schema)
+- [ ] Build shop signup/login + gated dashboard (post/manage own offers) (Phase 5)
+- [ ] Build admin approve/reject **shops** + remove offers + quick-add (Phase 6)
 - [ ] Deploy nightly expiry (pg_cron → Edge Function, delete by path) (Phase 7)
 - [ ] Deploy **keep-alive Worker cron (every 3 days)** (Phase 7)
 - [ ] Wire transactional emails (Phase 7)

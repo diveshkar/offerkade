@@ -1,26 +1,96 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* ============================================================
+   OfferCeylon "Flame" theme
+   Warm charcoal + vivid orange + cream paper. Fraunces serif
+   display headings, Geist for UI text. SVG icons, no emoji
+   for functional elements.
+   ============================================================ */
+@theme {
+  /* Warm charcoal (surfaces) */
+  --color-coal: #1c1613;        /* primary dark surface */
+  --color-coal-deep: #120d0a;   /* hero / footer */
+  --color-coal-soft: #262019;   /* raised card on dark */
+
+  /* Flame orange (the accent) */
+  --color-flame: #f4741c;
+  --color-flame-bright: #fb923c;
+  --color-flame-deep: #c2410c;
+
+  /* Cream paper neutrals */
+  --color-paper: #faf6f0;
+  --color-paper-soft: #ffffff;
+
+  /* Urgency red (distinct from the orange accent) */
+  --color-ember: #dc2626;
+
+  /* Fonts */
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-fraunces), ui-serif, Georgia, serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+:root {
+  --background: #faf6f0; /* cream paper */
+  --foreground: #221a14; /* warm near-black ink */
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: #120d0a; /* deep warm charcoal, not flat black */
+    --foreground: #f1eae2; /* warm cream text */
   }
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Serif display headings */
+.font-display {
+  font-family: var(--font-display);
+  letter-spacing: -0.01em;
+}
+
+::selection {
+  background: #f4741c;
+  color: #120d0a;
+}
+
+:focus-visible {
+  outline: 2px solid #f4741c;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Hide scrollbars on horizontal chip rails (still scrollable) */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* Soft rise-in for content */
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.animate-rise {
+  animation: rise 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
