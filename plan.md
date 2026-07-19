@@ -309,6 +309,16 @@ Lifecycle: **live → last 2 days show urgency → end date passes → deleted.*
 
 **Deliverable:** Working public site - offers grid, filters, expiring-soon badges, SEO pages.
 
+### ✅ Phase 4 (DONE)
+- Data layer `lib/queries/offers.ts` — list+filters, get offer, get business, `bumpViewCount` RPC.
+- Home offers grid: featured-first, filters (category/city/ending-soon) + search; `OfferCard` with "⏰ expiring soon" badge.
+- Offer detail `/offer/[id]` — poster, description, valid-until, WhatsApp/call/website, view_count bump (verified → 1).
+- Business profile `/business/[slug]`; static About/Contact/Privacy (PDPA)/Terms; `/submit` placeholder (Phase 5).
+- SEO: per-page metadata + OG, `sitemap.xml` (static+offers+businesses), `robots.txt`; shared header/footer; `ComingSoon` preserved for launch.
+- Dev seed `scripts/seed-dev.mjs` (3 businesses, 8 offers, tagged `seed@dev` — `--clean` to remove).
+- **Verified in-browser** (grid, all filters, detail, business page, sitemap) + production build clean.
+- ⏳ Full-text search uses `ilike` for now (fine at this scale); Postgres `tsvector` is a later upgrade.
+
 **Cost:** LKR 0.
 
 ---
@@ -516,7 +526,7 @@ Once real traffic exists this is redundant, but it costs nothing to leave runnin
 - [x] Create tables + indexes + RLS + `view_count` RPC + seed categories (Phase 2)
 - [x] Build **browser-side** compression (Phase 3)
 - [~] Put **Cloudflare cache in front of Storage** (protects 5 GB egress) — *per-object `Cache-Control` set; edge-proxy deferred*
-- [ ] Build offers grid + filters + "Ending soon" + expiring-soon badge (Phase 4)
+- [x] Build offers grid + filters + "Ending soon" + expiring-soon badge (Phase 4)
 - [ ] Build submission form → **Edge Function + Turnstile** (Phase 5)
 - [ ] Build admin approve/reject + quick-add (Phase 6)
 - [ ] Deploy nightly expiry (pg_cron → Edge Function, delete by path) (Phase 7)
