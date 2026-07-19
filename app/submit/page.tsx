@@ -6,12 +6,12 @@ export const metadata: Metadata = {
   description: 'Businesses can list their current offer on OfferCeylon for free.',
 };
 
-// Placeholder — the real submission form (Edge Function + Turnstile) arrives in Phase 5.
+// Placeholder. The real shop dashboard arrives in Phase 5.
 export default function SubmitPage() {
   return (
-    <PageShell title="List your offer — free">
+    <PageShell title="List your offer, free">
       <p>
-        Got a current deal? We&apos;ll list it on OfferCeylon so people across Sri Lanka can find it —
+        Got a current deal? We&apos;ll list it on OfferCeylon so people across Sri Lanka can find it,
         completely free.
       </p>
       <p>
@@ -21,7 +21,7 @@ export default function SubmitPage() {
       <p>
         <a
           href="mailto:hello@offerceylon.lk?subject=New%20offer%20listing"
-          className="inline-block rounded-xl bg-gradient-to-b from-accent to-accent-strong px-6 py-3 font-semibold text-brand shadow-lg shadow-accent/25 transition hover:brightness-105 active:scale-[0.98]"
+          className="inline-block rounded-full bg-gradient-to-b from-gold-bright to-gold px-6 py-3 font-semibold text-forest-deep shadow-lg shadow-gold/25 transition hover:brightness-105 active:scale-[0.98]"
         >
           Email your offer →
         </a>

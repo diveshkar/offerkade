@@ -1,32 +1,43 @@
 @import "tailwindcss";
 
 /* ============================================================
-   OfferCeylon design tokens
-   Brand: deep navy ink + warm amber accent, editorial spacing.
+   OfferCeylon "Emerald Ceylon" theme
+   Deep tea-green + gold leaf + warm ivory. Editorial serif
+   headings (Fraunces), Geist for UI text.
    ============================================================ */
 @theme {
-  /* Brand palette */
-  --color-brand: #10182b;        /* primary navy */
-  --color-brand-light: #1b2540;  /* hover navy */
-  --color-ink: #0b1220;          /* darkest surface (dark bg) */
-  --color-ink-soft: #111a2e;     /* card surface on dark */
-  --color-accent: #f5a524;       /* warm premium amber */
-  --color-accent-strong: #e8930c;
+  /* Greens (the island) */
+  --color-forest: #0d3a2d;        /* primary surface green */
+  --color-forest-deep: #082419;   /* darkest, hero/footer */
+  --color-forest-soft: #11463a;   /* raised surface on green */
+
+  /* Gold (the premium accent) */
+  --color-gold: #d9a441;
+  --color-gold-bright: #e9c06a;
+  --color-gold-deep: #b07e2a;
+
+  /* Ivory neutrals (paper) */
+  --color-ivory: #f4f1e7;
+  --color-ivory-soft: #fbf9f2;
+
+  /* Urgency terracotta */
+  --color-clay: #c2502f;
 
   /* Fonts */
   --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-fraunces), ui-serif, Georgia, serif;
   --font-mono: var(--font-geist-mono), ui-monospace, monospace;
 }
 
 :root {
-  --background: #f7f6f3; /* warm paper, not stark white */
-  --foreground: #141c30;
+  --background: #f4f1e7; /* warm ivory paper */
+  --foreground: #1c2a24; /* deep green-black ink */
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0b1220;
-    --foreground: #e8eaf0;
+    --background: #08211a; /* deep tea green, not plain black */
+    --foreground: #ece8da; /* warm parchment text */
   }
 }
 
@@ -42,14 +53,19 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* Selection + focus — small details that read as "finished" */
+/* Serif display headings */
+.font-display {
+  font-family: var(--font-display);
+  letter-spacing: -0.01em;
+}
+
 ::selection {
-  background: #f5a524;
-  color: #10182b;
+  background: #d9a441;
+  color: #082419;
 }
 
 :focus-visible {
-  outline: 2px solid #f5a524;
+  outline: 2px solid #d9a441;
   outline-offset: 2px;
   border-radius: 4px;
 }
@@ -63,7 +79,7 @@ body {
   display: none;
 }
 
-/* Soft rise animation for page content */
+/* Soft rise-in for content */
 @keyframes rise {
   from {
     opacity: 0;

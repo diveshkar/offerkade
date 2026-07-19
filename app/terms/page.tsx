@@ -28,7 +28,7 @@ export default function TermsPage() {
       <p>
         Businesses are responsible for the content and images they submit and confirm they have the
         right to share them. If you believe an offer or image infringes your rights, email{' '}
-        <a href="mailto:hello@offerceylon.lk" className="font-medium text-amber-600 hover:underline">
+        <a href="mailto:hello@offerceylon.lk" className="font-medium text-gold-deep dark:text-gold-bright hover:underline">
           hello@offerceylon.lk
         </a>{' '}
         with the offer link and we will review and remove it promptly.

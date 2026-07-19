@@ -53,23 +53,23 @@ export default async function OfferPage({ params }: { params: Promise<{ id: stri
       <ViewCounter offerId={offer.id} />
       <main className="mx-auto w-full max-w-5xl flex-1 px-4 py-8 sm:px-6">
         {/* Breadcrumb */}
-        <nav className="mb-6 flex items-center gap-2 text-sm text-zinc-500">
-          <Link href="/" className="transition hover:text-accent-strong dark:hover:text-accent">
+        <nav className="mb-6 flex items-center gap-2 text-sm text-forest/50 dark:text-ivory/50">
+          <Link href="/" className="transition hover:text-gold-deep dark:hover:text-gold-bright">
             Offers
           </Link>
           <span aria-hidden>/</span>
-          <span className="truncate text-zinc-400">{offer.title}</span>
+          <span className="truncate text-forest/35 dark:text-ivory/35">{offer.title}</span>
         </nav>
 
         <div className="grid gap-8 md:grid-cols-[minmax(0,5fr)_minmax(0,6fr)] md:gap-10">
           {/* ===== Poster ===== */}
           <div className="md:sticky md:top-24 md:self-start">
-            <div className="animate-rise overflow-hidden rounded-3xl border border-zinc-200/80 bg-zinc-100 shadow-[0_24px_60px_-24px_rgba(11,18,32,0.35)] dark:border-white/10 dark:bg-white/5">
+            <div className="animate-rise overflow-hidden rounded-3xl border border-forest/10 bg-forest/5 shadow-[0_28px_60px_-28px_rgba(8,36,25,0.45)] dark:border-white/10 dark:bg-white/5">
               {offer.poster_url ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img src={offer.poster_url} alt={offer.title} className="w-full object-cover" />
               ) : (
-                <div className="grid aspect-[4/5] place-items-center text-5xl text-zinc-300">
+                <div className="grid aspect-[4/5] place-items-center text-5xl text-forest/20">
                   🏷️
                 </div>
               )}
@@ -81,28 +81,28 @@ export default async function OfferPage({ params }: { params: Promise<{ id: stri
             {/* Badges */}
             <div className="flex flex-wrap items-center gap-2">
               {offer.category && (
-                <span className="rounded-full bg-brand/5 px-3 py-1.5 text-[13px] font-medium text-brand ring-1 ring-brand/10 dark:bg-white/10 dark:text-zinc-200 dark:ring-white/10">
+                <span className="rounded-full bg-forest/5 px-3 py-1.5 text-[13px] font-medium text-forest ring-1 ring-forest/10 dark:bg-white/10 dark:text-ivory dark:ring-white/10">
                   {offer.category.icon} {offer.category.name}
                 </span>
               )}
               {offer.is_featured && (
-                <span className="rounded-full bg-gradient-to-b from-accent to-accent-strong px-3 py-1.5 text-[13px] font-bold text-brand shadow-sm">
+                <span className="rounded-full bg-gradient-to-b from-gold-bright to-gold px-3 py-1.5 text-[13px] font-bold text-forest-deep shadow-sm">
                   ★ Featured
                 </span>
               )}
               {urgent && (
-                <span className="rounded-full bg-red-600 px-3 py-1.5 text-[13px] font-bold text-white shadow-sm">
+                <span className="rounded-full bg-clay px-3 py-1.5 text-[13px] font-bold text-white shadow-sm">
                   ⏰ {left <= 0 ? 'Last day' : left === 1 ? '1 day left' : `${left} days left`}
                 </span>
               )}
             </div>
 
-            <h1 className="text-balance text-3xl font-extrabold leading-tight tracking-tight text-zinc-900 sm:text-4xl dark:text-zinc-50">
+            <h1 className="font-display text-balance text-3xl font-semibold leading-tight sm:text-5xl">
               {offer.title}
             </h1>
 
             {offer.description && (
-              <p className="whitespace-pre-line text-pretty leading-7 text-zinc-600 dark:text-zinc-300">
+              <p className="whitespace-pre-line text-pretty leading-7 text-forest/70 dark:text-ivory/70">
                 {offer.description}
               </p>
             )}
@@ -110,40 +110,32 @@ export default async function OfferPage({ params }: { params: Promise<{ id: stri
             {/* Meta cards */}
             <dl className="grid grid-cols-2 gap-3 sm:grid-cols-3">
               {offer.city && (
-                <div className="rounded-2xl border border-zinc-200/80 bg-white p-3.5 dark:border-white/10 dark:bg-ink-soft">
-                  <dt className="text-[11px] font-semibold uppercase tracking-wider text-zinc-400">
+                <div className="rounded-2xl border border-forest/10 bg-ivory-soft p-3.5 dark:border-white/10 dark:bg-forest-soft">
+                  <dt className="text-[11px] font-semibold uppercase tracking-wider text-forest/40 dark:text-ivory/40">
                     Location
                   </dt>
-                  <dd className="mt-1 text-sm font-semibold text-zinc-800 dark:text-zinc-100">
-                    📍 {offer.city}
-                  </dd>
+                  <dd className="mt-1 text-sm font-semibold">📍 {offer.city}</dd>
                 </div>
               )}
               {offer.location_note && (
-                <div className="rounded-2xl border border-zinc-200/80 bg-white p-3.5 dark:border-white/10 dark:bg-ink-soft">
-                  <dt className="text-[11px] font-semibold uppercase tracking-wider text-zinc-400">
+                <div className="rounded-2xl border border-forest/10 bg-ivory-soft p-3.5 dark:border-white/10 dark:bg-forest-soft">
+                  <dt className="text-[11px] font-semibold uppercase tracking-wider text-forest/40 dark:text-ivory/40">
                     Branches
                   </dt>
-                  <dd className="mt-1 text-sm font-semibold text-zinc-800 dark:text-zinc-100">
-                    {offer.location_note}
-                  </dd>
+                  <dd className="mt-1 text-sm font-semibold">{offer.location_note}</dd>
                 </div>
               )}
               <div
                 className={`rounded-2xl border p-3.5 ${
                   urgent
-                    ? 'border-red-200 bg-red-50 dark:border-red-500/30 dark:bg-red-500/10'
-                    : 'border-zinc-200/80 bg-white dark:border-white/10 dark:bg-ink-soft'
+                    ? 'border-clay/30 bg-clay/10'
+                    : 'border-forest/10 bg-ivory-soft dark:border-white/10 dark:bg-forest-soft'
                 }`}
               >
-                <dt className="text-[11px] font-semibold uppercase tracking-wider text-zinc-400">
+                <dt className="text-[11px] font-semibold uppercase tracking-wider text-forest/40 dark:text-ivory/40">
                   Valid until
                 </dt>
-                <dd
-                  className={`mt-1 text-sm font-semibold ${
-                    urgent ? 'text-red-600 dark:text-red-400' : 'text-zinc-800 dark:text-zinc-100'
-                  }`}
-                >
+                <dd className={`mt-1 text-sm font-semibold ${urgent ? 'text-clay' : ''}`}>
                   {prettyDate(offer.end_date)}
                 </dd>
               </div>
@@ -151,18 +143,18 @@ export default async function OfferPage({ params }: { params: Promise<{ id: stri
 
             {/* Business card */}
             {b && (
-              <div className="mt-1 rounded-3xl border border-zinc-200/80 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-ink-soft">
+              <div className="mt-1 rounded-3xl border border-forest/10 bg-ivory-soft p-5 shadow-sm dark:border-white/10 dark:bg-forest-soft">
                 <div className="flex items-center gap-3.5">
-                  <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-brand text-lg font-extrabold text-accent">
+                  <span className="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-forest font-display text-lg font-bold text-gold-bright">
                     {b.name.charAt(0)}
                   </span>
                   <div className="min-w-0">
-                    <p className="text-[11px] font-semibold uppercase tracking-wider text-zinc-400">
+                    <p className="text-[11px] font-semibold uppercase tracking-wider text-forest/40 dark:text-ivory/40">
                       Offered by
                     </p>
                     <Link
                       href={`/business/${b.slug}`}
-                      className="block truncate text-lg font-bold text-zinc-900 transition hover:text-accent-strong dark:text-zinc-50 dark:hover:text-accent"
+                      className="block truncate text-lg font-bold transition hover:text-gold-deep dark:hover:text-gold-bright"
                     >
                       {b.name}
                       {b.verified && (
@@ -180,7 +172,7 @@ export default async function OfferPage({ params }: { params: Promise<{ id: stri
                       href={waLink(b.whatsapp)}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex h-11 items-center justify-center gap-2 rounded-xl bg-[#25D366] text-sm font-semibold text-white shadow-md shadow-[#25D366]/25 transition hover:brightness-105 active:scale-[0.98]"
+                      className="flex h-11 items-center justify-center gap-2 rounded-full bg-[#25D366] text-sm font-semibold text-white shadow-md shadow-[#25D366]/25 transition hover:brightness-105 active:scale-[0.98]"
                     >
                       💬 WhatsApp
                     </a>
@@ -188,7 +180,7 @@ export default async function OfferPage({ params }: { params: Promise<{ id: stri
                   {b.contact_phone && (
                     <a
                       href={`tel:${b.contact_phone}`}
-                      className="flex h-11 items-center justify-center gap-2 rounded-xl bg-brand text-sm font-semibold text-white shadow-md shadow-brand/25 transition hover:bg-brand-light active:scale-[0.98]"
+                      className="flex h-11 items-center justify-center gap-2 rounded-full bg-forest text-sm font-semibold text-ivory shadow-md shadow-forest/25 transition hover:bg-forest-soft active:scale-[0.98]"
                     >
                       📞 Call now
                     </a>
@@ -198,7 +190,7 @@ export default async function OfferPage({ params }: { params: Promise<{ id: stri
                       href={b.website}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex h-11 items-center justify-center gap-2 rounded-xl border border-zinc-200 text-sm font-semibold text-zinc-700 transition hover:border-accent hover:text-accent-strong active:scale-[0.98] dark:border-white/15 dark:text-zinc-200 dark:hover:text-accent"
+                      className="flex h-11 items-center justify-center gap-2 rounded-full border border-forest/20 text-sm font-semibold text-forest transition hover:border-gold hover:text-gold-deep active:scale-[0.98] dark:border-white/15 dark:text-ivory dark:hover:text-gold-bright"
                     >
                       🌐 Website
                     </a>
@@ -207,7 +199,7 @@ export default async function OfferPage({ params }: { params: Promise<{ id: stri
               </div>
             )}
 
-            <p className="text-xs leading-5 text-zinc-400">
+            <p className="text-xs leading-5 text-forest/40 dark:text-ivory/40">
               Offer details are provided by the business. Please confirm validity with them before
               visiting.
             </p>

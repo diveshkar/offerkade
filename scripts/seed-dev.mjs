@@ -1,12 +1,12 @@
 // ============================================================
-// OfferCeylon — DEV seed (Phase 4 testing only).
+// OfferCeylon: DEV seed (Phase 4 testing only).
 // Inserts sample businesses + offers so the public pages render.
 // All rows are tagged submitted_by_email = 'seed@dev' for easy cleanup.
 //
 //   node scripts/seed-dev.mjs          # insert
 //   node scripts/seed-dev.mjs --clean  # remove all seed rows
 //
-// NOT real content — Phase 8 does real seeding. Poster images use
+// NOT real content: Phase 8 does real seeding. Poster images use
 // picsum.photos placeholders.
 // ============================================================
 import { createClient } from '@supabase/supabase-js';
@@ -62,14 +62,14 @@ async function seed() {
   console.log(`✅ Inserted ${bizRows.length} businesses.`);
 
   const offers = [
-    { b: 'seed-pizza-palace', cat: 'food', title: 'Buy 1 Get 1 Free — Large Pizzas', description: 'Every large pizza this week comes with a second one free. Dine-in or takeaway, all branches.', city: 'Colombo', end: 12, feat: true },
-    { b: 'seed-pizza-palace', cat: 'food', title: 'Weekend Family Meal — 30% Off', description: 'Family bucket: 2 large pizzas, garlic bread, and a 1.5L drink. This weekend only.', city: 'Colombo', end: 1, feat: false },
+    { b: 'seed-pizza-palace', cat: 'food', title: 'Buy 1 Get 1 Free: Large Pizzas', description: 'Every large pizza this week comes with a second one free. Dine-in or takeaway, all branches.', city: 'Colombo', end: 12, feat: true },
+    { b: 'seed-pizza-palace', cat: 'food', title: 'Weekend Family Meal: 30% Off', description: 'Family bucket: 2 large pizzas, garlic bread, and a 1.5L drink. This weekend only.', city: 'Colombo', end: 1, feat: false },
     { b: 'seed-galle-coffee', cat: 'drink', title: 'Free Pastry with Any Coffee', description: 'Show this offer and get a free croissant or muffin with any hot coffee before 11am.', city: 'Galle', end: 2, feat: false },
-    { b: 'seed-galle-coffee', cat: 'drink', title: 'Iced Coffee Happy Hour — 40% Off', description: 'All iced coffees 40% off, 3pm–5pm daily. Beat the heat.', city: 'Galle', end: 20, feat: true },
-    { b: 'seed-kandy-furniture', cat: 'furniture', title: 'Teak Dining Sets — Up to 25% Off', description: 'Handcrafted 6-seater teak dining sets. Limited stock clearance.', city: 'Kandy', end: 30, feat: false },
-    { b: 'seed-kandy-furniture', cat: 'furniture', title: 'Mattress Mega Sale — From LKR 18,000', description: 'Orthopedic and memory-foam mattresses, all sizes. Free delivery within Kandy.', city: 'Kandy', end: 8, feat: false },
-    { b: 'seed-pizza-palace', cat: 'food', title: 'Student Lunch Combo — LKR 950', description: 'Personal pizza + drink for students with a valid ID. Weekdays only.', city: 'Colombo', end: 45, feat: false },
-    { b: 'seed-galle-coffee', cat: 'food', title: 'Breakfast Special — Save 20%', description: 'Full breakfast platter with fresh juice, 20% off every morning this month.', city: 'Galle', end: 2, feat: false },
+    { b: 'seed-galle-coffee', cat: 'drink', title: 'Iced Coffee Happy Hour: 40% Off', description: 'All iced coffees 40% off, 3pm–5pm daily. Beat the heat.', city: 'Galle', end: 20, feat: true },
+    { b: 'seed-kandy-furniture', cat: 'furniture', title: 'Teak Dining Sets: Up to 25% Off', description: 'Handcrafted 6-seater teak dining sets. Limited stock clearance.', city: 'Kandy', end: 30, feat: false },
+    { b: 'seed-kandy-furniture', cat: 'furniture', title: 'Mattress Mega Sale: From LKR 18,000', description: 'Orthopedic and memory-foam mattresses, all sizes. Free delivery within Kandy.', city: 'Kandy', end: 8, feat: false },
+    { b: 'seed-pizza-palace', cat: 'food', title: 'Student Lunch Combo: LKR 950', description: 'Personal pizza + drink for students with a valid ID. Weekdays only.', city: 'Colombo', end: 45, feat: false },
+    { b: 'seed-galle-coffee', cat: 'food', title: 'Breakfast Special: Save 20%', description: 'Full breakfast platter with fresh juice, 20% off every morning this month.', city: 'Galle', end: 2, feat: false },
   ];
 
   const rows = offers.map((o, i) => ({

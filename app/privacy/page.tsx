@@ -35,7 +35,7 @@ export default function PrivacyPage() {
       <p>
         Under the PDPA you may request access to, correction of, or deletion of your personal data.
         To do so, email{' '}
-        <a href="mailto:hello@offerceylon.lk" className="font-medium text-amber-600 hover:underline">
+        <a href="mailto:hello@offerceylon.lk" className="font-medium text-gold-deep dark:text-gold-bright hover:underline">
           hello@offerceylon.lk
         </a>
         .

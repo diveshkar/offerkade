@@ -43,7 +43,7 @@ export default function FilterBar({
         >
           <span
             aria-hidden
-            className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400"
+            className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-forest/35 dark:text-ivory/35"
           >
             🔍
           </span>
@@ -52,11 +52,11 @@ export default function FilterBar({
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search pizza, sofas, coffee…"
             aria-label="Search offers"
-            className="h-11 w-full rounded-xl border border-zinc-200 bg-white pl-10 pr-24 text-[15px] shadow-sm outline-none transition placeholder:text-zinc-400 focus:border-accent focus:ring-2 focus:ring-accent/30 dark:border-white/10 dark:bg-ink-soft"
+            className="h-11 w-full rounded-full border border-forest/15 bg-ivory-soft pl-10 pr-24 text-[15px] shadow-sm outline-none transition placeholder:text-forest/35 focus:border-gold focus:ring-2 focus:ring-gold/30 dark:border-white/10 dark:bg-forest-soft dark:placeholder:text-ivory/35"
           />
           <button
             type="submit"
-            className="absolute right-1.5 top-1/2 h-8 -translate-y-1/2 rounded-lg bg-brand px-4 text-sm font-semibold text-white transition hover:bg-brand-light active:scale-[0.97]"
+            className="absolute right-1.5 top-1/2 h-8 -translate-y-1/2 rounded-full bg-forest px-4 text-sm font-semibold text-ivory transition hover:bg-forest-soft active:scale-[0.97]"
           >
             Search
           </button>
@@ -67,7 +67,7 @@ export default function FilterBar({
             value={activeCity}
             onChange={(e) => update({ city: e.target.value || null })}
             aria-label="Filter by city"
-            className="h-11 flex-1 cursor-pointer appearance-none rounded-xl border border-zinc-200 bg-white px-4 pr-9 text-sm font-medium shadow-sm outline-none transition focus:border-accent sm:flex-none dark:border-white/10 dark:bg-ink-soft"
+            className="h-11 flex-1 cursor-pointer appearance-none rounded-full border border-forest/15 bg-ivory-soft px-4 pr-9 text-sm font-medium shadow-sm outline-none transition focus:border-gold sm:flex-none dark:border-white/10 dark:bg-forest-soft"
             style={{
               backgroundImage:
                 "url(\"data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' fill='none'%3E%3Cpath d='M1 1.5 6 6.5 11 1.5' stroke='%23a1a1aa' stroke-width='1.8' stroke-linecap='round'/%3E%3C/svg%3E\")",
@@ -86,10 +86,10 @@ export default function FilterBar({
           <button
             onClick={() => update({ ending: endingSoon ? null : '1' })}
             aria-pressed={endingSoon}
-            className={`h-11 whitespace-nowrap rounded-xl border px-4 text-sm font-semibold shadow-sm transition active:scale-[0.97] ${
+            className={`h-11 whitespace-nowrap rounded-full border px-4 text-sm font-semibold shadow-sm transition active:scale-[0.97] ${
               endingSoon
-                ? 'border-red-500 bg-red-500 text-white shadow-red-500/25'
-                : 'border-zinc-200 bg-white text-zinc-600 hover:border-red-300 hover:text-red-500 dark:border-white/10 dark:bg-ink-soft dark:text-zinc-300'
+                ? 'border-clay bg-clay text-white shadow-clay/25'
+                : 'border-forest/15 bg-ivory-soft text-forest/70 hover:border-clay/50 hover:text-clay dark:border-white/10 dark:bg-forest-soft dark:text-ivory/70'
             }`}
           >
             ⏰ Ending soon
@@ -131,8 +131,8 @@ function Chip({
       aria-pressed={active}
       className={`whitespace-nowrap rounded-full border px-3.5 py-1.5 text-[13px] font-medium transition active:scale-[0.96] ${
         active
-          ? 'border-brand bg-brand text-white shadow-md shadow-brand/20 dark:border-accent dark:bg-accent dark:text-brand'
-          : 'border-zinc-200 bg-white text-zinc-600 hover:border-accent/60 hover:text-zinc-900 dark:border-white/10 dark:bg-ink-soft dark:text-zinc-300 dark:hover:text-white'
+          ? 'border-forest bg-forest text-ivory shadow-md shadow-forest/25 dark:border-gold dark:bg-gold dark:text-forest-deep'
+          : 'border-forest/15 bg-ivory-soft text-forest/70 hover:border-gold/60 hover:text-forest dark:border-white/10 dark:bg-forest-soft dark:text-ivory/70 dark:hover:text-ivory'
       }`}
     >
       {children}

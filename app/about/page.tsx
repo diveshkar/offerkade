@@ -11,7 +11,7 @@ export default function AboutPage() {
   return (
     <PageShell title="About OfferCeylon">
       <p>
-        <strong>OfferCeylon</strong> is Sri Lanka&apos;s offers in one place — a free directory of
+        <strong>OfferCeylon</strong> is Sri Lanka&apos;s offers in one place: a free directory of
         current deals from restaurants, shops, furniture stores, cafés and more, right across the
         island.
       </p>
@@ -21,7 +21,7 @@ export default function AboutPage() {
       </p>
       <p>
         Are you a business with a current offer?{' '}
-        <Link href="/submit" className="font-medium text-amber-600 hover:underline">
+        <Link href="/submit" className="font-medium text-gold-deep hover:underline dark:text-gold-bright">
           List it free →
         </Link>
       </p>

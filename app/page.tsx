@@ -5,7 +5,7 @@ import FilterBar from '@/app/components/FilterBar';
 import OfferCard from '@/app/components/OfferCard';
 import { getCategories, getActiveCities, listOffers } from '@/lib/queries/offers';
 
-// Always render fresh — offers change and expire daily.
+// Always render fresh: offers change and expire daily.
 export const dynamic = 'force-dynamic';
 
 type SP = { [k: string]: string | string[] | undefined };
@@ -36,50 +36,64 @@ export default async function Home({ searchParams }: { searchParams: Promise<SP>
       <SiteHeader />
       <main className="flex-1">
         {/* ===== Hero ===== */}
-        <section className="relative overflow-hidden bg-ink pb-24 pt-14 text-white sm:pb-28 sm:pt-20">
-          {/* Ambient glows */}
+        <section className="relative overflow-hidden bg-forest-deep pb-24 pt-16 text-ivory sm:pb-32 sm:pt-24">
+          {/* Gold ambient glows */}
           <div
             aria-hidden
-            className="pointer-events-none absolute -top-32 left-1/2 h-96 w-[42rem] -translate-x-1/2 rounded-full bg-accent/15 blur-3xl"
+            className="pointer-events-none absolute -right-24 -top-28 h-96 w-96 rounded-full bg-gold/15 blur-3xl"
           />
           <div
             aria-hidden
-            className="pointer-events-none absolute -bottom-40 right-[-10%] h-80 w-80 rounded-full bg-brand-light/60 blur-3xl"
+            className="pointer-events-none absolute -bottom-32 left-[-8%] h-80 w-80 rounded-full bg-gold/8 blur-3xl"
+          />
+          {/* Hairline ring ornament */}
+          <div
+            aria-hidden
+            className="pointer-events-none absolute -right-40 top-1/2 hidden h-[480px] w-[480px] -translate-y-1/2 rounded-full border border-gold/15 lg:block"
+          />
+          <div
+            aria-hidden
+            className="pointer-events-none absolute -right-24 top-1/2 hidden h-[320px] w-[320px] -translate-y-1/2 rounded-full border border-gold/10 lg:block"
           />
 
-          <div className="relative mx-auto max-w-6xl px-4 text-center sm:px-6">
-            <p className="mx-auto mb-4 w-fit rounded-full border border-white/15 bg-white/5 px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.18em] text-accent backdrop-blur">
+          <div className="relative mx-auto max-w-6xl px-4 sm:px-6">
+            <p className="mb-5 flex items-center gap-3 text-xs font-semibold uppercase tracking-[0.22em] text-gold">
+              <span className="h-px w-8 bg-gold/60" aria-hidden />
               Sri Lanka&apos;s daily offers hub
             </p>
-            <h1 className="mx-auto max-w-3xl text-balance text-4xl font-extrabold leading-[1.08] tracking-tight sm:text-6xl">
-              Every offer on the island,{' '}
-              <span className="bg-gradient-to-r from-accent to-amber-300 bg-clip-text text-transparent">
-                one place.
-              </span>
+
+            <h1 className="font-display max-w-2xl text-balance text-5xl font-semibold leading-[1.05] sm:text-7xl">
+              The island&apos;s best offers,
+              <br />
+              <em className="text-gold-bright">gathered daily.</em>
             </h1>
-            <p className="mx-auto mt-5 max-w-xl text-pretty text-base leading-7 text-zinc-300 sm:text-lg">
-              Restaurants, shops, furniture, coffee — live deals from real businesses, free to
-              browse. Gone the moment they expire.
+
+            <p className="mt-6 max-w-xl text-pretty text-base leading-7 text-ivory/70 sm:text-lg">
+              Restaurants, shops, furniture, coffee. Live deals from real businesses across Sri
+              Lanka, free to browse. When an offer ends, it disappears.
             </p>
 
             {/* Trust row */}
-            <div className="mt-7 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-[13px] text-zinc-400">
-              <span className="flex items-center gap-1.5">
-                <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" /> {offers.length} live now
+            <div className="mt-8 flex flex-wrap items-center gap-x-7 gap-y-2 text-[13px] text-ivory/55">
+              <span className="flex items-center gap-2">
+                <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" aria-hidden />
+                {offers.length} live right now
               </span>
-              <span className="flex items-center gap-1.5">
-                <span className="h-1.5 w-1.5 rounded-full bg-accent" /> 100% free to browse
+              <span className="flex items-center gap-2">
+                <span className="h-1.5 w-1.5 rounded-full bg-gold" aria-hidden />
+                Free to browse
               </span>
-              <span className="flex items-center gap-1.5">
-                <span className="h-1.5 w-1.5 rounded-full bg-sky-400" /> Auto-expires — always current
+              <span className="flex items-center gap-2">
+                <span className="h-1.5 w-1.5 rounded-full bg-sky-400" aria-hidden />
+                Always current
               </span>
             </div>
           </div>
         </section>
 
         {/* ===== Floating filter card ===== */}
-        <div className="relative z-10 mx-auto -mt-14 max-w-6xl px-4 sm:-mt-16 sm:px-6">
-          <div className="animate-rise rounded-2xl border border-zinc-200/70 bg-white/95 p-4 shadow-[0_24px_60px_-24px_rgba(11,18,32,0.35)] backdrop-blur-xl sm:p-5 dark:border-white/10 dark:bg-ink-soft/95">
+        <div className="relative z-10 mx-auto -mt-12 max-w-6xl px-4 sm:-mt-14 sm:px-6">
+          <div className="animate-rise rounded-3xl border border-forest/10 bg-ivory-soft/95 p-4 shadow-[0_28px_60px_-28px_rgba(8,36,25,0.45)] backdrop-blur-xl sm:p-5 dark:border-white/10 dark:bg-forest-soft/95">
             <Suspense fallback={<div className="h-[104px]" />}>
               <FilterBar categories={categories} cities={cities} />
             </Suspense>
@@ -87,30 +101,34 @@ export default async function Home({ searchParams }: { searchParams: Promise<SP>
         </div>
 
         {/* ===== Grid ===== */}
-        <section className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
-          <div className="mb-5 flex items-baseline justify-between">
-            <h2 className="text-lg font-bold tracking-tight text-zinc-900 dark:text-zinc-100">
+        <section className="mx-auto max-w-6xl px-4 py-12 sm:px-6">
+          <div className="mb-6 flex items-baseline justify-between">
+            <h2 className="font-display text-2xl font-semibold tracking-tight text-forest-deep dark:text-ivory">
               {hasFilters ? 'Matching offers' : "Today's offers"}
             </h2>
-            <p className="text-sm text-zinc-500 dark:text-zinc-400">
+            <p className="text-sm text-forest/50 dark:text-ivory/50">
               {offers.length} {offers.length === 1 ? 'offer' : 'offers'}
             </p>
           </div>
 
           {offers.length === 0 ? (
-            <div className="rounded-3xl border border-dashed border-zinc-300 bg-white/50 px-6 py-24 text-center dark:border-white/15 dark:bg-white/[0.03]">
+            <div className="rounded-3xl border border-dashed border-forest/20 bg-ivory-soft/60 px-6 py-24 text-center dark:border-white/15 dark:bg-white/[0.03]">
               <p className="text-4xl">🔎</p>
-              <p className="mt-4 text-lg font-semibold text-zinc-800 dark:text-zinc-100">
+              <p className="font-display mt-4 text-xl font-semibold text-forest-deep dark:text-ivory">
                 No offers found
               </p>
-              <p className="mt-1 text-sm text-zinc-500">
-                Try clearing filters — or check back soon, new deals land daily.
+              <p className="mt-1 text-sm text-forest/50 dark:text-ivory/50">
+                Try clearing filters, or check back soon. New deals land daily.
               </p>
             </div>
           ) : (
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-5 lg:grid-cols-4">
               {offers.map((o, i) => (
-                <div key={o.id} className="animate-rise" style={{ animationDelay: `${Math.min(i * 45, 360)}ms` }}>
+                <div
+                  key={o.id}
+                  className="animate-rise h-full"
+                  style={{ animationDelay: `${Math.min(i * 45, 360)}ms` }}
+                >
                   <OfferCard offer={o} />
                 </div>
               ))}
