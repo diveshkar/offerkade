@@ -34,10 +34,10 @@ export default async function BusinessPage({ params }: { params: Promise<{ slug:
       <SiteHeader />
       <main className="flex-1">
         {/* ===== Banner ===== */}
-        <section className="relative overflow-hidden bg-forest-deep pb-16 pt-12 text-ivory">
+        <section className="relative overflow-hidden bg-coal-deep pb-16 pt-12 text-paper">
           <div
             aria-hidden
-            className="pointer-events-none absolute -top-24 right-[-6%] h-72 w-72 rounded-full bg-gold/12 blur-3xl"
+            className="pointer-events-none absolute -top-24 right-[-6%] h-72 w-72 rounded-full bg-flame/12 blur-3xl"
           />
           <div className="relative mx-auto flex max-w-6xl items-center gap-5 px-4 sm:px-6">
             {b.logo_url ? (
@@ -45,10 +45,10 @@ export default async function BusinessPage({ params }: { params: Promise<{ slug:
               <img
                 src={b.logo_url}
                 alt={b.name}
-                className="h-20 w-20 rounded-full border border-gold/25 object-cover shadow-xl"
+                className="h-20 w-20 rounded-full border border-flame/25 object-cover shadow-xl"
               />
             ) : (
-              <div className="font-display grid h-20 w-20 shrink-0 place-items-center rounded-full bg-gradient-to-br from-gold-bright to-gold-deep text-3xl font-bold text-forest-deep shadow-xl shadow-gold/20">
+              <div className="font-display grid h-20 w-20 shrink-0 place-items-center rounded-full bg-gradient-to-br from-flame-bright to-flame-deep text-3xl font-bold text-coal-deep shadow-xl shadow-flame/20">
                 {b.name.charAt(0)}
               </div>
             )}
@@ -63,7 +63,7 @@ export default async function BusinessPage({ params }: { params: Promise<{ slug:
                   </span>
                 )}
               </div>
-              {b.city && <p className="mt-1 text-sm text-ivory/60">📍 {b.city}</p>}
+              {b.city && <p className="mt-1 text-sm text-paper/60">📍 {b.city}</p>}
             </div>
           </div>
         </section>
@@ -71,21 +71,21 @@ export default async function BusinessPage({ params }: { params: Promise<{ slug:
         {/* ===== Offers ===== */}
         <section className="mx-auto max-w-6xl px-4 py-12 sm:px-6">
           <div className="mb-6 flex items-baseline justify-between">
-            <h2 className="font-display text-2xl font-semibold tracking-tight text-forest-deep dark:text-ivory">
+            <h2 className="font-display text-2xl font-semibold tracking-tight text-coal-deep dark:text-paper">
               Live offers
             </h2>
-            <p className="text-sm text-forest/50 dark:text-ivory/50">
+            <p className="text-sm text-coal/50 dark:text-paper/50">
               {offers.length} {offers.length === 1 ? 'offer' : 'offers'}
             </p>
           </div>
 
           {offers.length === 0 ? (
-            <div className="rounded-3xl border border-dashed border-forest/20 px-6 py-20 text-center dark:border-white/15">
+            <div className="rounded-3xl border border-dashed border-coal/20 px-6 py-20 text-center dark:border-white/15">
               <p className="text-4xl">🕐</p>
-              <p className="font-display mt-4 text-xl font-semibold text-forest-deep dark:text-ivory">
+              <p className="font-display mt-4 text-xl font-semibold text-coal-deep dark:text-paper">
                 No live offers right now
               </p>
-              <p className="mt-1 text-sm text-forest/50 dark:text-ivory/50">Check back soon.</p>
+              <p className="mt-1 text-sm text-coal/50 dark:text-paper/50">Check back soon.</p>
             </div>
           ) : (
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-5 lg:grid-cols-4">

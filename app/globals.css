@@ -1,27 +1,28 @@
 @import "tailwindcss";
 
 /* ============================================================
-   OfferCeylon "Emerald Ceylon" theme
-   Deep tea-green + gold leaf + warm ivory. Editorial serif
-   headings (Fraunces), Geist for UI text.
+   OfferCeylon "Flame" theme
+   Warm charcoal + vivid orange + cream paper. Fraunces serif
+   display headings, Geist for UI text. SVG icons, no emoji
+   for functional elements.
    ============================================================ */
 @theme {
-  /* Greens (the island) */
-  --color-forest: #0d3a2d;        /* primary surface green */
-  --color-forest-deep: #082419;   /* darkest, hero/footer */
-  --color-forest-soft: #11463a;   /* raised surface on green */
+  /* Warm charcoal (surfaces) */
+  --color-coal: #1c1613;        /* primary dark surface */
+  --color-coal-deep: #120d0a;   /* hero / footer */
+  --color-coal-soft: #262019;   /* raised card on dark */
 
-  /* Gold (the premium accent) */
-  --color-gold: #d9a441;
-  --color-gold-bright: #e9c06a;
-  --color-gold-deep: #b07e2a;
+  /* Flame orange (the accent) */
+  --color-flame: #f4741c;
+  --color-flame-bright: #fb923c;
+  --color-flame-deep: #c2410c;
 
-  /* Ivory neutrals (paper) */
-  --color-ivory: #f4f1e7;
-  --color-ivory-soft: #fbf9f2;
+  /* Cream paper neutrals */
+  --color-paper: #faf6f0;
+  --color-paper-soft: #ffffff;
 
-  /* Urgency terracotta */
-  --color-clay: #c2502f;
+  /* Urgency red (distinct from the orange accent) */
+  --color-ember: #dc2626;
 
   /* Fonts */
   --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
@@ -30,14 +31,14 @@
 }
 
 :root {
-  --background: #f4f1e7; /* warm ivory paper */
-  --foreground: #1c2a24; /* deep green-black ink */
+  --background: #faf6f0; /* cream paper */
+  --foreground: #221a14; /* warm near-black ink */
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #08211a; /* deep tea green, not plain black */
-    --foreground: #ece8da; /* warm parchment text */
+    --background: #120d0a; /* deep warm charcoal, not flat black */
+    --foreground: #f1eae2; /* warm cream text */
   }
 }
 
@@ -60,12 +61,12 @@ body {
 }
 
 ::selection {
-  background: #d9a441;
-  color: #082419;
+  background: #f4741c;
+  color: #120d0a;
 }
 
 :focus-visible {
-  outline: 2px solid #d9a441;
+  outline: 2px solid #f4741c;
   outline-offset: 2px;
   border-radius: 4px;
 }

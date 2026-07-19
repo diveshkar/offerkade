@@ -20,8 +20,12 @@ export default function AboutPage() {
         Offers automatically come down the moment they expire, so what you see is always current.
       </p>
       <p>
+        OfferCeylon is owned and operated by <strong>Olyntox (Pvt) Ltd</strong>, a Sri Lankan
+        company.
+      </p>
+      <p>
         Are you a business with a current offer?{' '}
-        <Link href="/submit" className="font-medium text-gold-deep hover:underline dark:text-gold-bright">
+        <Link href="/submit" className="font-medium text-flame-deep hover:underline dark:text-flame-bright">
           List it free →
         </Link>
       </p>

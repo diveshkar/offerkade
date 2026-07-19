@@ -12,9 +12,10 @@ export default function TermsPage() {
       <p className="text-sm text-zinc-400">Last updated: {new Date().toLocaleDateString('en-GB')}</p>
 
       <p>
-        By using OfferCeylon you agree to these terms. OfferCeylon is a free directory that lists
-        offers submitted by businesses. We are not the seller and are not party to any transaction
-        between you and a business.
+        By using OfferCeylon you agree to these terms. OfferCeylon is operated by{' '}
+        <strong>Olyntox (Pvt) Ltd</strong> and is a free directory that lists offers submitted by
+        businesses. We are not the seller and are not party to any transaction between you and a
+        business.
       </p>
 
       <h2 className="text-xl font-bold text-zinc-800 dark:text-zinc-100">Offer accuracy</h2>
@@ -28,7 +29,7 @@ export default function TermsPage() {
       <p>
         Businesses are responsible for the content and images they submit and confirm they have the
         right to share them. If you believe an offer or image infringes your rights, email{' '}
-        <a href="mailto:hello@offerceylon.lk" className="font-medium text-gold-deep dark:text-gold-bright hover:underline">
+        <a href="mailto:hello@offerceylon.lk" className="font-medium text-flame-deep dark:text-flame-bright hover:underline">
           hello@offerceylon.lk
         </a>{' '}
         with the offer link and we will review and remove it promptly.

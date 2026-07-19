@@ -12,8 +12,9 @@ export default function PrivacyPage() {
       <p className="text-sm text-zinc-400">Last updated: {new Date().toLocaleDateString('en-GB')}</p>
 
       <p>
-        OfferCeylon (&quot;we&quot;, &quot;us&quot;) respects your privacy. This policy explains what
-        personal data we collect and how we use it, in line with Sri Lanka&apos;s{' '}
+        OfferCeylon, operated by <strong>Olyntox (Pvt) Ltd</strong> (&quot;we&quot;, &quot;us&quot;),
+        respects your privacy. This policy explains what personal data we collect and how we use it,
+        in line with Sri Lanka&apos;s{' '}
         <strong>Personal Data Protection Act No. 9 of 2022 (PDPA)</strong>.
       </p>
 
@@ -35,7 +36,7 @@ export default function PrivacyPage() {
       <p>
         Under the PDPA you may request access to, correction of, or deletion of your personal data.
         To do so, email{' '}
-        <a href="mailto:hello@offerceylon.lk" className="font-medium text-gold-deep dark:text-gold-bright hover:underline">
+        <a href="mailto:hello@offerceylon.lk" className="font-medium text-flame-deep dark:text-flame-bright hover:underline">
           hello@offerceylon.lk
         </a>
         .
