@@ -269,6 +269,14 @@ Supabase free gives 5 GB egress/month. Put **Cloudflare caching in front** and s
 
 **Deliverable:** Browser compresses any picked image → Edge Function stores it → returns poster + thumbnail CDN URLs and paths.
 
+### ✅ Phase 3 (DONE)
+- `browser-image-compression` installed; `lib/image/compress.ts` — validate (JPG/PNG/WebP, ≤5MB) → poster (1080px WebP q0.8) + thumb (400px WebP q0.75). Verified in-browser: 2MB → ~11KB.
+- `lib/image/upload.ts` — service-role upload with `Cache-Control: public, max-age=31536000` + `deletePoster()` by path (for Phase 7).
+- Supabase `posters` bucket (public, WebP-only, 1MB/object) + read-only storage RLS via `006_storage.sql`.
+- `/dev/compress` demo page (dev-only visual check).
+- **Verified live end-to-end:** service_role upload → public CDN fetch (correct cache header) → anon upload blocked → delete-by-path works.
+- ⏳ *Deferred:* proxying Storage through Cloudflare's edge (custom domain / Worker route) — the per-object cache header is set; full edge-proxy is a Phase 4/9 optimization.
+
 **Cost:** LKR 0.
 
 ---
@@ -506,8 +514,8 @@ Once real traffic exists this is redundant, but it costs nothing to leave runnin
 - [ ] Nameservers → Cloudflare; email routing set up
 - [ ] Finish skeleton homepage → `git init` → push to GitHub → Cloudflare Pages auto-deploy
 - [x] Create tables + indexes + RLS + `view_count` RPC + seed categories (Phase 2)
-- [ ] Build **browser-side** compression (Phase 3)
-- [ ] Put **Cloudflare cache in front of Storage** (protects 5 GB egress)
+- [x] Build **browser-side** compression (Phase 3)
+- [~] Put **Cloudflare cache in front of Storage** (protects 5 GB egress) — *per-object `Cache-Control` set; edge-proxy deferred*
 - [ ] Build offers grid + filters + "Ending soon" + expiring-soon badge (Phase 4)
 - [ ] Build submission form → **Edge Function + Turnstile** (Phase 5)
 - [ ] Build admin approve/reject + quick-add (Phase 6)
