@@ -4,6 +4,7 @@ import Link from 'next/link';
 import SiteHeader from '@/app/components/SiteHeader';
 import SiteFooter from '@/app/components/SiteFooter';
 import ViewCounter from '@/app/components/ViewCounter';
+import VerifiedBadge from '@/app/components/VerifiedBadge';
 import {
   WhatsAppIcon,
   PhoneIcon,
@@ -77,8 +78,8 @@ export default async function OfferPage({ params }: { params: Promise<{ id: stri
                 // eslint-disable-next-line @next/next/no-img-element
                 <img src={offer.poster_url} alt={offer.title} className="w-full object-cover" />
               ) : (
-                <div className="grid aspect-[4/5] place-items-center text-5xl text-coal/20">
-                  🏷️
+                <div className="grid aspect-[4/5] place-items-center text-sm font-medium text-coal/30 dark:text-paper/25">
+                  No poster
                 </div>
               )}
             </div>
@@ -90,7 +91,7 @@ export default async function OfferPage({ params }: { params: Promise<{ id: stri
             <div className="flex flex-wrap items-center gap-2">
               {offer.category && (
                 <span className="rounded-full bg-coal/5 px-3 py-1.5 text-[13px] font-medium text-coal ring-1 ring-coal/10 dark:bg-white/10 dark:text-paper dark:ring-white/10">
-                  {offer.category.icon} {offer.category.name}
+                  {offer.category.name}
                 </span>
               )}
               {offer.is_featured && (
@@ -168,11 +169,7 @@ export default async function OfferPage({ params }: { params: Promise<{ id: stri
                       className="block truncate text-lg font-bold transition hover:text-flame-deep dark:hover:text-flame-bright"
                     >
                       {b.name}
-                      {b.verified && (
-                        <span className="ml-1.5 text-sm text-emerald-500" title="Verified business">
-                          ✓ Verified
-                        </span>
-                      )}
+                      {b.verified && <VerifiedBadge size="md" className="ml-1.5 align-middle" />}
                     </Link>
                   </div>
                 </div>

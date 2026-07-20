@@ -30,8 +30,11 @@ export default function FilterBar({
     router.push(qs ? `/?${qs}` : '/', { scroll: false });
   }
 
+  const control =
+    'h-12 rounded-xl border border-coal/15 bg-paper-soft text-coal-deep outline-none transition focus:border-flame focus:ring-2 focus:ring-flame/25 dark:border-white/10 dark:bg-coal-soft dark:text-paper';
+
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-3.5">
       {/* Row 1: search / city / ending soon */}
       <div className="flex flex-col gap-2.5 sm:flex-row">
         <form
@@ -44,20 +47,20 @@ export default function FilterBar({
         >
           <span
             aria-hidden
-            className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-coal/35 dark:text-paper/35"
+            className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-coal/35 dark:text-paper/35"
           >
-            <SearchIcon />
+            <SearchIcon className="h-[18px] w-[18px]" />
           </span>
           <input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search pizza, sofas, coffee…"
             aria-label="Search offers"
-            className="h-11 w-full rounded-full border border-coal/15 bg-paper-soft pl-10 pr-24 text-[15px] shadow-sm outline-none transition placeholder:text-coal/35 focus:border-flame focus:ring-2 focus:ring-flame/30 dark:border-white/10 dark:bg-coal-soft dark:placeholder:text-paper/35"
+            className={`${control} w-full pl-11 pr-[104px] text-[15px] placeholder:text-coal/35 dark:placeholder:text-paper/35`}
           />
           <button
             type="submit"
-            className="absolute right-1.5 top-1/2 h-8 -translate-y-1/2 rounded-full bg-coal px-4 text-sm font-semibold text-paper transition hover:bg-coal-soft active:scale-[0.97]"
+            className="absolute right-1.5 top-1/2 h-9 -translate-y-1/2 rounded-lg bg-flame px-4 text-sm font-semibold text-coal-deep transition hover:brightness-105 active:scale-[0.98]"
           >
             Search
           </button>
@@ -68,12 +71,12 @@ export default function FilterBar({
             value={activeCity}
             onChange={(e) => update({ city: e.target.value || null })}
             aria-label="Filter by city"
-            className="h-11 flex-1 cursor-pointer appearance-none rounded-full border border-coal/15 bg-paper-soft px-4 pr-9 text-sm font-medium shadow-sm outline-none transition focus:border-flame sm:flex-none dark:border-white/10 dark:bg-coal-soft"
+            className={`${control} flex-1 cursor-pointer appearance-none px-4 pr-10 text-sm font-medium sm:flex-none`}
             style={{
               backgroundImage:
                 "url(\"data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' fill='none'%3E%3Cpath d='M1 1.5 6 6.5 11 1.5' stroke='%23a1a1aa' stroke-width='1.8' stroke-linecap='round'/%3E%3C/svg%3E\")",
               backgroundRepeat: 'no-repeat',
-              backgroundPosition: 'right 0.9rem center',
+              backgroundPosition: 'right 0.95rem center',
             }}
           >
             <option value="">All cities</option>
@@ -87,9 +90,9 @@ export default function FilterBar({
           <button
             onClick={() => update({ ending: endingSoon ? null : '1' })}
             aria-pressed={endingSoon}
-            className={`flex h-11 items-center gap-1.5 whitespace-nowrap rounded-full border px-4 text-sm font-semibold shadow-sm transition active:scale-[0.97] ${
+            className={`flex h-12 items-center gap-1.5 whitespace-nowrap rounded-xl border px-4 text-sm font-semibold transition active:scale-[0.98] ${
               endingSoon
-                ? 'border-ember bg-ember text-white shadow-ember/25'
+                ? 'border-ember bg-ember text-white'
                 : 'border-coal/15 bg-paper-soft text-coal/70 hover:border-ember/50 hover:text-ember dark:border-white/10 dark:bg-coal-soft dark:text-paper/70'
             }`}
           >
@@ -109,7 +112,7 @@ export default function FilterBar({
             active={activeCat === c.slug}
             onClick={() => update({ category: c.slug })}
           >
-            <span aria-hidden>{c.icon}</span> {c.name}
+            {c.name}
           </Chip>
         ))}
       </div>
@@ -132,7 +135,7 @@ function Chip({
       aria-pressed={active}
       className={`whitespace-nowrap rounded-full border px-3.5 py-1.5 text-[13px] font-medium transition active:scale-[0.96] ${
         active
-          ? 'border-coal bg-coal text-paper shadow-md shadow-coal/25 dark:border-flame dark:bg-flame dark:text-coal-deep'
+          ? 'border-coal bg-coal text-paper dark:border-flame dark:bg-flame dark:text-coal-deep'
           : 'border-coal/15 bg-paper-soft text-coal/70 hover:border-flame/60 hover:text-coal dark:border-white/10 dark:bg-coal-soft dark:text-paper/70 dark:hover:text-paper'
       }`}
     >

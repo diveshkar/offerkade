@@ -3,6 +3,8 @@ import type { Metadata } from 'next';
 import SiteHeader from '@/app/components/SiteHeader';
 import SiteFooter from '@/app/components/SiteFooter';
 import OfferCard from '@/app/components/OfferCard';
+import VerifiedBadge from '@/app/components/VerifiedBadge';
+import { PinIcon } from '@/app/components/Icons';
 import { getBusinessBySlug } from '@/lib/queries/offers';
 
 export const dynamic = 'force-dynamic';
@@ -57,13 +59,13 @@ export default async function BusinessPage({ params }: { params: Promise<{ slug:
                 <h1 className="font-display text-2xl font-semibold tracking-tight sm:text-4xl">
                   {b.name}
                 </h1>
-                {b.verified && (
-                  <span className="rounded-full bg-emerald-500/15 px-2.5 py-1 text-xs font-semibold text-emerald-300 ring-1 ring-emerald-400/30">
-                    ✓ Verified
-                  </span>
-                )}
+                {b.verified && <VerifiedBadge size="md" />}
               </div>
-              {b.city && <p className="mt-1 text-sm text-paper/60">📍 {b.city}</p>}
+              {b.city && (
+                <p className="mt-1 flex items-center gap-1 text-sm text-paper/60">
+                  <PinIcon className="h-3.5 w-3.5" /> {b.city}
+                </p>
+              )}
             </div>
           </div>
         </section>

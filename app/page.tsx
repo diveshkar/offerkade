@@ -3,6 +3,7 @@ import SiteHeader from '@/app/components/SiteHeader';
 import SiteFooter from '@/app/components/SiteFooter';
 import FilterBar from '@/app/components/FilterBar';
 import OfferCard from '@/app/components/OfferCard';
+import Paginator from '@/app/components/Paginator';
 import { getCategories, getActiveCities, listOffers } from '@/lib/queries/offers';
 
 // Always render fresh: offers change and expire daily.
@@ -19,17 +20,32 @@ export default async function Home({ searchParams }: { searchParams: Promise<SP>
     city: one(sp.city),
     endingSoon: one(sp.ending) === '1',
     search: one(sp.q),
+    page: Math.max(1, parseInt(one(sp.page) ?? '1', 10) || 1),
   };
 
-  const [categories, cities, offers] = await Promise.all([
+  const [categories, cities, result] = await Promise.all([
     getCategories(),
     getActiveCities(),
     listOffers(filters),
   ]);
 
+  const { offers, total, page, totalPages } = result;
+
   const hasFilters = Boolean(
     filters.categorySlug || filters.city || filters.endingSoon || filters.search,
   );
+
+  // Page links keep the active filters.
+  const hrefFor = (p: number) => {
+    const params = new URLSearchParams();
+    if (filters.categorySlug) params.set('category', filters.categorySlug);
+    if (filters.city) params.set('city', filters.city);
+    if (filters.endingSoon) params.set('ending', '1');
+    if (filters.search) params.set('q', filters.search);
+    if (p > 1) params.set('page', String(p));
+    const qs = params.toString();
+    return qs ? `/?${qs}` : '/';
+  };
 
   return (
     <>
@@ -77,7 +93,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<SP>
             <div className="mt-8 flex flex-wrap items-center gap-x-7 gap-y-2 text-[13px] text-paper/55">
               <span className="flex items-center gap-2">
                 <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" aria-hidden />
-                {offers.length} live right now
+                {total} live right now
               </span>
               <span className="flex items-center gap-2">
                 <span className="h-1.5 w-1.5 rounded-full bg-flame" aria-hidden />
@@ -107,14 +123,14 @@ export default async function Home({ searchParams }: { searchParams: Promise<SP>
               {hasFilters ? 'Matching offers' : "Today's offers"}
             </h2>
             <p className="text-sm text-coal/50 dark:text-paper/50">
-              {offers.length} {offers.length === 1 ? 'offer' : 'offers'}
+              {total} {total === 1 ? 'offer' : 'offers'}
+              {totalPages > 1 && ` · page ${page} of ${totalPages}`}
             </p>
           </div>
 
           {offers.length === 0 ? (
             <div className="rounded-3xl border border-dashed border-coal/20 bg-paper-soft/60 px-6 py-24 text-center dark:border-white/15 dark:bg-white/[0.03]">
-              <p className="text-4xl">🔎</p>
-              <p className="font-display mt-4 text-xl font-semibold text-coal-deep dark:text-paper">
+              <p className="font-display text-xl font-semibold text-coal-deep dark:text-paper">
                 No offers found
               </p>
               <p className="mt-1 text-sm text-coal/50 dark:text-paper/50">
@@ -122,17 +138,20 @@ export default async function Home({ searchParams }: { searchParams: Promise<SP>
               </p>
             </div>
           ) : (
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-5 lg:grid-cols-4">
-              {offers.map((o, i) => (
-                <div
-                  key={o.id}
-                  className="animate-rise h-full"
-                  style={{ animationDelay: `${Math.min(i * 45, 360)}ms` }}
-                >
-                  <OfferCard offer={o} />
-                </div>
-              ))}
-            </div>
+            <>
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-5 lg:grid-cols-4">
+                {offers.map((o, i) => (
+                  <div
+                    key={o.id}
+                    className="animate-rise h-full"
+                    style={{ animationDelay: `${Math.min(i * 45, 360)}ms` }}
+                  >
+                    <OfferCard offer={o} />
+                  </div>
+                ))}
+              </div>
+              <Paginator page={page} totalPages={totalPages} hrefFor={hrefFor} />
+            </>
           )}
         </section>
       </main>

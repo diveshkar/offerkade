@@ -55,6 +55,9 @@ async function seed() {
     { name: 'Pizza Palace Colombo', slug: 'seed-pizza-palace', city: 'Colombo', contact_phone: '+94112345678', whatsapp: '+94771234567', verified: true },
     { name: 'Kandy Furniture House', slug: 'seed-kandy-furniture', city: 'Kandy', contact_phone: '+94812223344', verified: true },
     { name: 'Galle Coffee Co.', slug: 'seed-galle-coffee', city: 'Galle', contact_phone: '+94912556677', whatsapp: '+94761112233', verified: false },
+    { name: 'Colombo Electronics Hub', slug: 'seed-colombo-electronics', city: 'Colombo', contact_phone: '+94114567890', whatsapp: '+94772345678', verified: true },
+    { name: 'Negombo Beach Resort', slug: 'seed-negombo-resort', city: 'Negombo', contact_phone: '+94312233445', whatsapp: '+94763334455', verified: true },
+    { name: 'Style Studio Kandy', slug: 'seed-style-studio', city: 'Kandy', contact_phone: '+94815566778', verified: false },
   ];
   const { data: bizRows, error: bizErr } = await db.from('businesses').insert(businesses).select();
   if (bizErr) throw bizErr;
@@ -70,6 +73,25 @@ async function seed() {
     { b: 'seed-kandy-furniture', cat: 'furniture', title: 'Mattress Mega Sale: From LKR 18,000', description: 'Orthopedic and memory-foam mattresses, all sizes. Free delivery within Kandy.', city: 'Kandy', end: 8, feat: false },
     { b: 'seed-pizza-palace', cat: 'food', title: 'Student Lunch Combo: LKR 950', description: 'Personal pizza + drink for students with a valid ID. Weekdays only.', city: 'Colombo', end: 45, feat: false },
     { b: 'seed-galle-coffee', cat: 'food', title: 'Breakfast Special: Save 20%', description: 'Full breakfast platter with fresh juice, 20% off every morning this month.', city: 'Galle', end: 2, feat: false },
+
+    { b: 'seed-colombo-electronics', cat: 'electronics', title: 'Smartphones: Up to LKR 25,000 Off', description: 'Selected flagship and mid-range smartphones with instant cash discounts. Warranty included.', city: 'Colombo', end: 18, feat: true },
+    { b: 'seed-colombo-electronics', cat: 'electronics', title: 'Laptop Clearance: 15% Off All Models', description: 'End-of-season laptop clearance across all brands. Free laptop bag with every purchase.', city: 'Colombo', end: 6, feat: false },
+    { b: 'seed-colombo-electronics', cat: 'electronics', title: 'Buy a TV, Get a Soundbar Free', description: 'Any 55-inch or larger smart TV comes with a free soundbar. While stocks last.', city: 'Colombo', end: 25, feat: false },
+    { b: 'seed-colombo-electronics', cat: 'services', title: 'Free Phone Screen Check', description: 'Walk in for a free diagnostic on any device. Repairs quoted upfront, no obligation.', city: 'Colombo', end: 40, feat: false },
+
+    { b: 'seed-negombo-resort', cat: 'travel', title: 'Beachfront Stay: 2 Nights for the Price of 1', description: 'Ocean-view double rooms, breakfast included. Valid weekdays through the season.', city: 'Negombo', end: 22, feat: true },
+    { b: 'seed-negombo-resort', cat: 'travel', title: 'Sunday Brunch Buffet: LKR 3,500', description: 'Unlimited seafood brunch buffet with pool access, every Sunday 11am to 3pm.', city: 'Negombo', end: 1, feat: false },
+    { b: 'seed-negombo-resort', cat: 'travel', title: 'Honeymoon Package: 20% Off', description: 'Three nights in a deluxe suite with candlelit dinner and spa credit for two.', city: 'Negombo', end: 35, feat: false },
+    { b: 'seed-negombo-resort', cat: 'food', title: 'Seafood Night: Kids Eat Free', description: 'Every Friday, one child eats free with each paying adult at the beach grill.', city: 'Negombo', end: 14, feat: false },
+
+    { b: 'seed-style-studio', cat: 'beauty', title: 'Hair Spa + Cut: LKR 2,500', description: 'Full hair spa treatment with wash, cut, and blow-dry. Appointments recommended.', city: 'Kandy', end: 10, feat: false },
+    { b: 'seed-style-studio', cat: 'beauty', title: 'Bridal Package: 30% Off', description: 'Complete bridal makeup and hair styling with a free trial session booked in advance.', city: 'Kandy', end: 28, feat: false },
+    { b: 'seed-style-studio', cat: 'fashion', title: 'Saree Collection: Buy 2 Get 1 Free', description: 'New-season handloom sarees. Mix and match any three, pay for two.', city: 'Kandy', end: 2, feat: false },
+    { b: 'seed-style-studio', cat: 'fashion', title: 'Office Wear: Flat 40% Off', description: 'Shirts, trousers, and blazers reduced across the store. All sizes available.', city: 'Kandy', end: 16, feat: false },
+
+    { b: 'seed-pizza-palace', cat: 'groceries', title: 'Pantry Bundle: Save LKR 1,200', description: 'Rice, dhal, coconut oil, and spices bundled at a fixed weekly price.', city: 'Colombo', end: 9, feat: false },
+    { b: 'seed-kandy-furniture', cat: 'furniture', title: 'Office Chairs: 2 for LKR 22,000', description: 'Ergonomic mesh office chairs with lumbar support. Assembly included.', city: 'Kandy', end: 5, feat: false },
+    { b: 'seed-galle-coffee', cat: 'other', title: 'Loyalty Card: 10th Coffee Free', description: 'Pick up a loyalty card in store. Every tenth hot drink is on us.', city: 'Galle', end: 50, feat: false },
   ];
 
   const rows = offers.map((o, i) => ({

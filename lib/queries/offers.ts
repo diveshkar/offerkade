@@ -24,7 +24,19 @@ export interface OfferFilters {
   city?: string;
   endingSoon?: boolean; // end_date within 2 days
   search?: string;
+  page?: number; // 1-based
+  pageSize?: number; // default 8
 }
+
+export interface OfferPage {
+  offers: OfferWithRelations[];
+  total: number; // total matching offers, across all pages
+  page: number; // current 1-based page (clamped into range)
+  pageSize: number;
+  totalPages: number;
+}
+
+export const OFFERS_PER_PAGE = 8;
 
 /** All categories, in display order. */
 export async function getCategories(): Promise<Category[]> {
@@ -47,8 +59,12 @@ export async function getActiveCities(): Promise<string[]> {
   return [...set].sort();
 }
 
-/** List live offers, featured-first then newest, with optional filters. */
-export async function listOffers(filters: OfferFilters = {}): Promise<OfferWithRelations[]> {
+/**
+ * List live offers, featured-first then newest, with optional filters,
+ * paginated (default 8 per page). The category filter lives on the joined
+ * table so we filter in JS, then page over the result — fine at this scale.
+ */
+export async function listOffers(filters: OfferFilters = {}): Promise<OfferPage> {
   let q = supabase
     .from('offers')
     .select(OFFER_SELECT)
@@ -74,7 +90,14 @@ export async function listOffers(filters: OfferFilters = {}): Promise<OfferWithR
   if (filters.categorySlug) {
     rows = rows.filter((o) => o.category?.slug === filters.categorySlug);
   }
-  return rows;
+
+  const pageSize = filters.pageSize && filters.pageSize > 0 ? filters.pageSize : OFFERS_PER_PAGE;
+  const total = rows.length;
+  const totalPages = Math.max(1, Math.ceil(total / pageSize));
+  const page = Math.min(Math.max(1, filters.page ?? 1), totalPages);
+  const start = (page - 1) * pageSize;
+
+  return { offers: rows.slice(start, start + pageSize), total, page, pageSize, totalPages };
 }
 
 /** A single offer by id (null if not found / not public). */
