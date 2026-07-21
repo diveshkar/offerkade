@@ -13,7 +13,8 @@ import {
   PinIcon,
   StarIcon,
 } from '@/app/components/Icons';
-import { getOfferById, daysLeft } from '@/lib/queries/offers';
+import BranchList from '@/app/components/BranchList';
+import { getOfferById, getOfferBranches, daysLeft } from '@/lib/queries/offers';
 
 export const dynamic = 'force-dynamic';
 
@@ -51,6 +52,8 @@ export default async function OfferPage({ params }: { params: Promise<{ id: stri
   const { id } = await params;
   const offer = await getOfferById(id);
   if (!offer) notFound();
+
+  const branches = await getOfferBranches(offer.id);
 
   const left = daysLeft(offer.end_date);
   const urgent = left <= 2;
@@ -152,6 +155,8 @@ export default async function OfferPage({ params }: { params: Promise<{ id: stri
                 </dd>
               </div>
             </dl>
+
+            <BranchList branches={branches} />
 
             {/* Business card */}
             {b && (

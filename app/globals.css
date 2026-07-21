@@ -44,6 +44,23 @@ html {
   scroll-behavior: smooth;
 }
 
+/* Hide the scrollbar chrome everywhere. Scrolling still works with the
+   wheel, touch, and the keyboard. */
+html,
+body,
+.overflow-y-auto,
+.overflow-auto {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* legacy Edge */
+}
+
+html::-webkit-scrollbar,
+body::-webkit-scrollbar,
+.overflow-y-auto::-webkit-scrollbar,
+.overflow-auto::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Edge */
+}
+
 body {
   background: var(--background);
   color: var(--foreground);

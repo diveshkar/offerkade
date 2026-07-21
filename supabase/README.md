@@ -18,7 +18,11 @@ Everything the database needs, as plain SQL you paste into the Supabase dashboar
 ## 3. Run the schema (you, in Supabase SQL Editor)
 Open **SQL Editor → New query**. Either:
 - Paste the whole of [`schema_all.sql`](./schema_all.sql) and **Run** once, **or**
-- Run the numbered files in `migrations/` in order: `001` → `005`.
+- Run the numbered files in `migrations/` in order: `001` to `008`.
+
+Already have the database live? Run only the new file:
+[`migrations/007_shop_accounts.sql`](./migrations/007_shop_accounts.sql) (Phase 5 shop ownership) and
+[`migrations/008_branches.sql`](./migrations/008_branches.sql) (Phase 5 shop branches).
 
 ## 4. Verify (you, in SQL Editor)
 Run the checks in [`verify.sql`](./verify.sql). You should see 10 categories and RLS enabled on all tables.

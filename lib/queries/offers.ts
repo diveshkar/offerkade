@@ -5,7 +5,7 @@
 // needed here, but we order featured-first, newest-first.
 // ============================================================
 import { supabase } from '@/lib/supabase/client';
-import type { Business, Category, Offer } from '@/lib/database.types';
+import type { Branch, Business, Category, Offer } from '@/lib/database.types';
 
 /** An offer joined with its business + category, as the public pages need it. */
 export interface OfferWithRelations extends Offer {
@@ -109,6 +109,20 @@ export async function getOfferById(id: string): Promise<OfferWithRelations | nul
     .maybeSingle();
   if (error) throw new Error(error.message);
   return (data as unknown as OfferWithRelations) ?? null;
+}
+
+/** Branches an offer runs at, in display order. */
+export async function getOfferBranches(offerId: string): Promise<Branch[]> {
+  const { data } = await supabase
+    .from('offer_branches')
+    .select('branch:branches(*)')
+    .eq('offer_id', offerId);
+
+  const rows = (data ?? []) as unknown as { branch: Branch | null }[];
+  return rows
+    .map((r) => r.branch)
+    .filter((b): b is Branch => Boolean(b))
+    .sort((a, b) => Number(b.is_primary) - Number(a.is_primary));
 }
 
 /** A business by slug + its live offers. */

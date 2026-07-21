@@ -6,6 +6,7 @@
 
 export type OfferStatus = 'pending' | 'approved' | 'expired' | 'rejected';
 export type SubscriptionTier = 'free' | 'featured' | 'premium';
+export type BusinessStatus = 'pending' | 'approved' | 'rejected';
 
 export interface Business {
   id: string;
@@ -20,6 +21,21 @@ export interface Business {
   address: string | null;
   verified: boolean;
   subscription_tier: SubscriptionTier;
+  owner_id: string | null;
+  status: BusinessStatus;
+  created_at: string;
+}
+
+export interface Branch {
+  id: string;
+  business_id: string;
+  label: string | null;
+  district: string;
+  city: string | null;
+  address: string | null;
+  lat: number | null;
+  lng: number | null;
+  is_primary: boolean;
   created_at: string;
 }
 
@@ -49,6 +65,7 @@ export interface Offer {
   status: OfferStatus;
   is_featured: boolean;
   view_count: number;
+  lead_count: number;
   redemption_count: number;
   submitted_by_email: string | null;
   created_at: string;
