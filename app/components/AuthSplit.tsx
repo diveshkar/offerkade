@@ -63,16 +63,18 @@ export default function AuthSplit({
         />
         <div aria-hidden className="absolute inset-0 bg-coal-deep/55" />
 
-        <div className="relative flex h-full flex-col justify-between p-12 xl:p-16">
-          <Image
-            src="/brand/logo-mark.webp"
-            alt=""
-            width={64}
-            height={110}
-            unoptimized
-            className="h-28 w-auto object-contain drop-shadow-[0_18px_40px_rgba(0,0,0,0.45)]"
-          />
+        {/* Oversized mark, cropped by the panel edge. Texture, not a focal point. */}
+        <Image
+          src="/brand/logo-mark.webp"
+          alt=""
+          width={420}
+          height={725}
+          unoptimized
+          aria-hidden
+          className="pointer-events-none absolute -right-16 top-1/2 h-[62%] w-auto -translate-y-1/2 object-contain opacity-[0.09] xl:-right-10"
+        />
 
+        <div className="relative flex h-full flex-col justify-center p-12 xl:p-16">
           <div className="max-w-md">
             <p className="text-xs font-semibold uppercase tracking-[0.2em] text-flame">
               For businesses
@@ -94,7 +96,7 @@ export default function AuthSplit({
             </ul>
           </div>
 
-          <p className="text-[13px] text-white/45">
+          <p className="absolute bottom-12 left-12 text-[13px] text-white/45 xl:bottom-16 xl:left-16">
             Sri Lanka&apos;s offers in one place.
           </p>
         </div>
