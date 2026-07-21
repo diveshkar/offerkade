@@ -52,11 +52,11 @@ async function seed() {
   );
 
   const businesses = [
-    { name: 'Pizza Palace Colombo', slug: 'seed-pizza-palace', city: 'Colombo', contact_phone: '+94112345678', whatsapp: '+94771234567', verified: true },
-    { name: 'Kandy Furniture House', slug: 'seed-kandy-furniture', city: 'Kandy', contact_phone: '+94812223344', verified: true },
+    { name: 'Pizza Palace Colombo', slug: 'seed-pizza-palace', city: 'Colombo', website: 'https://example.com/pizza-palace', contact_phone: '+94112345678', whatsapp: '+94771234567', verified: true },
+    { name: 'Kandy Furniture House', slug: 'seed-kandy-furniture', city: 'Kandy', website: 'https://example.com/kandy-furniture', contact_phone: '+94812223344', verified: true },
     { name: 'Galle Coffee Co.', slug: 'seed-galle-coffee', city: 'Galle', contact_phone: '+94912556677', whatsapp: '+94761112233', verified: false },
-    { name: 'Colombo Electronics Hub', slug: 'seed-colombo-electronics', city: 'Colombo', contact_phone: '+94114567890', whatsapp: '+94772345678', verified: true },
-    { name: 'Negombo Beach Resort', slug: 'seed-negombo-resort', city: 'Negombo', contact_phone: '+94312233445', whatsapp: '+94763334455', verified: true },
+    { name: 'Colombo Electronics Hub', slug: 'seed-colombo-electronics', city: 'Colombo', website: 'https://example.com/colombo-electronics', contact_phone: '+94114567890', whatsapp: '+94772345678', verified: true },
+    { name: 'Negombo Beach Resort', slug: 'seed-negombo-resort', city: 'Negombo', website: 'https://example.com/negombo-resort', contact_phone: '+94312233445', whatsapp: '+94763334455', verified: true },
     { name: 'Style Studio Kandy', slug: 'seed-style-studio', city: 'Kandy', contact_phone: '+94815566778', verified: false },
   ];
   const { data: bizRows, error: bizErr } = await db.from('businesses').insert(businesses).select();

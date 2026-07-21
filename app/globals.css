@@ -1,5 +1,9 @@
 @import "tailwindcss";
 
+/* Light theme for everyone: gate `dark:` utilities behind a `.dark` class
+   we never add, so the browser's dark-mode preference is ignored. */
+@custom-variant dark (&:where(.dark, .dark *));
+
 /* ============================================================
    OfferCeylon "Flame" theme
    Warm charcoal + vivid orange + cream paper. Fraunces serif
@@ -33,13 +37,7 @@
 :root {
   --background: #faf6f0; /* cream paper */
   --foreground: #221a14; /* warm near-black ink */
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #120d0a; /* deep warm charcoal, not flat black */
-    --foreground: #f1eae2; /* warm cream text */
-  }
+  color-scheme: light; /* always light — ignore the OS/browser dark preference */
 }
 
 html {

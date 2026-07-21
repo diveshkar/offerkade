@@ -26,7 +26,7 @@ export default function AboutPage() {
       <p>
         Are you a business with a current offer?{' '}
         <Link href="/submit" className="font-medium text-flame-deep hover:underline dark:text-flame-bright">
-          List it free →
+          List it free
         </Link>
       </p>
     </PageShell>

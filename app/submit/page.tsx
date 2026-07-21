@@ -20,10 +20,10 @@ export default function SubmitPage() {
       </p>
       <p>
         <a
-          href="mailto:hello@offerceylon.lk?subject=New%20offer%20listing"
+          href="mailto:support@offerceylon.lk?subject=New%20offer%20listing"
           className="inline-block rounded-full bg-gradient-to-b from-flame-bright to-flame px-6 py-3 font-semibold text-coal-deep shadow-lg shadow-flame/25 transition hover:brightness-105 active:scale-[0.98]"
         >
-          Email your offer →
+          Email your offer
         </a>
       </p>
     </PageShell>

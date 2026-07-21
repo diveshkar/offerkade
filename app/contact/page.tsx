@@ -14,8 +14,8 @@ export default function ContactPage() {
       </p>
       <p>
         Email:{' '}
-        <a href="mailto:hello@offerceylon.lk" className="font-medium text-flame-deep dark:text-flame-bright hover:underline">
-          hello@offerceylon.lk
+        <a href="mailto:support@offerceylon.lk" className="font-medium text-flame-deep dark:text-flame-bright hover:underline">
+          support@offerceylon.lk
         </a>
       </p>
       <p>

@@ -21,7 +21,6 @@ export default function PageShell({
           />
           <div className="relative mx-auto max-w-3xl px-4 sm:px-6">
             <p className="mb-3 flex items-center gap-3 text-xs font-semibold uppercase tracking-[0.22em] text-flame">
-              <span className="h-px w-8 bg-flame/60" aria-hidden />
               OfferCeylon
             </p>
             <h1 className="font-display text-balance text-4xl font-semibold tracking-tight sm:text-5xl">

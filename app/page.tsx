@@ -74,7 +74,6 @@ export default async function Home({ searchParams }: { searchParams: Promise<SP>
 
           <div className="relative mx-auto max-w-6xl px-4 sm:px-6">
             <p className="mb-5 flex items-center gap-3 text-xs font-semibold uppercase tracking-[0.22em] text-flame">
-              <span className="h-px w-8 bg-flame/60" aria-hidden />
               Sri Lanka&apos;s daily offers hub
             </p>
 

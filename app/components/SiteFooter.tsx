@@ -13,10 +13,10 @@ export default function SiteFooter() {
                 <Image
                   src="/brand/logo-mark.webp"
                   alt=""
-                  width={20}
+                  width={12}
                   height={20}
                   unoptimized
-                  className="h-5 w-5"
+                  className="h-5 w-auto object-contain"
                 />
               </span>
               <span className="font-display text-base font-semibold tracking-tight text-paper">

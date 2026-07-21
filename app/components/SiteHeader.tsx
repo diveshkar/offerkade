@@ -14,10 +14,10 @@ export default function SiteHeader() {
             <Image
               src="/brand/logo-mark.webp"
               alt=""
-              width={24}
+              width={14}
               height={24}
               unoptimized
-              className="h-6 w-6"
+              className="h-6 w-auto object-contain"
             />
           </span>
           <span className="font-display text-lg font-semibold tracking-tight">
@@ -26,12 +26,6 @@ export default function SiteHeader() {
         </Link>
 
         <nav className="flex items-center gap-1 text-sm font-medium">
-          <Link
-            href="/"
-            className="hidden rounded-full px-4 py-2 text-paper/75 transition hover:bg-white/10 hover:text-paper sm:block"
-          >
-            Offers
-          </Link>
           <Link
             href="/about"
             className="hidden rounded-full px-4 py-2 text-paper/75 transition hover:bg-white/10 hover:text-paper sm:block"

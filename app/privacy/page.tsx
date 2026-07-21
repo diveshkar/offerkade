@@ -36,8 +36,8 @@ export default function PrivacyPage() {
       <p>
         Under the PDPA you may request access to, correction of, or deletion of your personal data.
         To do so, email{' '}
-        <a href="mailto:hello@offerceylon.lk" className="font-medium text-flame-deep dark:text-flame-bright hover:underline">
-          hello@offerceylon.lk
+        <a href="mailto:support@offerceylon.lk" className="font-medium text-flame-deep dark:text-flame-bright hover:underline">
+          support@offerceylon.lk
         </a>
         .
       </p>
@@ -48,10 +48,6 @@ export default function PrivacyPage() {
         third-party advertising trackers on this site at this time.
       </p>
 
-      <p className="text-sm text-zinc-400">
-        This policy is a starting point and should be reviewed against your final data practices
-        before public launch.
-      </p>
     </PageShell>
   );
 }
