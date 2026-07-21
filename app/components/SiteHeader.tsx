@@ -33,7 +33,7 @@ export default function SiteHeader() {
             About
           </Link>
           <Link
-            href="/submit"
+            href="/register"
             className="ml-1 rounded-full bg-gradient-to-b from-flame-bright to-flame px-4 py-2 font-semibold text-coal-deep shadow-md shadow-flame/25 transition hover:brightness-105 active:scale-[0.98]"
           >
             List your offer

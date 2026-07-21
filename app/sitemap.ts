@@ -12,7 +12,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     '/contact',
     '/privacy',
     '/terms',
-    '/submit',
+    '/register',
   ].map((path) => ({
     url: `${BASE}${path}`,
     changeFrequency: path === '' ? 'daily' : 'monthly',

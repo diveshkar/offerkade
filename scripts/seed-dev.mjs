@@ -52,17 +52,54 @@ async function seed() {
   );
 
   const businesses = [
-    { name: 'Pizza Palace Colombo', slug: 'seed-pizza-palace', city: 'Colombo', website: 'https://example.com/pizza-palace', contact_phone: '+94112345678', whatsapp: '+94771234567', verified: true },
-    { name: 'Kandy Furniture House', slug: 'seed-kandy-furniture', city: 'Kandy', website: 'https://example.com/kandy-furniture', contact_phone: '+94812223344', verified: true },
-    { name: 'Galle Coffee Co.', slug: 'seed-galle-coffee', city: 'Galle', contact_phone: '+94912556677', whatsapp: '+94761112233', verified: false },
-    { name: 'Colombo Electronics Hub', slug: 'seed-colombo-electronics', city: 'Colombo', website: 'https://example.com/colombo-electronics', contact_phone: '+94114567890', whatsapp: '+94772345678', verified: true },
-    { name: 'Negombo Beach Resort', slug: 'seed-negombo-resort', city: 'Negombo', website: 'https://example.com/negombo-resort', contact_phone: '+94312233445', whatsapp: '+94763334455', verified: true },
-    { name: 'Style Studio Kandy', slug: 'seed-style-studio', city: 'Kandy', contact_phone: '+94815566778', verified: false },
+    { name: 'Pizza Palace Colombo', slug: 'seed-pizza-palace', city: 'Colombo', website: 'https://example.com/pizza-palace', contact_phone: '+94112345678', whatsapp: '+94771234567', verified: true, status: 'approved' },
+    { name: 'Kandy Furniture House', slug: 'seed-kandy-furniture', city: 'Kandy', website: 'https://example.com/kandy-furniture', contact_phone: '+94812223344', verified: true, status: 'approved' },
+    { name: 'Galle Coffee Co.', slug: 'seed-galle-coffee', city: 'Galle', contact_phone: '+94912556677', whatsapp: '+94761112233', verified: false, status: 'approved' },
+    { name: 'Colombo Electronics Hub', slug: 'seed-colombo-electronics', city: 'Colombo', website: 'https://example.com/colombo-electronics', contact_phone: '+94114567890', whatsapp: '+94772345678', verified: true, status: 'approved' },
+    { name: 'Negombo Beach Resort', slug: 'seed-negombo-resort', city: 'Negombo', website: 'https://example.com/negombo-resort', contact_phone: '+94312233445', whatsapp: '+94763334455', verified: true, status: 'approved' },
+    { name: 'Style Studio Kandy', slug: 'seed-style-studio', city: 'Kandy', contact_phone: '+94815566778', verified: false, status: 'approved' },
   ];
   const { data: bizRows, error: bizErr } = await db.from('businesses').insert(businesses).select();
   if (bizErr) throw bizErr;
   const biz = Object.fromEntries(bizRows.map((b) => [b.slug, b]));
   console.log(`✅ Inserted ${bizRows.length} businesses.`);
+
+  const branchSpec = {
+    'seed-pizza-palace': [
+      { district: 'Colombo', city: 'Colombo 03', address: '128 Galle Road, Colombo 03', label: 'Colpetty' },
+      { district: 'Colombo', city: 'Nugegoda', address: '45 High Level Road, Nugegoda', label: 'Nugegoda' },
+      { district: 'Gampaha', city: 'Negombo', address: '12 Main Street, Negombo', label: 'Negombo' },
+    ],
+    'seed-kandy-furniture': [
+      { district: 'Kandy', city: 'Kandy', address: '210 Peradeniya Road, Kandy' },
+    ],
+    'seed-galle-coffee': [
+      { district: 'Galle', city: 'Galle Fort', address: '9 Pedlar Street, Galle Fort', label: 'Fort' },
+      { district: 'Galle', city: 'Unawatuna', address: '3 Beach Road, Unawatuna', label: 'Unawatuna' },
+    ],
+    'seed-colombo-electronics': [
+      { district: 'Colombo', city: 'Pettah', address: '77 Main Street, Pettah' },
+    ],
+    'seed-negombo-resort': [
+      { district: 'Gampaha', city: 'Negombo', address: '55 Lewis Place, Negombo' },
+    ],
+    'seed-style-studio': [
+      { district: 'Kandy', city: 'Kandy', address: '18 Dalada Veediya, Kandy', label: 'City Centre' },
+      { district: 'Matale', city: 'Matale', address: '6 Trincomalee Street, Matale', label: 'Matale' },
+    ],
+  };
+
+  const branchRows = [];
+  for (const [slug, list] of Object.entries(branchSpec)) {
+    list.forEach((b, i) =>
+      branchRows.push({ ...b, business_id: biz[slug].id, is_primary: i === 0 }),
+    );
+  }
+  const { data: brRows, error: brErr } = await db.from('branches').insert(branchRows).select();
+  if (brErr) throw brErr;
+  const branchesByBiz = {};
+  for (const b of brRows) (branchesByBiz[b.business_id] ??= []).push(b);
+  console.log(`✅ Inserted ${brRows.length} branches.`);
 
   const offers = [
     { b: 'seed-pizza-palace', cat: 'food', title: 'Buy 1 Get 1 Free: Large Pizzas', description: 'Every large pizza this week comes with a second one free. Dine-in or takeaway, all branches.', city: 'Colombo', end: 12, feat: true },
@@ -113,9 +150,23 @@ async function seed() {
     submitted_by_email: SEED_TAG,
   }));
 
-  const { error: oErr, count } = await db.from('offers').insert(rows, { count: 'exact' });
+  const { data: offerRows, error: oErr } = await db.from('offers').insert(rows).select();
   if (oErr) throw oErr;
-  console.log(`✅ Inserted ${rows.length} offers (${count ?? '?'} confirmed).`);
+  console.log(`✅ Inserted ${offerRows.length} offers.`);
+
+  const links = [];
+  offerRows.forEach((o, i) => {
+    const all = branchesByBiz[o.business_id] ?? [];
+    if (all.length === 0) return;
+    // Alternate between every branch and just the primary, so both cases show.
+    const chosen = i % 3 === 0 ? all.filter((b) => b.is_primary) : all;
+    chosen.forEach((b) => links.push({ offer_id: o.id, branch_id: b.id }));
+  });
+  if (links.length) {
+    const { error: lErr } = await db.from('offer_branches').insert(links);
+    if (lErr) throw lErr;
+  }
+  console.log(`✅ Linked ${links.length} offer/branch pairs.`);
   console.log('Done. Visit http://localhost:3000 to see them.');
 }
 
