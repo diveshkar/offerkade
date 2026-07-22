@@ -32,7 +32,7 @@ export default async function OnboardingPage() {
               Offer<span className="text-flame">Ceylon</span>
             </span>
           </Link>
-          <span className="text-sm text-paper/60">Step 2 of 2</span>
+          <span className="text-sm text-paper/60">Shop setup</span>
         </div>
       </header>
 
