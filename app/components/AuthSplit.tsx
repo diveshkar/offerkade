@@ -5,7 +5,7 @@ import type { ReactNode } from 'react';
 const POINTS = [
   'Reach shoppers across all 25 districts',
   'Your offers go live the moment you post',
-  'Free to list, no commission, ever',
+  'One dashboard for every branch you run',
 ];
 
 export default function AuthSplit({
@@ -52,18 +52,8 @@ export default function AuthSplit({
         </div>
       </section>
 
-      <section className="relative hidden overflow-hidden bg-coal-deep lg:block">
-        <Image
-          src="/brand/bg-warm.webp"
-          alt=""
-          fill
-          sizes="50vw"
-          priority
-          className="object-cover"
-        />
-        <div aria-hidden className="absolute inset-0 bg-coal-deep/55" />
-
-        {/* Oversized mark, cropped by the panel edge. Texture, not a focal point. */}
+      <section className="bg-hero relative hidden overflow-hidden lg:block">
+        {/* Oversized mark, fully inside the panel. Texture, not a focal point. */}
         <Image
           src="/brand/logo-mark.webp"
           alt=""
@@ -71,12 +61,12 @@ export default function AuthSplit({
           height={725}
           unoptimized
           aria-hidden
-          className="pointer-events-none absolute -right-16 top-1/2 h-[62%] w-auto -translate-y-1/2 object-contain opacity-[0.09] xl:-right-10"
+          className="pointer-events-none absolute right-10 top-1/2 h-[58%] w-auto -translate-y-1/2 object-contain opacity-[0.13] xl:right-16"
         />
 
         <div className="relative flex h-full flex-col justify-center p-12 xl:p-16">
           <div className="max-w-md">
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-flame">
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-orange-100">
               For businesses
             </p>
             <p className="font-display mt-4 text-[34px] font-semibold leading-[1.15] text-white xl:text-[40px]">
@@ -85,10 +75,10 @@ export default function AuthSplit({
 
             <ul className="mt-9 flex flex-col gap-4">
               {POINTS.map((point) => (
-                <li key={point} className="flex items-start gap-3 text-[15px] text-white/85">
+                <li key={point} className="flex items-start gap-3 text-[15px] text-white/90">
                   <span
                     aria-hidden
-                    className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-flame"
+                    className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-amber-200"
                   />
                   {point}
                 </li>
@@ -96,7 +86,7 @@ export default function AuthSplit({
             </ul>
           </div>
 
-          <p className="absolute bottom-12 left-12 text-[13px] text-white/45 xl:bottom-16 xl:left-16">
+          <p className="absolute bottom-12 left-12 text-[13px] text-white/60 xl:bottom-16 xl:left-16">
             Sri Lanka&apos;s offers in one place.
           </p>
         </div>
