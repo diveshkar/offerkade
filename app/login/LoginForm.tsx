@@ -38,7 +38,6 @@ export default function LoginForm({ notice }: { notice?: string }) {
   return (
     <form onSubmit={onSubmit} className="flex flex-col gap-5">
       {notice && <Alert tone="error">{notice}</Alert>}
-      {error && <Alert tone="error">{error}</Alert>}
 
       <Field label="Email" required>
         <Input
@@ -72,6 +71,8 @@ export default function LoginForm({ notice }: { notice?: string }) {
           required
         />
       </div>
+
+      {error && <Alert tone="error">{error}</Alert>}
 
       <Button type="submit" disabled={busy}>
         {busy ? 'Signing in' : 'Sign in'}

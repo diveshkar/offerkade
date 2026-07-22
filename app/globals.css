@@ -109,3 +109,17 @@ body {
 .animate-rise {
   animation: rise 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
+
+/* Orange brand band used by the hero and the auth panel.
+   Deep flame base so white text clears WCAG AA. */
+.bg-hero {
+  background-color: #b23c09;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.055) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.055) 1px, transparent 1px),
+    radial-gradient(70% 120% at 88% -10%, rgba(251, 146, 60, 0.55), transparent 60%),
+    radial-gradient(60% 100% at 8% 8%, rgba(244, 116, 28, 0.40), transparent 62%),
+    radial-gradient(85% 120% at 50% 115%, rgba(109, 38, 12, 0.75), transparent 70%),
+    linear-gradient(160deg, #c2410c 0%, #9a3412 55%, #7c2d12 100%);
+  background-size: 26px 26px, 26px 26px, auto, auto, auto, auto;
+}
