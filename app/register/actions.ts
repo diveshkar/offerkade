@@ -1,5 +1,6 @@
 'use server';
 
+import { headers } from 'next/headers';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { authRedirect } from '@/lib/site-url';
 
@@ -18,12 +19,13 @@ export async function registerShop(
   if (!email || !password) return { error: 'Enter your email and a password.' };
   if (password.length < 8) return { error: 'Password must be at least 8 characters.' };
 
+  const origin = (await headers()).get('origin');
   const supabase = await createSupabaseServerClient();
 
   const { error } = await supabase.auth.signUp({
     email,
     password,
-    options: { emailRedirectTo: authRedirect('/onboarding') },
+    options: { emailRedirectTo: authRedirect('/onboarding', origin) },
   });
 
   if (error) {

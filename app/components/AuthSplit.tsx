@@ -20,8 +20,20 @@ export default function AuthSplit({
   footer?: ReactNode;
 }) {
   return (
-    <div className="grid min-h-dvh lg:grid-cols-2">
-      <section className="flex flex-col bg-paper">
+    <div className="bg-hero relative grid min-h-dvh overflow-hidden lg:grid-cols-2 lg:bg-none">
+      {/* Mobile watermark: taller than the card, so it reads above and below it. */}
+      <Image
+        src="/brand/logo-mark.webp"
+        alt=""
+        width={420}
+        height={725}
+        unoptimized
+        aria-hidden
+        className="pointer-events-none absolute left-1/2 top-1/2 h-[88%] w-auto -translate-x-1/2 -translate-y-1/2 object-contain opacity-[0.16] lg:hidden"
+      />
+
+      {/* Below lg the orange sits behind the form, so the card floats on it. */}
+      <section className="relative flex flex-col lg:bg-paper">
         <div className="px-6 pt-8 sm:px-10">
           <Link href="/" className="inline-flex items-center gap-2.5">
             <Image
@@ -32,15 +44,15 @@ export default function AuthSplit({
               unoptimized
               className="h-[22px] w-auto object-contain"
             />
-            <span className="font-display text-lg font-semibold tracking-tight text-coal-deep">
-              Offer<span className="text-flame">Ceylon</span>
+            <span className="font-display text-lg font-semibold tracking-tight text-white lg:text-coal-deep">
+              Offer<span className="text-amber-200 lg:text-flame">Ceylon</span>
             </span>
           </Link>
         </div>
 
-        <div className="flex flex-1 items-center justify-center px-6 py-12 sm:px-10">
-          <div className="w-full max-w-sm">
-            <h1 className="font-display text-[32px] font-semibold leading-tight tracking-tight text-coal-deep">
+        <div className="flex flex-1 items-center justify-center px-4 py-10 sm:px-10 sm:py-12">
+          <div className="w-full max-w-sm max-lg:rounded-2xl max-lg:bg-paper max-lg:p-6 max-lg:shadow-[0_24px_60px_-24px_rgba(60,20,4,0.55)]">
+            <h1 className="font-display text-[28px] font-semibold leading-tight tracking-tight text-coal-deep sm:text-[32px]">
               {title}
             </h1>
             {subtitle && <p className="mt-2 text-[15px] leading-6 text-coal/60">{subtitle}</p>}

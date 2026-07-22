@@ -8,8 +8,11 @@ import { PHONE_HELP, isValidPhone } from '@/lib/phone';
 
 type Errors = Record<string, string>;
 
+const STEPS = ['Your shop', 'Where you trade'] as const;
+
 export default function OnboardingForm() {
   const [pending, startTransition] = useTransition();
+  const [step, setStep] = useState(0);
   const [formError, setFormError] = useState('');
   const [errors, setErrors] = useState<Errors>({});
 
@@ -22,9 +25,8 @@ export default function OnboardingForm() {
 
   const visible = multi ? branches : branches.slice(0, 1);
 
-  function validate(): Errors {
+  function validateDetails(): Errors {
     const next: Errors = {};
-
     if (name.trim().length < 2) next.name = 'Enter your shop name.';
     if (!phone.trim()) next.phone = 'Enter a contact number.';
     else if (!isValidPhone(phone)) next.phone = 'Enter a valid Sri Lankan number.';
@@ -32,19 +34,39 @@ export default function OnboardingForm() {
       next.whatsapp = 'Enter a valid Sri Lankan number.';
     if (website.trim() && !/^https?:\/\/\S+\.\S+/.test(website.trim()))
       next.website = 'Include the full address, starting with https://';
+    return next;
+  }
 
+  function validateLocations(): Errors {
+    const next: Errors = {};
     visible.forEach((b, i) => {
       if (!b.district) next[`branch-${i}`] = 'Choose a district.';
     });
-
     return next;
+  }
+
+  function goNext() {
+    const found = validateDetails();
+    setErrors(found);
+    if (Object.keys(found).length > 0) {
+      setFormError('Check the highlighted fields and try again.');
+      return;
+    }
+    setFormError('');
+    setStep(1);
+  }
+
+  function goBack() {
+    setFormError('');
+    setErrors({});
+    setStep(0);
   }
 
   function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     setFormError('');
 
-    const found = validate();
+    const found = validateLocations();
     setErrors(found);
     if (Object.keys(found).length > 0) {
       setFormError('Check the highlighted fields and try again.');
@@ -77,125 +99,167 @@ export default function OnboardingForm() {
   }
 
   return (
-    <form onSubmit={onSubmit} noValidate className="flex flex-col gap-9">
+    <form onSubmit={onSubmit} noValidate className="flex flex-col gap-8">
+      <ol className="flex items-center gap-3">
+        {STEPS.map((label, i) => {
+          const done = i < step;
+          const active = i === step;
+          return (
+            <li key={label} className="flex flex-1 items-center gap-3">
+              <span
+                aria-current={active ? 'step' : undefined}
+                className={`grid h-7 w-7 shrink-0 place-items-center rounded-full text-[13px] font-semibold transition ${
+                  active || done ? 'bg-flame text-coal-deep' : 'bg-coal/10 text-coal/50'
+                }`}
+              >
+                {done ? '✓' : i + 1}
+              </span>
+              <span
+                className={`text-sm font-medium ${active ? 'text-coal-deep' : 'text-coal/50'}`}
+              >
+                {label}
+              </span>
+              {i < STEPS.length - 1 && (
+                <span aria-hidden className="h-px flex-1 bg-coal/12" />
+              )}
+            </li>
+          );
+        })}
+      </ol>
+
       {formError && <Alert tone="error">{formError}</Alert>}
 
-      <section className="flex flex-col gap-5">
-        <div>
-          <h2 className="font-display text-xl font-semibold tracking-tight text-coal-deep">
-            About your shop
-          </h2>
-          <p className="mt-1 text-sm text-coal/60">
-            This is what shoppers see next to every offer.
-          </p>
-        </div>
+      {step === 0 ? (
+        <section className="flex flex-col gap-5">
+          <div>
+            <h2 className="font-display text-xl font-semibold tracking-tight text-coal-deep">
+              About your shop
+            </h2>
+            <p className="mt-1 text-sm text-coal/60">
+              This is what shoppers see next to every offer.
+            </p>
+          </div>
 
-        <Field label="Shop name" required error={errors.name}>
-          <Input
-            value={name}
-            invalid={Boolean(errors.name)}
-            onChange={(e) => setName(e.target.value)}
-            placeholder="Ceylon Spice Kitchen"
-            maxLength={80}
-          />
-        </Field>
-
-        <div className="grid gap-5 sm:grid-cols-2">
-          <Field label="Phone" hint={PHONE_HELP} required error={errors.phone}>
+          <Field label="Shop name" required error={errors.name}>
             <Input
-              value={phone}
-              invalid={Boolean(errors.phone)}
-              onChange={(e) => setPhone(e.target.value)}
-              inputMode="tel"
-              placeholder="077 123 4567"
+              value={name}
+              invalid={Boolean(errors.name)}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="Ceylon Spice Kitchen"
+              maxLength={80}
             />
           </Field>
 
-          <Field label="WhatsApp" hint="Optional" error={errors.whatsapp}>
+          <div className="grid gap-5 sm:grid-cols-2">
+            <Field label="Phone" hint={PHONE_HELP} required error={errors.phone}>
+              <Input
+                value={phone}
+                invalid={Boolean(errors.phone)}
+                onChange={(e) => setPhone(e.target.value)}
+                inputMode="tel"
+                placeholder="077 123 4567"
+              />
+            </Field>
+
+            <Field label="WhatsApp" hint="Optional" error={errors.whatsapp}>
+              <Input
+                value={whatsapp}
+                invalid={Boolean(errors.whatsapp)}
+                onChange={(e) => setWhatsapp(e.target.value)}
+                inputMode="tel"
+                placeholder="077 123 4567"
+              />
+            </Field>
+          </div>
+
+          <Field label="Website" hint="Optional" error={errors.website}>
             <Input
-              value={whatsapp}
-              invalid={Boolean(errors.whatsapp)}
-              onChange={(e) => setWhatsapp(e.target.value)}
-              inputMode="tel"
-              placeholder="077 123 4567"
+              value={website}
+              invalid={Boolean(errors.website)}
+              onChange={(e) => setWebsite(e.target.value)}
+              placeholder="https://yourshop.lk"
             />
           </Field>
-        </div>
+        </section>
+      ) : (
+        <section className="flex flex-col gap-4">
+          <div>
+            <h2 className="font-display text-xl font-semibold tracking-tight text-coal-deep">
+              Where you trade
+            </h2>
+            <p className="mt-1 text-sm text-coal/60">Shoppers filter offers by district.</p>
+          </div>
 
-        <Field label="Website" hint="Optional" error={errors.website}>
-          <Input
-            value={website}
-            invalid={Boolean(errors.website)}
-            onChange={(e) => setWebsite(e.target.value)}
-            placeholder="https://yourshop.lk"
-          />
-        </Field>
-      </section>
+          <div className="grid grid-cols-2 gap-2 rounded-xl border border-coal/12 bg-paper p-1">
+            <button
+              type="button"
+              onClick={() => setMulti(false)}
+              aria-pressed={!multi}
+              className={`h-10 rounded-lg text-sm font-semibold transition ${
+                !multi ? 'bg-flame text-coal-deep' : 'text-coal/60 hover:text-coal-deep'
+              }`}
+            >
+              One location
+            </button>
+            <button
+              type="button"
+              onClick={() => setMulti(true)}
+              aria-pressed={multi}
+              className={`h-10 rounded-lg text-sm font-semibold transition ${
+                multi ? 'bg-flame text-coal-deep' : 'text-coal/60 hover:text-coal-deep'
+              }`}
+            >
+              Multiple branches
+            </button>
+          </div>
 
-      <section className="flex flex-col gap-4">
-        <div>
-          <h2 className="font-display text-xl font-semibold tracking-tight text-coal-deep">
-            Where you trade
-          </h2>
-          <p className="mt-1 text-sm text-coal/60">Shoppers filter offers by district.</p>
-        </div>
+          {visible.map((branch, i) => (
+            <BranchFields
+              key={branch.key}
+              branch={branch}
+              index={i}
+              single={!multi}
+              error={errors[`branch-${i}`]}
+              onChange={(next) =>
+                setBranches((list) => list.map((b) => (b.key === branch.key ? next : b)))
+              }
+              onRemove={
+                multi && visible.length > 1
+                  ? () => setBranches((list) => list.filter((b) => b.key !== branch.key))
+                  : undefined
+              }
+            />
+          ))}
 
-        <div className="grid grid-cols-2 gap-2 rounded-xl border border-coal/12 bg-paper p-1">
-          <button
-            type="button"
-            onClick={() => setMulti(false)}
-            aria-pressed={!multi}
-            className={`h-10 rounded-lg text-sm font-semibold transition ${
-              !multi ? 'bg-flame text-coal-deep' : 'text-coal/60 hover:text-coal-deep'
-            }`}
-          >
-            One location
-          </button>
-          <button
-            type="button"
-            onClick={() => setMulti(true)}
-            aria-pressed={multi}
-            className={`h-10 rounded-lg text-sm font-semibold transition ${
-              multi ? 'bg-flame text-coal-deep' : 'text-coal/60 hover:text-coal-deep'
-            }`}
-          >
-            Multiple branches
-          </button>
-        </div>
-
-        {visible.map((branch, i) => (
-          <BranchFields
-            key={branch.key}
-            branch={branch}
-            index={i}
-            single={!multi}
-            error={errors[`branch-${i}`]}
-            onChange={(next) =>
-              setBranches((list) => list.map((b) => (b.key === branch.key ? next : b)))
-            }
-            onRemove={
-              multi && visible.length > 1
-                ? () => setBranches((list) => list.filter((b) => b.key !== branch.key))
-                : undefined
-            }
-          />
-        ))}
-
-        {multi && (
-          <button
-            type="button"
-            onClick={() => setBranches((list) => [...list, emptyBranch()])}
-            className="rounded-xl border border-dashed border-coal/25 py-3 text-sm font-semibold text-coal/65 transition hover:border-flame hover:text-flame-deep"
-          >
-            Add another branch
-          </button>
-        )}
-      </section>
+          {multi && (
+            <button
+              type="button"
+              onClick={() => setBranches((list) => [...list, emptyBranch()])}
+              className="rounded-xl border border-dashed border-coal/25 py-3 text-sm font-semibold text-coal/65 transition hover:border-flame hover:text-flame-deep"
+            >
+              Add another branch
+            </button>
+          )}
+        </section>
+      )}
 
       <div className="flex flex-col gap-3 border-t border-coal/10 pt-6">
-        <Button type="submit" disabled={pending}>
-          {pending ? 'Saving your shop' : 'Finish setup'}
-        </Button>
+        <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+          {step === 1 && (
+            <Button type="button" variant="secondary" onClick={goBack} disabled={pending}>
+              Back
+            </Button>
+          )}
+          {step === 0 ? (
+            <Button type="button" onClick={goNext}>
+              Continue
+            </Button>
+          ) : (
+            <Button type="submit" disabled={pending}>
+              {pending ? 'Saving your shop' : 'Finish setup'}
+            </Button>
+          )}
+        </div>
         <p className="text-center text-xs leading-5 text-coal/50">
           We review every shop before its offers go live. This usually takes a day.
         </p>
