@@ -73,22 +73,35 @@ export default async function OfferPage({ params }: { params: Promise<{ id: stri
           <span className="truncate text-coal/35 dark:text-paper/35">{offer.title}</span>
         </nav>
 
-        <div className="grid gap-8 md:grid-cols-[minmax(0,5fr)_minmax(0,6fr)] md:gap-10">
+        {/* grid-cols-1 pins the mobile track to the container width — without it
+            the implicit auto column sizes to max-content and overflows sideways,
+            which left the header/footer looking short of the screen edge. */}
+        <div className="grid grid-cols-1 gap-8 md:grid-cols-[minmax(0,5fr)_minmax(0,6fr)] md:gap-10">
           {/* ===== Poster ===== */}
           <div className="md:sticky md:top-24 md:self-start">
-            <div className="animate-rise overflow-hidden rounded-3xl border border-coal/10 bg-coal/5 shadow-[0_28px_60px_-28px_rgba(18,13,10,0.45)] dark:border-white/10 dark:bg-white/5">
+            {/* Fixed 4:5 frame so every offer's poster is the same size, whichever
+                aspect ratio was uploaded. The whole poster always shows (object-
+                contain); a blurred copy fills the letterbox so it looks intentional. */}
+            <div className="animate-rise relative aspect-[4/5] w-full overflow-hidden rounded-3xl border border-coal/10 shadow-[0_28px_60px_-28px_rgba(18,13,10,0.45)] dark:border-white/10">
               {offer.poster_url ? (
-                // Posters vary in aspect ratio; contain within a capped height so
-                // tall uploads don't overrun the layout on mobile and every
-                // poster reads consistently.
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={offer.poster_url}
-                  alt={offer.title}
-                  className="mx-auto max-h-[75vh] w-full object-contain"
-                />
+                <>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={offer.poster_url}
+                    alt=""
+                    aria-hidden
+                    className="absolute inset-0 h-full w-full scale-110 object-cover opacity-70 blur-2xl"
+                  />
+                  <div className="absolute inset-0 bg-coal/15 dark:bg-coal-deep/40" />
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={offer.poster_url}
+                    alt={offer.title}
+                    className="absolute inset-0 h-full w-full object-contain p-3 sm:p-4"
+                  />
+                </>
               ) : (
-                <div className="grid aspect-[4/5] place-items-center text-sm font-medium text-coal/30 dark:text-paper/25">
+                <div className="grid h-full place-items-center bg-coal/5 text-sm font-medium text-coal/30 dark:bg-white/5 dark:text-paper/25">
                   No poster
                 </div>
               )}
