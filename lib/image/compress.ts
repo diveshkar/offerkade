@@ -62,8 +62,19 @@ export async function compressPoster(file: File): Promise<CompressedImage> {
 
   // Web workers speed compression up but throw on some mobile browsers
   // (notably older iOS Safari). Fall back to the main thread if they fail.
-  async function shrink(maxWidthOrHeight: number, initialQuality: number) {
-    const opts = { maxWidthOrHeight, fileType: 'image/webp', initialQuality } as const;
+  //
+  // maxSizeMB is a hard ceiling: the library keeps shrinking (by resolution
+  // first, then quality) until the file fits. Resolution comes down before
+  // quality, so we keep detail while guaranteeing the result clears the 1MB
+  // Storage-bucket limit — the mobile uploads that failed were ~1.1MB.
+  async function shrink(maxWidthOrHeight: number, initialQuality: number, maxSizeMB: number) {
+    const opts = {
+      maxWidthOrHeight,
+      fileType: 'image/webp',
+      initialQuality,
+      maxSizeMB,
+      alwaysKeepResolution: false,
+    } as const;
     try {
       return await imageCompression(file, { ...opts, useWebWorker: true });
     } catch {
@@ -71,8 +82,8 @@ export async function compressPoster(file: File): Promise<CompressedImage> {
     }
   }
 
-  const poster = await shrink(1080, 0.8);
-  const thumb = await shrink(400, 0.75);
+  const poster = await shrink(1080, 0.8, 0.85);
+  const thumb = await shrink(400, 0.75, 0.2);
 
   // Give them .webp names so the upload/storage keys are clean.
   const base = file.name.replace(/\.[^.]+$/, '');

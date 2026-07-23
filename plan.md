@@ -395,19 +395,38 @@ Three roles. Decided 2026-07-19.
 ### 7a. Auto-delete on expiry (the storage saver)
 **pg_cron triggers an Edge Function nightly** (pg_cron alone can't delete storage objects - it calls the function via `pg_net`; the Edge Function does the deletion with the service role):
 1. Find offers where `end_date < today` AND `status = 'approved'`.
-2. **Delete poster + thumbnail from Storage using `poster_path` / `poster_thumb_path`** (not the URL) → space freed.
+2. **Delete poster + thumbnail from Storage using `poster_path` / `poster_thumb_path`** (not the URL) → the real space is freed here.
 3. Set `status = 'expired'` → gone from the public site.
-4. **Keep the text row** (title, business, dates) - nearly free, and becomes an asset: *"OfferCeylon has published 800 offers from 150 businesses"* is a strong sponsorship/subscription pitch line.
+4. **Delete the offer row too, once expired.** Storage (images) is the tight quota, not the DB, but the shop asked that expired data not linger - so after a short retention window we hard-delete the row. Keep only a lightweight tally row (see below) for the *"OfferCeylon has published N offers"* stat, so we don't lose the headline number while still clearing the actual offer data.
 
 ```sql
 -- pg_cron nightly: find expired, hand paths to the Edge Function to delete
 select id, poster_path, poster_thumb_path from offers
 where status = 'approved' and end_date < current_date;
--- Edge Function: delete those storage objects → update status = 'expired'
+-- Edge Function: delete those storage objects, then:
+--   update offers set status = 'expired', poster_url = null, poster_path = null, ...
+--   (optionally) delete from offers where status = 'expired' and end_date < current_date - interval '7 days';
 ```
-**No grace period** - urgency is handled *before* expiry by the "Expiring soon" badge, so users never see dead offers.
+**No grace period** on the *public* view - urgency is handled *before* expiry by the "Expiring soon" badge, so users never see dead offers. The 7-day row-retention is purely internal (lets us undo an accidental expiry) before the hard delete.
 
 **Cost:** ~30 invocations/month vs 500,000 free = $0.
+
+### 7a-i. Storage capacity math (why auto-delete matters)
+Free-tier assumptions: **1 GB Storage**, **500 MB Postgres**. Post-compression a poster is capped at **~0.85 MB** and its thumbnail at **~0.2 MB**, so **~1 MB per offer worst case** (typical real photos land ~0.3-0.5 MB total).
+
+| | Per offer | Free quota | Offers that fit **at once** |
+|---|---|---|---|
+| **Storage (images)** | ~1 MB worst / ~0.4 MB typical | 1 GB | **~1,000 worst / ~2,500 typical** |
+| **Postgres (row)** | ~1 KB | 500 MB | ~500,000 |
+
+Key point: **Storage holds only the offers that are currently live.** Because 7a deletes images the moment an offer expires, the ceiling is *concurrent live offers*, not the cumulative total. Example throughput at the worst-case ~1 MB/offer:
+
+- Offers with a **~30-day** average run → up to ~1,000 live at a time → **~1,000 new posters/month** sustainable.
+- Offers with a **~14-day** average run → the same 1,000 slots turn over ~2x → **~2,000/month**.
+
+Without auto-delete, cumulative uploads hit the 1 GB wall in the same ~1,000-offer range and **stay** there. With it, the site can run indefinitely as long as *live* offers stay under the concurrent ceiling. When real volume approaches it, the paid tier lifts Storage to 100 GB (≈100x headroom) for $25/mo.
+
+> **Subscription note (for Phase 10):** if a plan ever caps how many offers a shop may post (per month / per plan), track a **separate publish counter that increments on publish and never decrements on delete** - otherwise a shop could publish → delete → republish to dodge the quota. Not built now; noted here so the delete flow above and the quota logic stay consistent when subscriptions land.
 
 ### 7b. Keep-alive (prevents the 7-day pause) - FREE
 A **Cloudflare Worker cron trigger** runs **every 3 days** (not 6 - leaves margin if one run fails before the 7-day deadline) and makes one tiny Supabase query, which resets the inactivity clock. It must hit the *database*, not the cached homepage.

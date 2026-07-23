@@ -25,6 +25,19 @@ export default function OnboardingForm() {
 
   const visible = multi ? branches : branches.slice(0, 1);
 
+  // Clear a field's error the moment the user corrects it, so the red border /
+  // message doesn't linger after the value is already valid. Also drops the
+  // "Check the highlighted fields" summary once they start fixing things.
+  function clearError(key: string) {
+    setErrors((prev) => {
+      if (!prev[key]) return prev;
+      const next = { ...prev };
+      delete next[key];
+      return next;
+    });
+    setFormError('');
+  }
+
   function validateDetails(): Errors {
     const next: Errors = {};
     if (name.trim().length < 2) next.name = 'Enter your shop name.';
@@ -144,7 +157,10 @@ export default function OnboardingForm() {
             <Input
               value={name}
               invalid={Boolean(errors.name)}
-              onChange={(e) => setName(e.target.value)}
+              onChange={(e) => {
+                setName(e.target.value);
+                clearError('name');
+              }}
               placeholder="Ceylon Spice Kitchen"
               maxLength={80}
             />
@@ -155,7 +171,10 @@ export default function OnboardingForm() {
               <Input
                 value={phone}
                 invalid={Boolean(errors.phone)}
-                onChange={(e) => setPhone(e.target.value)}
+                onChange={(e) => {
+                  setPhone(e.target.value);
+                  clearError('phone');
+                }}
                 inputMode="tel"
                 placeholder="077 123 4567"
               />
@@ -165,7 +184,10 @@ export default function OnboardingForm() {
               <Input
                 value={whatsapp}
                 invalid={Boolean(errors.whatsapp)}
-                onChange={(e) => setWhatsapp(e.target.value)}
+                onChange={(e) => {
+                  setWhatsapp(e.target.value);
+                  clearError('whatsapp');
+                }}
                 inputMode="tel"
                 placeholder="077 123 4567"
               />
@@ -176,7 +198,10 @@ export default function OnboardingForm() {
             <Input
               value={website}
               invalid={Boolean(errors.website)}
-              onChange={(e) => setWebsite(e.target.value)}
+              onChange={(e) => {
+                setWebsite(e.target.value);
+                clearError('website');
+              }}
               placeholder="https://yourshop.lk"
             />
           </Field>
@@ -220,9 +245,10 @@ export default function OnboardingForm() {
               index={i}
               single={!multi}
               error={errors[`branch-${i}`]}
-              onChange={(next) =>
-                setBranches((list) => list.map((b) => (b.key === branch.key ? next : b)))
-              }
+              onChange={(next) => {
+                setBranches((list) => list.map((b) => (b.key === branch.key ? next : b)));
+                if (next.district) clearError(`branch-${i}`);
+              }}
               onRemove={
                 multi && visible.length > 1
                   ? () => setBranches((list) => list.filter((b) => b.key !== branch.key))

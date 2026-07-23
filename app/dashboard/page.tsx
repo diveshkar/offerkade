@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { Alert, ButtonLink, Card, StatusPill } from '@/app/components/ui';
 import ConfirmButton from '@/app/components/ConfirmButton';
+import FlashBanner from '@/app/dashboard/FlashBanner';
 import Paginator from '@/app/components/Paginator';
 import { getMyBusiness, getMyOffers } from '@/lib/queries/shop';
 import { daysLeft } from '@/lib/queries/offers';
@@ -72,16 +73,8 @@ export default async function DashboardPage({
 
   return (
     <div className="flex flex-col gap-8">
-      {published && (
-        <Alert tone="success" title="Offer published">
-          Your offer is now live on OfferCeylon. Published offers can’t be edited.
-        </Alert>
-      )}
-      {draft && (
-        <Alert tone="success" title="Draft saved">
-          Your draft is saved. Open it any time to keep editing or publish it.
-        </Alert>
-      )}
+      {published && <FlashBanner kind="published" />}
+      {draft && <FlashBanner kind="draft" />}
 
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>

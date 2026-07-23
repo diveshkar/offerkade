@@ -157,7 +157,9 @@ export default function OfferForm({
           />
         </Field>
 
-        <div className="grid gap-4 sm:grid-cols-3">
+        {/* [&>label]:min-w-0 lets the date columns shrink — native date inputs
+            have a wide intrinsic size that otherwise pushes past the form edge. */}
+        <div className="grid gap-4 sm:grid-cols-3 [&>label]:min-w-0">
           <Field label="Category" required error={errors.category}>
             <Select
               value={categoryId}
@@ -338,7 +340,7 @@ export default function OfferForm({
         </div>
       </form>
 
-      <div className="lg:sticky lg:top-8">
+      <div className="order-first lg:order-none lg:sticky lg:top-8">
         <p className="mb-3 text-[11px] font-semibold uppercase tracking-wider text-coal/45">
           Live preview
         </p>
