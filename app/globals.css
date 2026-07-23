@@ -112,6 +112,17 @@ button:disabled,
   cursor: not-allowed;
 }
 
+/* iOS Safari gives date inputs a wide intrinsic min-width that ignores
+   width:100%, so they spill past the form edge. Pin min-width to 0 (and cap at
+   the container) so the w-full on our Input control actually wins on mobile. */
+input[type='date'],
+input[type='datetime-local'],
+input[type='time'],
+input[type='month'] {
+  min-width: 0;
+  max-width: 100%;
+}
+
 /* Hide scrollbars on horizontal chip rails (still scrollable) */
 .scrollbar-hide {
   -ms-overflow-style: none;
