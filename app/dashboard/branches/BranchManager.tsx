@@ -16,6 +16,7 @@ export default function BranchManager({ branches }: { branches: Branch[] }) {
   const [error, setError] = useState('');
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState(blank);
+  const [removing, setRemoving] = useState<Branch | null>(null);
 
   const set = (k: keyof typeof blank, v: string) => setForm((f) => ({ ...f, [k]: v }));
 
@@ -104,16 +105,14 @@ export default function BranchManager({ branches }: { branches: Branch[] }) {
                 Edit
               </Button>
               {branches.length > 1 && (
-                <form
-                  action={(fd) => {
-                    fd.set('id', b.id);
-                    run(deleteBranch, fd);
-                  }}
+                <Button
+                  variant="danger"
+                  size="sm"
+                  disabled={pending}
+                  onClick={() => setRemoving(b)}
                 >
-                  <Button variant="danger" size="sm" disabled={pending}>
-                    Remove
-                  </Button>
-                </form>
+                  Remove
+                </Button>
               )}
             </div>
           </li>
@@ -200,6 +199,44 @@ export default function BranchManager({ branches }: { branches: Branch[] }) {
         >
           Add a branch
         </button>
+      )}
+
+      {removing && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-coal-deep/50 px-4 backdrop-blur-sm"
+          role="dialog"
+          aria-modal="true"
+          onClick={() => setRemoving(null)}
+        >
+          <div
+            className="w-full max-w-sm rounded-2xl border border-coal/12 bg-paper-soft p-6 shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h2 className="font-display text-lg font-semibold text-coal-deep">Remove this branch?</h2>
+            <p className="mt-2 text-sm leading-6 text-coal/65">
+              {(removing.label || removing.city || removing.district) + ' '}
+              will be removed from your shop. This can’t be undone.
+            </p>
+            <div className="mt-6 flex flex-col-reverse gap-2.5 sm:flex-row sm:justify-end">
+              <Button type="button" variant="secondary" onClick={() => setRemoving(null)}>
+                Cancel
+              </Button>
+              <Button
+                type="button"
+                variant="danger"
+                disabled={pending}
+                onClick={() => {
+                  const fd = new FormData();
+                  fd.set('id', removing.id);
+                  setRemoving(null);
+                  run(deleteBranch, fd);
+                }}
+              >
+                {pending ? 'Removing' : 'Remove branch'}
+              </Button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

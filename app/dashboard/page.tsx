@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { Alert, ButtonLink, Card, StatusPill } from '@/app/components/ui';
+import ConfirmButton from '@/app/components/ConfirmButton';
 import Paginator from '@/app/components/Paginator';
 import { getMyBusiness, getMyOffers } from '@/lib/queries/shop';
 import { daysLeft } from '@/lib/queries/offers';
@@ -22,7 +23,7 @@ const PER_PAGE = 10;
 export default async function DashboardPage({
   searchParams,
 }: {
-  searchParams: Promise<{ page?: string }>;
+  searchParams: Promise<{ page?: string; published?: string; draft?: string }>;
 }) {
   const business = await getMyBusiness();
 
@@ -54,7 +55,7 @@ export default async function DashboardPage({
   }
 
   const offers = await getMyOffers(business.id);
-  const { page: pageParam } = await searchParams;
+  const { page: pageParam, published, draft } = await searchParams;
   const totalPages = Math.max(1, Math.ceil(offers.length / PER_PAGE));
   const page = Math.min(Math.max(1, parseInt(pageParam ?? '1', 10) || 1), totalPages);
   const visible = offers.slice((page - 1) * PER_PAGE, page * PER_PAGE);
@@ -71,6 +72,17 @@ export default async function DashboardPage({
 
   return (
     <div className="flex flex-col gap-8">
+      {published && (
+        <Alert tone="success" title="Offer published">
+          Your offer is now live on OfferCeylon. Published offers can’t be edited.
+        </Alert>
+      )}
+      {draft && (
+        <Alert tone="success" title="Draft saved">
+          Your draft is saved. Open it any time to keep editing or publish it.
+        </Alert>
+      )}
+
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <h1 className="font-display text-3xl font-semibold tracking-tight text-coal-deep">
@@ -113,7 +125,9 @@ export default async function DashboardPage({
         <ul className="flex flex-col gap-3">
           {visible.map((offer) => {
             const left = daysLeft(offer.end_date);
-            const expired = left < 0 || offer.status === 'expired';
+            const isDraft = offer.status === 'draft';
+            // Drafts never read as "expired" — their end date is a placeholder.
+            const expired = !isDraft && (offer.status === 'expired' || left < 0);
 
             return (
               <li
@@ -141,21 +155,34 @@ export default async function DashboardPage({
                     {offer.city}
                   </p>
                   <p className="mt-0.5 text-[12px] tabular-nums text-coal/45">
-                    Valid until {prettyDate(offer.end_date)}
-                    {' | '}
-                    {offer.view_count ?? 0} views
+                    {isDraft ? (
+                      'Draft · not published yet'
+                    ) : (
+                      <>
+                        Valid until {prettyDate(offer.end_date)}
+                        {' | '}
+                        {offer.view_count ?? 0} views
+                      </>
+                    )}
                   </p>
                 </div>
 
-                <form action={deleteOffer}>
-                  <input type="hidden" name="id" value={offer.id} />
-                  <button
-                    type="submit"
-                    className="rounded-lg px-3 py-2 text-sm font-medium text-coal/50 transition hover:bg-ember/8 hover:text-ember"
-                  >
-                    Delete
-                  </button>
-                </form>
+                <div className="flex shrink-0 items-center gap-1">
+                  {isDraft && (
+                    <ButtonLink href={`/offers/${offer.id}/edit`} variant="secondary" size="sm">
+                      Edit
+                    </ButtonLink>
+                  )}
+                  <ConfirmButton
+                    action={deleteOffer}
+                    fields={{ id: offer.id }}
+                    triggerLabel="Delete"
+                    triggerClassName="rounded-lg px-3 py-2 text-sm font-medium text-coal/50 transition hover:bg-ember/8 hover:text-ember"
+                    title={isDraft ? 'Delete this draft?' : 'Delete this offer?'}
+                    message={`"${offer.title}" will be permanently removed and can’t be recovered.`}
+                    confirmLabel={isDraft ? 'Delete draft' : 'Delete offer'}
+                  />
+                </div>
               </li>
             );
           })}

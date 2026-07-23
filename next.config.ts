@@ -7,6 +7,14 @@ const nextConfig: NextConfig = {
   turbopack: {
     root: path.join(__dirname),
   },
+  experimental: {
+    // Posting an offer sends the compressed poster + thumb through a Server
+    // Action. The default 1MB limit can reject a large phone photo before it
+    // reaches the handler (this is why posting failed on mobile). Raise it.
+    serverActions: {
+      bodySizeLimit: '8mb',
+    },
+  },
 };
 
 export default nextConfig;

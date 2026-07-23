@@ -147,7 +147,9 @@ export default function BranchFields({
         </div>
         <Textarea
           value={branch.address}
-          onChange={(e) => set('address', e.target.value)}
+          // Typing a new address invalidates any pin captured from "Use my
+          // current location", so Directions always reflects the latest text.
+          onChange={(e) => onChange({ ...branch, address: e.target.value, lat: null, lng: null })}
           rows={2}
           placeholder="42 Galle Road, Dehiwala"
         />

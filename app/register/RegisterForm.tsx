@@ -2,6 +2,7 @@
 
 import { useActionState } from 'react';
 import { Alert, Button, Field, Input } from '@/app/components/ui';
+import PasswordInput from '@/app/components/PasswordInput';
 import { registerShop, type RegisterState } from '@/app/register/actions';
 
 export default function RegisterForm() {
@@ -39,9 +40,8 @@ export default function RegisterForm() {
       </Field>
 
       <Field label="Password" hint="At least 8 characters" required>
-        <Input
+        <PasswordInput
           name="password"
-          type="password"
           autoComplete="new-password"
           minLength={8}
           placeholder="Create a password"

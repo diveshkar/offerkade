@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { Alert, Button, Field, Input } from '@/app/components/ui';
+import PasswordInput from '@/app/components/PasswordInput';
 import { createSupabaseBrowserClient } from '@/lib/supabase/browser';
 
 export default function LoginForm({ notice }: { notice?: string }) {
@@ -53,7 +54,7 @@ export default function LoginForm({ notice }: { notice?: string }) {
       <div>
         <div className="mb-1.5 flex items-baseline justify-between gap-3">
           <span className="text-sm font-medium text-coal-deep">
-            Password<span className="ml-0.5 text-ember">*</span>
+            Password<span className="ml-0.5 text-coal/40" aria-hidden>*</span>
           </span>
           <Link
             href="/forgot-password"
@@ -62,8 +63,7 @@ export default function LoginForm({ notice }: { notice?: string }) {
             Forgot password
           </Link>
         </div>
-        <Input
-          type="password"
+        <PasswordInput
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           autoComplete="current-password"

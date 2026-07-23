@@ -104,7 +104,7 @@ export default async function BusinessPage({ params }: { params: Promise<{ slug:
           )}
         </section>
       </main>
-      <SiteFooter />
+      <SiteFooter compact />
     </>
   );
 }

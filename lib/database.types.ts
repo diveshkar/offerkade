@@ -4,7 +4,7 @@
 //   npx supabase gen types typescript --project-id <ref> > lib/database.types.ts
 // ============================================================
 
-export type OfferStatus = 'pending' | 'approved' | 'expired' | 'rejected';
+export type OfferStatus = 'draft' | 'pending' | 'approved' | 'expired' | 'rejected';
 export type SubscriptionTier = 'free' | 'featured' | 'premium';
 export type BusinessStatus = 'pending' | 'approved' | 'rejected';
 
