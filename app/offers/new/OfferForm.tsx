@@ -3,9 +3,9 @@
 import { useRef, useState, useTransition } from 'react';
 import { Alert, Button, ButtonLink, Field, Input, Select, Textarea } from '@/app/components/ui';
 import OfferPreview from '@/app/offers/new/OfferPreview';
-import { compressPoster, formatBytes, validateImageFile } from '@/lib/image/compress';
-import { createOffer } from '@/app/offers/new/actions';
-import type { Branch, Category } from '@/lib/database.types';
+import { ACCEPT_ATTR, compressPoster, formatBytes, validateImageFile } from '@/lib/image/compress';
+import { saveOffer } from '@/app/offers/new/actions';
+import type { Branch, Category, Offer } from '@/lib/database.types';
 
 interface Prepared {
   poster: File;
@@ -15,6 +15,7 @@ interface Prepared {
 }
 
 type Errors = Record<string, string>;
+type Intent = 'draft' | 'publish';
 
 function branchName(b: Branch) {
   return b.label || [b.city, b.district].filter(Boolean).join(', ') || b.district;
@@ -25,33 +26,44 @@ export default function OfferForm({
   branches,
   shopName,
   verified,
+  offer = null,
+  initialBranchIds,
 }: {
   categories: Category[];
   branches: Branch[];
   shopName: string;
   verified: boolean;
+  offer?: Offer | null;
+  initialBranchIds?: string[];
 }) {
   const today = new Date().toISOString().slice(0, 10);
   const multiBranch = branches.length > 1;
+  const editing = Boolean(offer);
 
   const [pending, startTransition] = useTransition();
+  const [intent, setIntent] = useState<Intent | null>(null);
   const [formError, setFormError] = useState('');
   const [errors, setErrors] = useState<Errors>({});
 
-  const [title, setTitle] = useState('');
-  const [categoryId, setCategoryId] = useState('');
-  const [description, setDescription] = useState('');
-  const [startDate, setStartDate] = useState(today);
-  const [endDate, setEndDate] = useState('');
-  const [picked, setPicked] = useState<string[]>(branches.map((b) => b.id));
+  const [title, setTitle] = useState(offer?.title ?? '');
+  const [categoryId, setCategoryId] = useState(offer?.category_id ? String(offer.category_id) : '');
+  const [description, setDescription] = useState(offer?.description ?? '');
+  const [startDate, setStartDate] = useState(offer?.start_date ?? today);
+  const [endDate, setEndDate] = useState(offer?.end_date ?? '');
+  const [picked, setPicked] = useState<string[]>(
+    initialBranchIds && initialBranchIds.length > 0 ? initialBranchIds : branches.map((b) => b.id),
+  );
 
   const [image, setImage] = useState<Prepared | null>(null);
+  const existingPoster = offer?.poster_url ?? null;
   const [working, setWorking] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
   const selected = branches.filter((b) => picked.includes(b.id));
   const categoryName = categories.find((c) => String(c.id) === categoryId)?.name ?? '';
   const previewCity = selected[0] ? branchName(selected[0]) : branches[0] ? branchName(branches[0]) : '';
+  const previewImage = image?.preview ?? existingPoster;
+  const hasPoster = Boolean(image) || Boolean(existingPoster);
 
   function toggleBranch(id: string) {
     setPicked((list) => (list.includes(id) ? list.filter((x) => x !== id) : [...list, id]));
@@ -65,7 +77,6 @@ export default function OfferForm({
     const check = validateImageFile(file);
     if (!check.ok) {
       setErrors((p) => ({ ...p, poster: check.error ?? 'That image cannot be used.' }));
-      setImage(null);
       return;
     }
 
@@ -80,25 +91,29 @@ export default function OfferForm({
     }
   }
 
-  function validate(): Errors {
+  function validate(publish: boolean): Errors {
     const next: Errors = {};
 
     if (title.trim().length < 5) next.title = 'Give the offer a clear title, at least 5 characters.';
-    if (!categoryId) next.category = 'Choose a category.';
-    if (!endDate) next.endDate = 'Choose the day this offer ends.';
-    else if (endDate < today) next.endDate = 'The end date cannot be in the past.';
-    else if (startDate && endDate < startDate) next.endDate = 'The end date must follow the start date.';
-    if (!image) next.poster = 'Add a poster image.';
-    if (multiBranch && picked.length === 0) next.branches = 'Choose at least one branch.';
+
+    if (publish) {
+      if (!categoryId) next.category = 'Choose a category.';
+      if (!endDate) next.endDate = 'Choose the day this offer ends.';
+      else if (endDate < today) next.endDate = 'The end date cannot be in the past.';
+      else if (startDate && endDate < startDate) next.endDate = 'The end date must follow the start date.';
+      if (!hasPoster) next.poster = 'Add a poster image.';
+      if (multiBranch && picked.length === 0) next.branches = 'Choose at least one branch.';
+    } else if (endDate && startDate && endDate < startDate) {
+      next.endDate = 'The end date must follow the start date.';
+    }
 
     return next;
   }
 
-  function onSubmit(e: React.FormEvent) {
-    e.preventDefault();
+  function submit(next: Intent) {
     setFormError('');
 
-    const found = validate();
+    const found = validate(next === 'publish');
     setErrors(found);
     if (Object.keys(found).length > 0) {
       setFormError('Check the highlighted fields and try again.');
@@ -106,6 +121,8 @@ export default function OfferForm({
     }
 
     const data = new FormData();
+    data.set('intent', next);
+    if (offer) data.set('offer_id', offer.id);
     data.set('title', title.trim());
     data.set('category_id', categoryId);
     data.set('description', description.trim());
@@ -117,15 +134,17 @@ export default function OfferForm({
       data.set('thumb', image.thumb);
     }
 
+    setIntent(next);
     startTransition(async () => {
-      const result = await createOffer(data);
+      const result = await saveOffer(data);
       if (result?.error) setFormError(result.error);
+      setIntent(null);
     });
   }
 
   return (
     <div className="grid items-start gap-8 lg:grid-cols-[minmax(0,1fr)_340px] lg:gap-10">
-      <form onSubmit={onSubmit} noValidate className="flex flex-col gap-5">
+      <form onSubmit={(e) => e.preventDefault()} noValidate className="flex flex-col gap-5">
         {formError && <Alert tone="error">{formError}</Alert>}
 
         <Field label="Offer title" required error={errors.title}>
@@ -188,7 +207,7 @@ export default function OfferForm({
           <div>
             <div className="mb-1.5 flex items-baseline justify-between gap-3">
               <span className="text-sm font-medium text-coal-deep">
-                Branches<span className="ml-0.5 text-ember">*</span>
+                Branches<span className="ml-0.5 text-coal/40" aria-hidden>*</span>
               </span>
               <button
                 type="button"
@@ -230,9 +249,9 @@ export default function OfferForm({
         <div>
           <div className="mb-1.5 flex items-baseline justify-between gap-3">
             <span className="text-sm font-medium text-coal-deep">
-              Poster<span className="ml-0.5 text-ember">*</span>
+              Poster<span className="ml-0.5 text-coal/40" aria-hidden>*</span>
             </span>
-            <span className="text-xs text-coal/45">JPG, PNG or WebP, up to 5MB</span>
+            <span className="text-xs text-coal/45">JPG, PNG or WebP, up to 10MB</span>
           </div>
 
           <div
@@ -240,19 +259,25 @@ export default function OfferForm({
               errors.poster ? 'border-ember/60' : 'border-coal/25'
             }`}
           >
-            {image ? (
+            {previewImage ? (
               <div className="flex items-center gap-4">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
-                  src={image.preview}
+                  src={previewImage}
                   alt=""
                   className="h-14 w-14 shrink-0 rounded-lg object-cover"
                 />
                 <div className="min-w-0 flex-1">
-                  <p className="text-sm font-medium text-coal-deep">Ready to publish</p>
-                  <p className="mt-0.5 text-[13px] text-coal/55">
-                    {formatBytes(image.originalSize)} compressed to {formatBytes(image.poster.size)}
+                  <p className="text-sm font-medium text-coal-deep">
+                    {image ? 'Ready to publish' : 'Current poster'}
                   </p>
+                  {image ? (
+                    <p className="mt-0.5 text-[13px] text-coal/55">
+                      {formatBytes(image.originalSize)} compressed to {formatBytes(image.poster.size)}
+                    </p>
+                  ) : (
+                    <p className="mt-0.5 text-[13px] text-coal/55">Keep it, or replace with a new image.</p>
+                  )}
                 </div>
                 <button
                   type="button"
@@ -284,19 +309,32 @@ export default function OfferForm({
           <input
             ref={fileRef}
             type="file"
-            accept="image/jpeg,image/png,image/webp"
+            accept={ACCEPT_ATTR}
             onChange={onPick}
             className="hidden"
           />
         </div>
 
-        <div className="flex flex-col-reverse gap-3 border-t border-coal/10 pt-5 sm:flex-row sm:justify-end">
-          <ButtonLink href="/dashboard" variant="secondary">
-            Cancel
-          </ButtonLink>
-          <Button type="submit" disabled={pending || working}>
-            {pending ? 'Publishing' : 'Publish offer'}
-          </Button>
+        <div className="border-t border-coal/10 pt-5">
+          <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+            <ButtonLink href="/dashboard" variant="secondary">
+              Cancel
+            </ButtonLink>
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={() => submit('draft')}
+              disabled={pending || working}
+            >
+              {pending && intent === 'draft' ? 'Saving' : 'Save as draft'}
+            </Button>
+            <Button type="button" onClick={() => submit('publish')} disabled={pending || working}>
+              {pending && intent === 'publish' ? 'Publishing' : 'Publish offer'}
+            </Button>
+          </div>
+          <p className="mt-3 text-right text-[12px] leading-5 text-coal/50">
+            Once you publish, the offer goes live and can’t be edited. Save it as a draft to keep making changes.
+          </p>
         </div>
       </form>
 
@@ -313,12 +351,14 @@ export default function OfferForm({
             branchNames={selected.map(branchName)}
             shopName={shopName}
             verified={verified}
-            preview={image?.preview ?? null}
+            preview={previewImage}
           />
         </div>
 
         <p className="mt-2.5 text-[12px] leading-5 text-coal/45">
-          How your offer looks in the grid. Featured is shown as an example.
+          {editing
+            ? 'Editing a saved draft. Featured is shown as an example.'
+            : 'How your offer looks in the grid. Featured is shown as an example.'}
         </p>
       </div>
     </div>

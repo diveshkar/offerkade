@@ -1,7 +1,44 @@
 import 'server-only';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
-import type { Branch, Business, Category } from '@/lib/database.types';
+import type { Branch, Business, Category, Offer } from '@/lib/database.types';
 import type { OfferWithRelations } from '@/lib/queries/offers';
+
+/** A shop's own offer plus the branch ids it runs at — for the edit form. */
+export interface EditableOffer {
+  offer: Offer;
+  branchIds: string[];
+}
+
+/**
+ * Load one of the current shop's offers for editing, with its linked branch
+ * ids. RLS scopes this to the owner, so it returns null for anyone else's
+ * offer. Returns null if the offer does not exist.
+ */
+export async function getMyOfferForEdit(
+  businessId: string,
+  offerId: string,
+): Promise<EditableOffer | null> {
+  const supabase = await createSupabaseServerClient();
+
+  const { data: offer } = await supabase
+    .from('offers')
+    .select('*')
+    .eq('id', offerId)
+    .eq('business_id', businessId)
+    .maybeSingle();
+
+  if (!offer) return null;
+
+  const { data: links } = await supabase
+    .from('offer_branches')
+    .select('branch_id')
+    .eq('offer_id', offerId);
+
+  return {
+    offer: offer as Offer,
+    branchIds: (links ?? []).map((r) => r.branch_id as string),
+  };
+}
 
 export async function getMyBusiness(): Promise<Business | null> {
   const supabase = await createSupabaseServerClient();

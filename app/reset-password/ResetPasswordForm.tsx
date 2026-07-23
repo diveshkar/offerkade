@@ -2,7 +2,8 @@
 
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import { Alert, Button, Field, Input } from '@/app/components/ui';
+import { Alert, Button, Field } from '@/app/components/ui';
+import PasswordInput from '@/app/components/PasswordInput';
 import { createSupabaseBrowserClient } from '@/lib/supabase/browser';
 
 export default function ResetPasswordForm() {
@@ -44,8 +45,7 @@ export default function ResetPasswordForm() {
       {error && <Alert tone="error">{error}</Alert>}
 
       <Field label="New password" hint="At least 8 characters" required>
-        <Input
-          type="password"
+        <PasswordInput
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           autoComplete="new-password"
@@ -55,8 +55,7 @@ export default function ResetPasswordForm() {
       </Field>
 
       <Field label="Confirm password" required>
-        <Input
-          type="password"
+        <PasswordInput
           value={confirm}
           onChange={(e) => setConfirm(e.target.value)}
           autoComplete="new-password"

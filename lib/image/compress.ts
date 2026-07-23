@@ -8,8 +8,19 @@
 
 import imageCompression from 'browser-image-compression';
 
-export const MAX_UPLOAD_BYTES = 5 * 1024 * 1024; // 5MB hard limit (pre-compression)
-export const ACCEPTED_TYPES = ['image/jpeg', 'image/png', 'image/webp'] as const;
+export const MAX_UPLOAD_BYTES = 10 * 1024 * 1024; // 10MB hard limit (pre-compression)
+export const ACCEPTED_TYPES = [
+  'image/jpeg',
+  'image/png',
+  'image/webp',
+  // iPhones hand the file picker a HEIC/HEIF photo. Safari can decode these to
+  // a canvas, so browser-image-compression converts them to WebP like any other.
+  'image/heic',
+  'image/heif',
+] as const;
+
+/** `accept` attribute string for the file <input>. */
+export const ACCEPT_ATTR = ACCEPTED_TYPES.join(',');
 
 export interface CompressedImage {
   /** ~1080px WebP, for the offer detail page. */
@@ -23,13 +34,19 @@ export interface ValidationResult {
   error?: string;
 }
 
+const ACCEPTED_EXT = /\.(jpe?g|png|webp|heic|heif)$/i;
+
 /** Validate a picked file: type + size. Enforced in the form UI. */
 export function validateImageFile(file: File): ValidationResult {
-  if (!ACCEPTED_TYPES.includes(file.type as (typeof ACCEPTED_TYPES)[number])) {
+  // Some mobile browsers report an empty MIME type for camera/gallery photos,
+  // so fall back to the file extension before rejecting.
+  const typeOk = ACCEPTED_TYPES.includes(file.type as (typeof ACCEPTED_TYPES)[number]);
+  const extOk = ACCEPTED_EXT.test(file.name);
+  if (!typeOk && !(file.type === '' && extOk)) {
     return { ok: false, error: 'Please upload a JPG, PNG, or WebP image.' };
   }
   if (file.size > MAX_UPLOAD_BYTES) {
-    return { ok: false, error: 'Image is too large. Maximum size is 5MB.' };
+    return { ok: false, error: 'Image is too large. Maximum size is 10MB.' };
   }
   return { ok: true };
 }
@@ -43,19 +60,19 @@ export async function compressPoster(file: File): Promise<CompressedImage> {
   const check = validateImageFile(file);
   if (!check.ok) throw new Error(check.error);
 
-  const poster = await imageCompression(file, {
-    maxWidthOrHeight: 1080,
-    fileType: 'image/webp',
-    initialQuality: 0.8,
-    useWebWorker: true,
-  });
+  // Web workers speed compression up but throw on some mobile browsers
+  // (notably older iOS Safari). Fall back to the main thread if they fail.
+  async function shrink(maxWidthOrHeight: number, initialQuality: number) {
+    const opts = { maxWidthOrHeight, fileType: 'image/webp', initialQuality } as const;
+    try {
+      return await imageCompression(file, { ...opts, useWebWorker: true });
+    } catch {
+      return await imageCompression(file, { ...opts, useWebWorker: false });
+    }
+  }
 
-  const thumb = await imageCompression(file, {
-    maxWidthOrHeight: 400,
-    fileType: 'image/webp',
-    initialQuality: 0.75,
-    useWebWorker: true,
-  });
+  const poster = await shrink(1080, 0.8);
+  const thumb = await shrink(400, 0.75);
 
   // Give them .webp names so the upload/storage keys are clean.
   const base = file.name.replace(/\.[^.]+$/, '');

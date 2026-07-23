@@ -78,8 +78,15 @@ export default async function OfferPage({ params }: { params: Promise<{ id: stri
           <div className="md:sticky md:top-24 md:self-start">
             <div className="animate-rise overflow-hidden rounded-3xl border border-coal/10 bg-coal/5 shadow-[0_28px_60px_-28px_rgba(18,13,10,0.45)] dark:border-white/10 dark:bg-white/5">
               {offer.poster_url ? (
+                // Posters vary in aspect ratio; contain within a capped height so
+                // tall uploads don't overrun the layout on mobile and every
+                // poster reads consistently.
                 // eslint-disable-next-line @next/next/no-img-element
-                <img src={offer.poster_url} alt={offer.title} className="w-full object-cover" />
+                <img
+                  src={offer.poster_url}
+                  alt={offer.title}
+                  className="mx-auto max-h-[75vh] w-full object-contain"
+                />
               ) : (
                 <div className="grid aspect-[4/5] place-items-center text-sm font-medium text-coal/30 dark:text-paper/25">
                   No poster
@@ -132,7 +139,10 @@ export default async function OfferPage({ params }: { params: Promise<{ id: stri
                   </dd>
                 </div>
               )}
-              {offer.location_note && (
+              {/* Only summarise branch count for multi-branch offers — for a
+                  single location the BranchList below already shows it, so this
+                  card would just repeat the "Branches" section. */}
+              {offer.location_note && branches.length > 1 && (
                 <div className="rounded-2xl border border-coal/10 bg-paper-soft p-3.5 dark:border-white/10 dark:bg-coal-soft">
                   <dt className="text-[11px] font-semibold uppercase tracking-wider text-coal/40 dark:text-paper/40">
                     Branches
@@ -219,7 +229,7 @@ export default async function OfferPage({ params }: { params: Promise<{ id: stri
           </div>
         </div>
       </main>
-      <SiteFooter />
+      <SiteFooter compact />
     </>
   );
 }

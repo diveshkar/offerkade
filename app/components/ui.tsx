@@ -67,7 +67,11 @@ export function Field({
       <span className="mb-1.5 flex items-baseline justify-between gap-3">
         <span className="text-sm font-medium text-coal-deep">
           {label}
-          {required && <span className="ml-0.5 text-ember">*</span>}
+          {required && (
+            <span className="ml-0.5 text-coal/40" aria-hidden>
+              *
+            </span>
+          )}
         </span>
         {hint && !error && <span className="text-xs text-coal/45">{hint}</span>}
       </span>
@@ -168,6 +172,7 @@ export function StatusPill({
     pending: 'bg-amber-500/12 text-amber-700 ring-amber-500/25',
     rejected: 'bg-ember/10 text-ember ring-ember/20',
     expired: 'bg-coal/8 text-coal/55 ring-coal/15',
+    draft: 'bg-coal/8 text-coal/60 ring-coal/15',
   };
   const tone = tones[status] ?? tones.expired;
   const scale =

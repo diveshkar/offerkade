@@ -46,9 +46,12 @@ export async function saveBranch(formData: FormData): Promise<BranchState> {
   };
 
   if (id) {
+    // This editor sets the address by hand and has no map pin, so drop any
+    // stored lat/lng — otherwise Directions would keep pointing at an old,
+    // geolocated position instead of the address the shop just entered.
     const { error } = await supabaseAdmin
       .from('branches')
-      .update(row)
+      .update({ ...row, lat: null, lng: null })
       .eq('id', id)
       .eq('business_id', shop.id);
     if (error) return { error: 'That branch could not be saved. Please try again.' };

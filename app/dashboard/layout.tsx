@@ -18,12 +18,12 @@ export default async function DashboardLayout({ children }: { children: ReactNod
     <>
       <header className="border-b border-coal/10 bg-coal-deep text-paper">
         <div className="mx-auto flex h-16 max-w-5xl items-center justify-between gap-4 px-4 sm:px-6">
-          <Link href="/dashboard" className="flex min-w-0 items-baseline gap-2.5">
-            <span className="font-display text-[15px] font-semibold tracking-tight text-flame">
+          <Link href="/dashboard" className="flex min-w-0 flex-1 items-baseline gap-2.5">
+            <span className="hidden shrink-0 font-display text-[15px] font-semibold tracking-tight text-flame sm:inline">
               Shop dashboard
             </span>
-            <span aria-hidden className="text-paper/25">|</span>
-            <span className="truncate text-[13px] text-paper/60">
+            <span aria-hidden className="hidden shrink-0 text-paper/25 sm:inline">|</span>
+            <span className="min-w-0 flex-1 truncate text-[13px] text-paper/70 sm:text-paper/60">
               {business?.name ?? 'Your shop'}
             </span>
           </Link>
