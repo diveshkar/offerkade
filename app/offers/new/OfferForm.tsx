@@ -96,15 +96,19 @@ export default function OfferForm({
 
     if (title.trim().length < 5) next.title = 'Give the offer a clear title, at least 5 characters.';
 
+    // Date checks run for both draft and publish, so bad dates never save.
+    if (startDate && startDate < today) next.startDate = 'The start date cannot be in the past.';
+    if (endDate) {
+      if (endDate < today) next.endDate = 'The end date cannot be in the past.';
+      else if (startDate && endDate < startDate)
+        next.endDate = 'The end date must be on or after the start date.';
+    }
+
     if (publish) {
       if (!categoryId) next.category = 'Choose a category.';
       if (!endDate) next.endDate = 'Choose the day this offer ends.';
-      else if (endDate < today) next.endDate = 'The end date cannot be in the past.';
-      else if (startDate && endDate < startDate) next.endDate = 'The end date must follow the start date.';
       if (!hasPoster) next.poster = 'Add a poster image.';
       if (multiBranch && picked.length === 0) next.branches = 'Choose at least one branch.';
-    } else if (endDate && startDate && endDate < startDate) {
-      next.endDate = 'The end date must follow the start date.';
     }
 
     return next;
@@ -157,29 +161,28 @@ export default function OfferForm({
           />
         </Field>
 
-        {/* [&>label]:min-w-0 lets the date columns shrink — native date inputs
-            have a wide intrinsic size that otherwise pushes past the form edge. */}
-        <div className="grid gap-4 sm:grid-cols-3 [&>label]:min-w-0">
-          <Field label="Category" required error={errors.category}>
-            <Select
-              value={categoryId}
-              invalid={Boolean(errors.category)}
-              onChange={(e) => setCategoryId(e.target.value)}
-            >
-              <option value="">Choose</option>
-              {categories.map((c) => (
-                <option key={c.id} value={c.id}>
-                  {c.name}
-                </option>
-              ))}
-            </Select>
-          </Field>
+        <Field label="Category" required error={errors.category}>
+          <Select
+            value={categoryId}
+            invalid={Boolean(errors.category)}
+            onChange={(e) => setCategoryId(e.target.value)}
+          >
+            <option value="">Choose a category</option>
+            {categories.map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.name}
+              </option>
+            ))}
+          </Select>
+        </Field>
 
-          <Field label="Starts">
+        <div className="grid grid-cols-2 gap-4">
+          <Field label="Starts" error={errors.startDate}>
             <Input
               type="date"
               value={startDate}
               min={today}
+              invalid={Boolean(errors.startDate)}
               onChange={(e) => setStartDate(e.target.value)}
             />
           </Field>
@@ -334,7 +337,7 @@ export default function OfferForm({
               {pending && intent === 'publish' ? 'Publishing' : 'Publish offer'}
             </Button>
           </div>
-          <p className="mt-3 text-right text-[12px] leading-5 text-coal/50">
+          <p className="mt-3 text-center text-[12px] leading-5 text-coal/50 sm:text-right">
             Once you publish, the offer goes live and can’t be edited. Save it as a draft to keep making changes.
           </p>
         </div>
