@@ -65,6 +65,48 @@ export default function OfferForm({
   const previewImage = image?.preview ?? existingPoster;
   const hasPoster = Boolean(image) || Boolean(existingPoster);
 
+  // Native date pickers on some phones ignore the `min` attribute, so we
+  // check the pair on every change and surface the error immediately.
+  function dateError(field: 'startDate' | 'endDate', s: string, e: string): string {
+    if (field === 'startDate') {
+      if (s && s < today) return 'The start date cannot be in the past.';
+      return '';
+    }
+    if (!e) return '';
+    if (e < today) return 'The end date cannot be in the past.';
+    if (s && e < s) return 'The end date must be on or after the start date.';
+    return '';
+  }
+
+  function applyDateErrors(next: Errors, s: string, e: string) {
+    const start = dateError('startDate', s, e);
+    const end = dateError('endDate', s, e);
+    if (start) next.startDate = start;
+    else delete next.startDate;
+    if (end) next.endDate = end;
+    else delete next.endDate;
+  }
+
+  function onStartChange(value: string) {
+    setStartDate(value);
+    setFormError('');
+    setErrors((prev) => {
+      const next = { ...prev };
+      applyDateErrors(next, value, endDate);
+      return next;
+    });
+  }
+
+  function onEndChange(value: string) {
+    setEndDate(value);
+    setFormError('');
+    setErrors((prev) => {
+      const next = { ...prev };
+      applyDateErrors(next, startDate, value);
+      return next;
+    });
+  }
+
   function toggleBranch(id: string) {
     setPicked((list) => (list.includes(id) ? list.filter((x) => x !== id) : [...list, id]));
   }
@@ -183,7 +225,7 @@ export default function OfferForm({
               value={startDate}
               min={today}
               invalid={Boolean(errors.startDate)}
-              onChange={(e) => setStartDate(e.target.value)}
+              onChange={(e) => onStartChange(e.target.value)}
             />
           </Field>
 
@@ -193,7 +235,7 @@ export default function OfferForm({
               value={endDate}
               min={startDate || today}
               invalid={Boolean(errors.endDate)}
-              onChange={(e) => setEndDate(e.target.value)}
+              onChange={(e) => onEndChange(e.target.value)}
             />
           </Field>
         </div>
@@ -352,7 +394,7 @@ export default function OfferForm({
             title={title}
             category={categoryName}
             city={previewCity}
-            endDate={endDate}
+            endDate={errors.endDate ? '' : endDate}
             branchNames={selected.map(branchName)}
             shopName={shopName}
             verified={verified}
