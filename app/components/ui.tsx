@@ -2,7 +2,9 @@ import Link from 'next/link';
 import type { ComponentProps, ReactNode } from 'react';
 
 const FOCUS = 'outline-none focus:border-flame focus:ring-2 focus:ring-flame/25';
-const CONTROL = `h-11 w-full rounded-xl border border-coal/15 bg-paper-soft px-3.5 text-[15px] text-coal-deep transition placeholder:text-coal/35 ${FOCUS}`;
+// min-w-0 lets native date inputs (which have a wide intrinsic size) shrink
+// to their container instead of forcing horizontal overflow on small screens.
+const CONTROL = `h-11 w-full min-w-0 rounded-xl border border-coal/15 bg-paper-soft px-3.5 text-[15px] text-coal-deep transition placeholder:text-coal/35 ${FOCUS}`;
 
 const INVALID = 'border-ember/60 focus:border-ember focus:ring-ember/25';
 
