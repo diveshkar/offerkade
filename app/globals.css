@@ -121,6 +121,21 @@ input[type='time'],
 input[type='month'] {
   min-width: 0;
   max-width: 100%;
+  /* iOS Safari keeps a wide native intrinsic width and ignores width:100%
+     until appearance is reset. This is the real fix for the overflow that
+     only shows on a real iPhone (Chrome DevTools can't reproduce it). */
+  -webkit-appearance: none;
+  appearance: none;
+}
+/* iOS renders the value in an inner box that adds its own width/padding. */
+input[type='date']::-webkit-date-and-time-value,
+input[type='datetime-local']::-webkit-date-and-time-value {
+  text-align: left;
+  min-width: 0;
+  margin: 0;
+}
+input::-webkit-datetime-edit {
+  padding: 0;
 }
 
 /* Hide scrollbars on horizontal chip rails (still scrollable) */
