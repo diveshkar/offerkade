@@ -48,7 +48,7 @@ export default function SiteFooter({
               <ul className="flex flex-col gap-2.5">
                 <li><Link href="/" className="transition hover:text-flame-bright">All offers</Link></li>
                 <li><Link href="/?ending=1" className="transition hover:text-flame-bright">Ending soon</Link></li>
-                <li><Link href="/register" className="transition hover:text-flame-bright">List your offer</Link></li>
+                <li><Link href="/login" className="transition hover:text-flame-bright">List your offer</Link></li>
               </ul>
             </div>
             <div>
@@ -65,7 +65,7 @@ export default function SiteFooter({
           </div>
         </div>
 
-        <div className="mt-10 flex flex-col gap-2 border-t border-white/10 pt-6 text-xs text-paper/40 sm:flex-row sm:items-center sm:justify-between">
+        <div className="mt-10 flex flex-col items-center gap-2 border-t border-white/10 pt-6 text-center text-xs text-paper/40">
           <p>
             © {new Date().getFullYear()} OfferCeylon · An{' '}
             <span className="font-semibold text-paper/60">Olyntox (Pvt) Ltd</span> company. Made in

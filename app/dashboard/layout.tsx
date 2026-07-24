@@ -2,7 +2,8 @@ import type { ReactNode } from 'react';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import SiteFooter from '@/app/components/SiteFooter';
-import { Button, StatusPill } from '@/app/components/ui';
+import ConfirmButton from '@/app/components/ConfirmButton';
+import { StatusPill } from '@/app/components/ui';
 import { getSessionUser } from '@/lib/supabase/server';
 import { getMyBusiness } from '@/lib/queries/shop';
 import { signOut } from '@/app/dashboard/actions';
@@ -30,15 +31,15 @@ export default async function DashboardLayout({ children }: { children: ReactNod
 
           <div className="flex shrink-0 items-center gap-2.5">
             <StatusPill status={business.status} size="md" />
-            <form action={signOut}>
-              <Button
-                variant="secondary"
-                size="sm"
-                className="border-white/20 bg-white/10 text-paper hover:border-white/40"
-              >
-                Sign out
-              </Button>
-            </form>
+            <ConfirmButton
+              action={signOut}
+              triggerLabel="Sign out"
+              triggerClassName="inline-flex h-9 items-center justify-center gap-2 rounded-xl border border-white/20 bg-white/10 px-4 text-[13px] font-semibold text-paper transition hover:border-white/40 active:scale-[0.98]"
+              title="Sign out?"
+              message="You’ll be signed out and need to log in again to manage your offers."
+              confirmLabel="Sign out"
+              tone="primary"
+            />
           </div>
         </div>
       </header>
