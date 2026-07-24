@@ -218,7 +218,9 @@ export default function OfferForm({
           </Select>
         </Field>
 
-        <div className="grid grid-cols-2 gap-4">
+        {/* Starts and Ends each get their own full-width row (stacked, not
+            side-by-side) so the date inputs are easy to read and never cramp. */}
+        <div className="grid gap-4 [&>label]:min-w-0">
           <Field label="Starts" error={errors.startDate}>
             <Input
               type="date"
