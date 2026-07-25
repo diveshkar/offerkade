@@ -32,7 +32,8 @@ export default function LoginForm({ notice }: { notice?: string }) {
       return;
     }
 
-    router.replace('/dashboard');
+    // /continue decides admin vs shop and forwards accordingly.
+    router.replace('/continue');
     router.refresh();
   }
 

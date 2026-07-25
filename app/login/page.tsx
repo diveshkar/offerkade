@@ -4,6 +4,7 @@ import { redirect } from 'next/navigation';
 import AuthSplit from '@/app/components/AuthSplit';
 import LoginForm from '@/app/login/LoginForm';
 import { getSessionUser } from '@/lib/supabase/server';
+import { landingPathForCurrentUser } from '@/lib/auth-routing';
 
 export const metadata: Metadata = {
   title: 'Shop login | OfferCeylon',
@@ -15,7 +16,7 @@ export default async function LoginPage({
 }: {
   searchParams: Promise<{ error?: string }>;
 }) {
-  if (await getSessionUser()) redirect('/dashboard');
+  if (await getSessionUser()) redirect(await landingPathForCurrentUser());
 
   const { error } = await searchParams;
   const notice =

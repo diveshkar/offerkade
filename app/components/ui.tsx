@@ -173,6 +173,7 @@ export function StatusPill({
     approved: 'bg-emerald-500/12 text-emerald-700 ring-emerald-500/20',
     pending: 'bg-amber-500/12 text-amber-700 ring-amber-500/25',
     rejected: 'bg-ember/10 text-ember ring-ember/20',
+    suspended: 'bg-ember/10 text-ember ring-ember/20',
     expired: 'bg-coal/8 text-coal/55 ring-coal/15',
     draft: 'bg-coal/8 text-coal/60 ring-coal/15',
   };

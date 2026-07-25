@@ -58,10 +58,10 @@ export default function CompressDemoPage() {
 
   return (
     <main style={{ maxWidth: 720, margin: '0 auto', padding: 24, fontFamily: 'system-ui' }}>
-      <h1>Phase 3 — Image compression demo</h1>
+      <h1>Phase 3 image compression demo</h1>
       <p style={{ color: '#666' }}>
         Pick a JPG/PNG/WebP (max 5MB). It&apos;s compressed to a 1080px poster and a 400px
-        thumbnail, both WebP — entirely in your browser.
+        thumbnail, both WebP, entirely in your browser.
       </p>
 
       <input type="file" accept="image/jpeg,image/png,image/webp" onChange={onPick} />
@@ -90,7 +90,7 @@ export default function CompressDemoPage() {
             </tbody>
           </table>
           <p style={{ fontWeight: 600, marginTop: 12 }}>
-            ✅ {ratio}× smaller ({formatBytes(result.originalSize)} →{' '}
+            ✅ {ratio}× smaller ({formatBytes(result.originalSize)} to{' '}
             {formatBytes(result.posterSize)})
           </p>
           <div style={{ display: 'flex', gap: 16, marginTop: 16, alignItems: 'flex-start' }}>

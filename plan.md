@@ -361,6 +361,16 @@ Three roles. Decided 2026-07-19.
 
 **RLS enforces ownership** — a shop can only ever touch its own approved business's offers.
 
+### ✅ Phase 5 (DONE)
+- Supabase Auth (email/password) with SSR cookie sessions (`@supabase/ssr`, middleware refresh).
+- Auth pages: `/register`, `/login`, plus password reset (`/forgot-password`, `/reset-password`) and `/auth/callback` for email confirmation.
+- `/onboarding` — create shop → `businesses` row with `owner_id`, `status = 'pending'`; district dropdown; website stored with `https://` auto-added.
+- `/dashboard` — gated by shop `status`: pending → "under review"; approved → post/manage offers.
+- New offer form (`/offers/new`): browser-compressed poster (Phase 3), goes live instantly with a `promo_code`; supports multi-**branch** locations (`branches` / `offer_branches` tables) + draft/publish.
+- **Security verified end-to-end via RLS tests:** owner creates pending shop, cannot self-approve, cannot post while pending; after approval can post live; public sees it; non-owner blocked from posting to another's shop.
+- iOS Safari date-input overflow fixed (`-webkit-appearance: none`).
+- Migration `007_shop_accounts.sql` (owner_id, status, ownership RLS, `bump_lead_count` RPC). *(Note: routes live at top level — `/login`, `/dashboard`, etc. — not under `/shop/*`; multi-branch feature added beyond the original plan.)*
+
 **Deliverable:** Shop signup + login + gated dashboard that posts/manages offers going live instantly.
 
 **Cost:** LKR 0.
@@ -378,11 +388,21 @@ Three roles. Decided 2026-07-19.
 - **All offers** — search/filter, edit, feature/unfeature, manually expire or **remove** any offer (even from approved shops).
 - **Businesses** — view, verify (`verified = true`), edit, suspend.
 - **Quick-add** — a fast form for *you* to post offers yourself (critical for Phase 8 seeding).
-- **Stats dashboard** — total/active offers, shops, views, **code-reveals (leads)**, redemptions, top offers — the numbers you'll show advertisers/subscribers later.
+- **Stats dashboard** — shops, views, **code-reveals (leads)**, redemptions, top offers — the numbers you'll show advertisers/subscribers later. **Split the two kinds of number cleanly (see 7a-ii):** *live* metrics (offers live right now) are a real-time snapshot and rise/fall as offers appear and expire; *lifetime* metrics (offers ever posted, total views, total leads) are history and must **only ever go up** — a delete or an auto-expiry ends an offer's life but never erases its place in the totals.
 
 **Moderation rules:** reject spam/fake shops at approval; remove bad offers; fix wrong category/city; verify legit businesses to build trust.
 
 **Deliverable:** Working admin dashboard — approve/reject shops, remove offers, quick-add, stats.
+
+### ✅ Phase 6 (DONE)
+- **Admin shell** at `/admin/*`, gated by the `admins` table (RLS `is_admin()`): fixed/sticky sidebar (Overview / Shops / Offers) on desktop, scrollable top nav on mobile, sign-out + "view site" always reachable.
+- **Shop moderation** — approve / reject (with a reason shown to the shop) / suspend / reinstate; `verified` auto-set on approval (trigger 010). Admin can also **edit a shop's contact details** (name, email, phone, WhatsApp, website, district, address).
+- **Offer moderation** — feature / unfeature, force-expire, permanently remove (also deletes the stored poster), and **edit any offer**.
+- **All-offers list** — status tabs (All / Approved / Draft / Expired / Rejected) + title search + pagination (8 per page).
+- **Quick-add** — admin posts an offer on behalf of any approved shop; poster compressed in the browser (Phase 3 pipeline) and live instantly. Location follows the shop's **branches** exactly like the shop's own form: one branch is used automatically, several show a picker, none falls back to a district select — linked through `offer_branches` so multi-branch display works.
+- **Stats overview** — pending/approved shops, live/total offers, total views, code-reveals (leads), plus a **top-offers-by-views** leaderboard.
+- **Mobile-first UI** throughout: sticky nav, horizontally-scrollable filter tabs, touch-sized action buttons, responsive forms; SVG icons (no emoji), no em/en dashes or arrows in UI copy.
+- *No new DB migration was required — everything runs on the existing schema. Reject/approval **emails** are deferred to Phase 7; **redemptions** stat and the lifetime-metrics counters (see 7a-ii) remain future work.*
 
 **Cost:** LKR 0.
 
@@ -411,6 +431,22 @@ where status = 'approved' and end_date < current_date;
 
 **Cost:** ~30 invocations/month vs 500,000 free = $0.
 
+### 7a-ii. Metrics that survive deletion (LOCKED — decided 2026-07-25)
+
+**Problem the current build has:** the shop dashboard's "Total posted", "Views" and "Code reveals" are all computed by summing the offer rows that *still exist*. So the moment an offer is removed — by the shop deleting it, **or** by this nightly job hard-deleting an expired one — that offer's whole contribution vanishes from the totals. A year-old, highly active shop could log in after a nightly run and see its posting count and its accumulated views/leads collapse toward zero. Those accumulated leads are exactly the value proof the Phase 10 business model sells, so losing them on a schedule is unacceptable.
+
+**Decision: manual delete and auto-expiry are treated identically for history.** Both end an offer's *life* (drop it from the *live* snapshot) but neither rewrites the *past*. Concretely:
+
+- **Keep "Live offers" as-is** — a real-time count of currently-live rows. Correct already; deletes and expiry rightly remove from it.
+- **Store lifetime numbers as durable counters on the `businesses` row** (plus a global tally for the "OfferCeylon has published N offers" headline):
+  - `total_published` — **+1 the moment an offer is published** (goes live / becomes `approved`). Never decremented — not on delete, not on expiry. Drafts don't count until published. Implement as a DB trigger on `offers` so every writer (shop publish, admin quick-add, future imports) is covered in one place.
+  - `lifetime_views`, `lifetime_leads` — **rolled up from the offer row *before* it is deleted** (a `BEFORE DELETE` trigger on `offers`), so no view/lead is ever lost. Works for any deleter: the shop, an admin, or this scheduler.
+- **Dashboard display:** lifetime views = `businesses.lifetime_views + sum(view_count of still-live rows)`; same for leads. Live rows keep their counts on the row; deleted rows have theirs in the durable column — no double-count, no loss.
+- **Relabel for honesty:** rename "Total posted" → **"Offers posted (all time)"**, sitting next to "Live offers" so nobody confuses *now* with *ever*.
+- Doing the increment/roll-up at the **database (trigger) level** — not in app code — is what makes it robust: the future nightly Edge Function deletes rows directly, and the counters still update correctly without the Edge Function knowing anything about them.
+
+*(Status: agreed, not yet built. Supersedes the "lightweight tally row" hand-wave in 7a step 4 and folds in the Phase 10 publish-counter note below.)*
+
 ### 7a-i. Storage capacity math (why auto-delete matters)
 Free-tier assumptions: **1 GB Storage**, **500 MB Postgres**. Post-compression a poster is capped at **~0.85 MB** and its thumbnail at **~0.2 MB**, so **~1 MB per offer worst case** (typical real photos land ~0.3-0.5 MB total).
 
@@ -426,7 +462,7 @@ Key point: **Storage holds only the offers that are currently live.** Because 7a
 
 Without auto-delete, cumulative uploads hit the 1 GB wall in the same ~1,000-offer range and **stay** there. With it, the site can run indefinitely as long as *live* offers stay under the concurrent ceiling. When real volume approaches it, the paid tier lifts Storage to 100 GB (≈100x headroom) for $25/mo.
 
-> **Subscription note (for Phase 10):** if a plan ever caps how many offers a shop may post (per month / per plan), track a **separate publish counter that increments on publish and never decrements on delete** - otherwise a shop could publish → delete → republish to dodge the quota. Not built now; noted here so the delete flow above and the quota logic stay consistent when subscriptions land.
+> **Subscription note (for Phase 10):** the `total_published` counter decided in **7a-ii** already gives quotas the right foundation — it increments on publish and never decrements on delete, so a plan that caps offers-per-month can't be dodged by publish → delete → republish. When quotas land, count *publish events in the period* (never live rows) against the plan limit.
 
 ### 7b. Keep-alive (prevents the 7-day pause) - FREE
 A **Cloudflare Worker cron trigger** runs **every 3 days** (not 6 - leaves margin if one run fails before the 7-day deadline) and makes one tiny Supabase query, which resets the inactivity clock. It must hit the *database*, not the cached homepage.
@@ -568,9 +604,9 @@ Once real traffic exists this is redundant, but it costs nothing to leave runnin
 - [x] Build **browser-side** compression (Phase 3)
 - [~] Put **Cloudflare cache in front of Storage** (protects 5 GB egress) — *per-object `Cache-Control` set; edge-proxy deferred*
 - [x] Build offers grid + filters + "Ending soon" + expiring-soon badge (Phase 4)
-- [ ] Add `businesses.owner_id` + `status`, ownership RLS, "get deal" leads RPC (Phase 5 schema)
-- [ ] Build shop signup/login + gated dashboard (post/manage own offers) (Phase 5)
-- [ ] Build admin approve/reject **shops** + remove offers + quick-add (Phase 6)
+- [x] Add `businesses.owner_id` + `status`, ownership RLS, "get deal" leads RPC (Phase 5 schema)
+- [x] Build shop signup/login + gated dashboard (post/manage own offers) (Phase 5)
+- [x] Build admin approve/reject **shops** + remove offers + quick-add + stats (Phase 6)
 - [ ] Deploy nightly expiry (pg_cron → Edge Function, delete by path) (Phase 7)
 - [ ] Deploy **keep-alive Worker cron (every 3 days)** (Phase 7)
 - [ ] Wire transactional emails (Phase 7)

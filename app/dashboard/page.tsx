@@ -19,7 +19,7 @@ function prettyDate(d: string) {
   });
 }
 
-const PER_PAGE = 10;
+const PER_PAGE = 8;
 
 export default async function DashboardPage({
   searchParams,
@@ -37,19 +37,34 @@ export default async function DashboardPage({
   }
 
   if (business.status !== 'approved') {
-    const pending = business.status === 'pending';
+    const copy: Record<string, { title: string; body: string }> = {
+      pending: {
+        title: 'Your shop is under review',
+        body: 'We check every shop before its offers go live. This usually takes a day. We will email you as soon as you are approved.',
+      },
+      rejected: {
+        title: 'Your shop was not approved',
+        body: 'See the reason below, or reply to our email if you think this was a mistake and we will take another look.',
+      },
+      suspended: {
+        title: 'Your shop is suspended',
+        body: 'Your offers are hidden from OfferCeylon while your shop is suspended. See the reason below or contact us to resolve it.',
+      },
+    };
+    const c = copy[business.status] ?? copy.rejected;
     return (
       <div className="mx-auto max-w-xl">
         <Card className="text-center">
           <StatusPill status={business.status} />
           <h2 className="font-display mt-4 text-2xl font-semibold tracking-tight text-coal-deep">
-            {pending ? 'Your shop is under review' : 'Your shop was not approved'}
+            {c.title}
           </h2>
-          <p className="mx-auto mt-2 max-w-sm text-[15px] leading-7 text-coal/60">
-            {pending
-              ? 'We check every shop before its offers go live. This usually takes a day. We will email you as soon as you are approved.'
-              : 'Reply to our email if you think this was a mistake and we will take another look.'}
-          </p>
+          <p className="mx-auto mt-2 max-w-sm text-[15px] leading-7 text-coal/60">{c.body}</p>
+          {business.rejection_reason && (
+            <p className="mx-auto mt-4 max-w-sm rounded-xl border border-ember/25 bg-ember/5 px-4 py-3 text-[13px] leading-6 text-ember">
+              {business.rejection_reason}
+            </p>
+          )}
         </Card>
       </div>
     );

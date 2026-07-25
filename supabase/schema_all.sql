@@ -254,8 +254,6 @@ create policy posters_public_read on storage.objects
 -- The submission Edge Function (service_role) bypasses RLS to upload,
 -- and the nightly expiry job (service_role) deletes by path.
 -- This closes the storage-write hole described in the plan.
-
-
 -- ============================================================
 -- OfferCeylon : Phase 5 : Migration 007 : Shop accounts
 -- Run after 006_storage.sql.
@@ -417,8 +415,6 @@ as $$
 $$;
 
 grant execute on function public.bump_lead_count(uuid) to anon, authenticated;
-
-
 -- ============================================================
 -- OfferCeylon : Phase 5 : Migration 008 : Shop branches
 -- Run after 007_shop_accounts.sql.
@@ -507,3 +503,138 @@ drop trigger if exists branches_single_primary on public.branches;
 create trigger branches_single_primary
   after insert or update of is_primary on public.branches
   for each row when (new.is_primary) execute function public.enforce_single_primary_branch();
+-- ============================================================
+-- OfferCeylon : Phase 5 : Migration 009 : Offer to branch links
+-- Run after 008_branches.sql.
+--
+-- An offer may run at several branches, so the single branch_id
+-- from 008 is replaced by a join table.
+-- ============================================================
+
+create table if not exists public.offer_branches (
+  offer_id  uuid not null references public.offers(id)   on delete cascade,
+  branch_id uuid not null references public.branches(id) on delete cascade,
+  primary key (offer_id, branch_id)
+);
+
+create index if not exists offer_branches_branch_idx on public.offer_branches (branch_id);
+
+alter table public.offers drop column if exists branch_id;
+
+alter table public.offer_branches enable row level security;
+
+drop policy if exists offer_branches_public_read on public.offer_branches;
+create policy offer_branches_public_read on public.offer_branches
+  for select using (
+    exists (
+      select 1 from public.offers o
+       where o.id = offer_branches.offer_id
+         and o.status = 'approved'
+         and o.end_date >= current_date
+    )
+  );
+
+drop policy if exists offer_branches_owner_all on public.offer_branches;
+create policy offer_branches_owner_all on public.offer_branches
+  for all to authenticated
+  using (
+    exists (
+      select 1 from public.offers o
+        join public.businesses b on b.id = o.business_id
+       where o.id = offer_branches.offer_id
+         and b.owner_id = auth.uid()
+         and b.status = 'approved'
+    )
+  )
+  with check (
+    exists (
+      select 1 from public.offers o
+        join public.businesses b on b.id = o.business_id
+       where o.id = offer_branches.offer_id
+         and b.owner_id = auth.uid()
+         and b.status = 'approved'
+    )
+  );
+
+drop policy if exists offer_branches_admin_all on public.offer_branches;
+create policy offer_branches_admin_all on public.offer_branches
+  for all using (public.is_admin()) with check (public.is_admin());
+-- ============================================================
+-- OfferCeylon : Phase 5 : Migration 010 : Verify on approval
+-- Run after 009_offer_branches.sql.
+--
+-- Approving a shop now marks it verified in the same step, so an
+-- admin has one action instead of two. `verified` becomes a mirror
+-- of `status = 'approved'` and is no longer set by hand.
+-- ============================================================
+
+create or replace function public.sync_verified_with_status()
+returns trigger
+language plpgsql
+as $$
+begin
+  new.verified := (new.status = 'approved');
+  return new;
+end;
+$$;
+
+drop trigger if exists businesses_sync_verified on public.businesses;
+create trigger businesses_sync_verified
+  before insert or update of status on public.businesses
+  for each row execute function public.sync_verified_with_status();
+
+-- Bring existing rows in line.
+update public.businesses
+   set verified = (status = 'approved')
+ where verified is distinct from (status = 'approved');
+-- ============================================================
+-- OfferCeylon : Phase 6 : Migration 011 : Admin moderation
+-- Run after 010_verify_on_approval.sql.
+--
+-- Adds a rejection reason, supports a `suspended` shop status, and
+-- makes the public offer feed hide offers from any shop that is not
+-- currently approved (suspended or rejected shops disappear).
+-- ============================================================
+
+-- Reason shown to the shop when an admin rejects them.
+alter table public.businesses
+  add column if not exists rejection_reason text;
+
+-- `status` is a free-text column, so 'suspended' needs no type change.
+-- The verified-sync trigger (010) already sets verified = (status='approved'),
+-- so suspending a shop also drops its verified badge automatically.
+
+-- ---------- Public offer visibility now depends on the shop, too ----------
+-- Only show approved, unexpired offers whose business is ALSO approved.
+-- Suspending/rejecting a shop instantly hides all of its offers.
+drop policy if exists offers_public_read on public.offers;
+create policy offers_public_read on public.offers
+  for select using (
+    status = 'approved'
+    and end_date >= current_date
+    and exists (
+      select 1 from public.businesses b
+      where b.id = offers.business_id
+        and b.status = 'approved'
+    )
+  );
+
+-- ---------- Public may only see APPROVED shops ----------
+-- Tighten the earlier `using (true)` so pending/suspended/rejected shops have
+-- no public profile page. Owners still read their own row (businesses_owner_read)
+-- and admins read all (businesses_admin_all), so those flows are unaffected.
+drop policy if exists businesses_public_read on public.businesses;
+create policy businesses_public_read on public.businesses
+  for select using (status = 'approved');
+-- ============================================================
+-- OfferCeylon : Phase 6 : Migration 012 : Allow 'suspended' status
+-- Run after 011_admin_moderation.sql.
+--
+-- The businesses_status_check constraint (from 007) only permits
+-- pending/approved/rejected. Add 'suspended' so admins can suspend shops.
+-- ============================================================
+
+alter table public.businesses drop constraint if exists businesses_status_check;
+alter table public.businesses
+  add constraint businesses_status_check
+  check (status in ('pending', 'approved', 'rejected', 'suspended'));
