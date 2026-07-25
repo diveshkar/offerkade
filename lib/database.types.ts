@@ -6,7 +6,7 @@
 
 export type OfferStatus = 'draft' | 'pending' | 'approved' | 'expired' | 'rejected';
 export type SubscriptionTier = 'free' | 'featured' | 'premium';
-export type BusinessStatus = 'pending' | 'approved' | 'rejected';
+export type BusinessStatus = 'pending' | 'approved' | 'rejected' | 'suspended';
 
 export interface Business {
   id: string;
@@ -23,6 +23,7 @@ export interface Business {
   subscription_tier: SubscriptionTier;
   owner_id: string | null;
   status: BusinessStatus;
+  rejection_reason: string | null;
   created_at: string;
 }
 
