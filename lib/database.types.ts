@@ -24,6 +24,11 @@ export interface Business {
   owner_id: string | null;
   status: BusinessStatus;
   rejection_reason: string | null;
+  // Durable lifetime counters (migration 013) — only ever increase, so stats
+  // survive an offer being deleted or auto-expired.
+  total_published: number;
+  lifetime_views: number;
+  lifetime_leads: number;
   created_at: string;
 }
 

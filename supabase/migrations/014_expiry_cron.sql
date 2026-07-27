@@ -1,0 +1,50 @@
+-- ============================================================
+-- OfferCeylon : Phase 7a : Migration 014 : Nightly expiry cron
+-- Run after 013_lifetime_metrics.sql AND after deploying the
+-- `expire-offers` Edge Function (supabase functions deploy expire-offers).
+--
+-- pg_cron can't touch Storage objects, so it just POSTs to the Edge Function
+-- (via pg_net); the function does the deletion with the service role.
+--
+-- This nightly job also keeps the project active, so it doubles as the
+-- Phase 7b keep-alive — no separate Cloudflare cron Worker is needed.
+-- ============================================================
+
+-- Extensions (idempotent, safe to commit + run).
+create extension if not exists pg_cron;
+create extension if not exists pg_net;
+
+-- ------------------------------------------------------------
+-- SCHEDULE THE JOB — run this block MANUALLY in the Supabase SQL editor
+-- after replacing the two placeholders. It is left commented out so no
+-- project ref or key is ever committed to git.
+--
+--   __PROJECT_REF__  → your project ref (e.g. abcd1234; the subdomain of
+--                      https://<ref>.supabase.co)
+--   __SERVICE_KEY__  → your service_role key (Settings → API). Server-to-server
+--                      only; never ship this to the browser.
+--
+-- Runs daily at 03:00 UTC. Re-running cron.schedule with the same name
+-- replaces the existing job.
+-- ------------------------------------------------------------
+--
+-- select cron.schedule(
+--   'expire-offers-nightly',
+--   '0 3 * * *',
+--   $$
+--     select net.http_post(
+--       url     := 'https://__PROJECT_REF__.supabase.co/functions/v1/expire-offers',
+--       headers := jsonb_build_object(
+--         'Content-Type',  'application/json',
+--         'Authorization', 'Bearer __SERVICE_KEY__'
+--       ),
+--       body    := '{}'::jsonb,
+--       timeout_milliseconds := 30000
+--     );
+--   $$
+-- );
+--
+-- Verify it registered:      select * from cron.job;
+-- Inspect recent runs:       select * from cron.job_run_details order by start_time desc limit 10;
+-- Trigger once by hand:      select cron.schedule(... ) then run the net.http_post body directly.
+-- Remove the job later:      select cron.unschedule('expire-offers-nightly');

@@ -76,12 +76,15 @@ export default async function DashboardPage({
   const page = Math.min(Math.max(1, parseInt(pageParam ?? '1', 10) || 1), totalPages);
   const visible = offers.slice((page - 1) * PER_PAGE, page * PER_PAGE);
   const live = offers.filter((o) => o.status === 'approved' && daysLeft(o.end_date) >= 0);
-  const views = offers.reduce((sum, o) => sum + (o.view_count ?? 0), 0);
-  const leads = offers.reduce((sum, o) => sum + (o.lead_count ?? 0), 0);
+  // Lifetime totals = durable counters (rolled up from deleted/expired rows) +
+  // the counts still sitting on existing rows. See migration 013 (Phase 7a-ii),
+  // so these never collapse when an offer is deleted or auto-expired.
+  const views = (business.lifetime_views ?? 0) + offers.reduce((sum, o) => sum + (o.view_count ?? 0), 0);
+  const leads = (business.lifetime_leads ?? 0) + offers.reduce((sum, o) => sum + (o.lead_count ?? 0), 0);
 
   const stats = [
     { label: 'Live offers', value: live.length },
-    { label: 'Total posted', value: offers.length },
+    { label: 'Offers posted (all time)', value: business.total_published ?? offers.length },
     { label: 'Views', value: views },
     { label: 'Code reveals', value: leads },
   ];

@@ -60,7 +60,10 @@ export async function listAllOffers(opts?: {
 
   const { data, error } = await query;
   if (error) throw new Error(error.message);
-  return (data ?? []) as unknown as OfferWithShop[];
+  const rows = (data ?? []) as unknown as OfferWithShop[];
+  // Expired offers sink to the bottom; the DB already returned newest-first, and
+  // Array.sort is stable, so that order is preserved within each group.
+  return rows.sort((a, b) => Number(a.status === 'expired') - Number(b.status === 'expired'));
 }
 
 /** A single offer with its shop, for the admin edit screen. */
@@ -142,6 +145,7 @@ export async function getTopOffers(limit = 5): Promise<OfferWithShop[]> {
   const { data, error } = await supabase
     .from('offers')
     .select('*, business:businesses(id,name,slug,status)')
+    .neq('status', 'expired') // leaderboard shows live/active offers, not expired ones
     .order('view_count', { ascending: false })
     .limit(limit);
   if (error) throw new Error(error.message);
@@ -154,23 +158,34 @@ export async function getAdminStats() {
   const today = new Date().toISOString().slice(0, 10);
   const head = { count: 'exact' as const, head: true };
 
-  const [pendingShops, approvedShops, totalOffers, liveOffers, counts] = await Promise.all([
+  const [pendingShops, approvedShops, liveOffers, counts, durable] = await Promise.all([
     supabase.from('businesses').select('*', head).eq('status', 'pending'),
     supabase.from('businesses').select('*', head).eq('status', 'approved'),
-    supabase.from('offers').select('*', head),
     supabase.from('offers').select('*', head).eq('status', 'approved').gte('end_date', today),
-    // View / lead totals: summed in JS. Fine at this scale (a few hundred rows).
+    // View / lead totals on rows that still exist: summed in JS. Fine at this scale.
     supabase.from('offers').select('view_count, lead_count'),
+    // Durable lifetime counters (migration 013): survive delete + auto-expiry.
+    supabase.from('businesses').select('total_published, lifetime_views, lifetime_leads'),
   ]);
 
   const rows = (counts.data ?? []) as { view_count: number | null; lead_count: number | null }[];
-  const totalViews = rows.reduce((sum, o) => sum + (o.view_count ?? 0), 0);
-  const totalLeads = rows.reduce((sum, o) => sum + (o.lead_count ?? 0), 0);
+  const liveViews = rows.reduce((sum, o) => sum + (o.view_count ?? 0), 0);
+  const liveLeads = rows.reduce((sum, o) => sum + (o.lead_count ?? 0), 0);
+
+  const dRows = (durable.data ?? []) as {
+    total_published: number | null;
+    lifetime_views: number | null;
+    lifetime_leads: number | null;
+  }[];
+  const publishedAllTime = dRows.reduce((s, b) => s + (b.total_published ?? 0), 0);
+  const totalViews = dRows.reduce((s, b) => s + (b.lifetime_views ?? 0), 0) + liveViews;
+  const totalLeads = dRows.reduce((s, b) => s + (b.lifetime_leads ?? 0), 0) + liveLeads;
 
   return {
     pendingShops: pendingShops.count ?? 0,
     approvedShops: approvedShops.count ?? 0,
-    totalOffers: totalOffers.count ?? 0,
+    // All-time published (durable) — only ever goes up, unlike a live row count.
+    publishedAllTime,
     liveOffers: liveOffers.count ?? 0,
     totalViews,
     totalLeads,
