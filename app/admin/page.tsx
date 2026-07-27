@@ -41,7 +41,7 @@ export default async function AdminOverview({
           <Stat label="Pending shops" value={stats.pendingShops} highlight={stats.pendingShops > 0} />
           <Stat label="Approved shops" value={stats.approvedShops} />
           <Stat label="Live offers" value={stats.liveOffers} />
-          <Stat label="Total offers" value={stats.totalOffers} />
+          <Stat label="Offers posted (all time)" value={stats.publishedAllTime} />
           <Stat label="Total views" value={stats.totalViews} />
           <Stat label="Code reveals" value={stats.totalLeads} />
         </div>

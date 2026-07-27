@@ -5,6 +5,7 @@ import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { supabaseAdmin } from '@/lib/supabase/admin';
 import { isDistrict } from '@/lib/sri-lanka';
 import { normalizePhone } from '@/lib/phone';
+import { emailAdminNewShop } from '@/lib/email';
 
 export interface OnboardingState {
   error?: string;
@@ -96,6 +97,10 @@ export async function completeOnboarding(formData: FormData): Promise<Onboarding
   );
 
   if (branchError) return { error: 'Your branches could not be saved. Please try again.' };
+
+  // Tell the admin a new shop is waiting for approval (no-op until Resend is
+  // configured; never blocks onboarding — sendEmail swallows its own errors).
+  await emailAdminNewShop({ name, contactEmail: user.email ?? null });
 
   redirect('/dashboard');
 }

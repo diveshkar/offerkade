@@ -6,6 +6,7 @@ import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { supabaseAdmin } from '@/lib/supabase/admin';
 import { uploadPoster, deletePoster } from '@/lib/image/upload';
 import { getCurrentAdmin } from '@/lib/queries/admin';
+import { emailShopApproved, emailShopRejected } from '@/lib/email';
 import type { Branch, Business, Offer } from '@/lib/database.types';
 
 // Every action re-checks admin on the server. RLS also enforces it, but this
@@ -28,10 +29,16 @@ export async function approveShop(formData: FormData) {
   const id = String(formData.get('id') ?? '');
   if (!id) return;
   const supabase = await requireAdmin();
+  const { data: shop } = await supabase
+    .from('businesses')
+    .select('name, contact_email')
+    .eq('id', id)
+    .maybeSingle();
   await supabase
     .from('businesses')
     .update({ status: 'approved', rejection_reason: null })
     .eq('id', id);
+  if (shop) await emailShopApproved({ name: shop.name, email: shop.contact_email });
   refresh();
 }
 
@@ -41,10 +48,17 @@ export async function rejectShop(formData: FormData) {
   const reason = String(formData.get('reason') ?? '').trim();
   if (!id) return;
   const supabase = await requireAdmin();
+  const { data: shop } = await supabase
+    .from('businesses')
+    .select('name, contact_email')
+    .eq('id', id)
+    .maybeSingle();
+  const finalReason = reason || 'Not approved.';
   await supabase
     .from('businesses')
-    .update({ status: 'rejected', rejection_reason: reason || 'Not approved.' })
+    .update({ status: 'rejected', rejection_reason: finalReason })
     .eq('id', id);
+  if (shop) await emailShopRejected({ name: shop.name, email: shop.contact_email, reason: finalReason });
   refresh();
 }
 

@@ -486,6 +486,15 @@ Once real traffic exists this is redundant, but it costs nothing to leave runnin
 
 **Deliverable:** Nightly auto-delete live + keep-alive running + emails sending automatically.
 
+### ✅ Phase 7 (DONE — code complete; owner deploys per steps below)
+- **7a Auto-delete on expiry** — `expire-offers` Edge Function (`supabase/functions/expire-offers`): deletes expired posters from Storage, marks offers `expired` + nulls the image columns, then hard-deletes rows expired more than 7 days. Scheduled nightly via `pg_cron` → `pg_net` (migration `014`).
+- **7a-ii Durable lifetime metrics** — migration `013`: `total_published` / `lifetime_views` / `lifetime_leads` on `businesses`, a +1-on-publish trigger and a BEFORE DELETE roll-up trigger, so stats survive both manual delete and auto-expiry. Shop dashboard + admin overview relabelled **"Offers posted (all time)"** and read durable counter + still-live rows.
+- **7b Keep-alive** — folded into the nightly cron (its `net.http_post` keeps the project active); no separate Cloudflare Worker.
+- **7c Transactional emails (Resend)** — `lib/email.ts` + wiring: admin alerted on new shop; shop emailed on approve / reject; "offer ends in 3 days" reminder sent from the Edge Function. Safe no-op until `RESEND_API_KEY` is configured.
+- **Admin polish** — expired offers sort to the bottom of the offers list; the top-views leaderboard excludes expired offers.
+- **Owner deploy steps:** run migrations `013` + `014`; enable `pg_cron` + `pg_net`; deploy the `expire-offers` Edge Function; set email env in **both** Cloudflare (app) and Supabase Edge Function secrets; set `NEXT_PUBLIC_SITE_URL` + Supabase Auth Site URL / Redirect URLs.
+- *Deferred to Phase 10: the promo-code "reveal" action that calls `bump_lead_count`, so `lead_count` reads 0 until then.*
+
 **Cost:** LKR 0.
 
 ---
