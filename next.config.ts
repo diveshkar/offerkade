@@ -19,9 +19,11 @@ const nextConfig: NextConfig = {
 
 export default nextConfig;
 
-// Makes Cloudflare bindings available in `next dev`.
-// Note: OpenNext's *Worker preview* doesn't run on Windows, but `next dev`
-// does - that's our local dev loop. Cloudflare builds on Linux, where the
-// full adapter is supported.
-import { initOpenNextCloudflareForDev } from "@opennextjs/cloudflare";
-initOpenNextCloudflareForDev();
+// Cloudflare dev bindings — load ONLY for local `next dev`. Vercel builds with
+// plain `next build` and must not touch the Cloudflare adapter, so this is
+// guarded to development and dynamically imported (skipped entirely on Vercel).
+if (process.env.NODE_ENV === "development") {
+  import("@opennextjs/cloudflare")
+    .then(({ initOpenNextCloudflareForDev }) => initOpenNextCloudflareForDev())
+    .catch(() => {});
+}
