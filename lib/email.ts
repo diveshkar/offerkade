@@ -18,7 +18,7 @@ const RESEND_ENDPOINT = 'https://api.resend.com/emails';
 //                     (until your domain is verified, Resend allows "onboarding@resend.dev")
 //   ADMIN_EMAIL     — where new-shop alerts go
 const API_KEY = process.env.RESEND_API_KEY ?? 're_dummy_key_replace_me';
-const FROM = process.env.EMAIL_FROM ?? 'OfferCeylon <onboarding@resend.dev>';
+const FROM = process.env.EMAIL_FROM ?? 'OfferCeylon <no-reply@offerceylon.com>';
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL ?? 'admin@offerceylon.com';
 const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://offerceylon.com';
 
