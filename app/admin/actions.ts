@@ -87,6 +87,30 @@ export async function reinstateShop(formData: FormData) {
   refresh();
 }
 
+/** Permanently delete a shop and everything under it (offers, branches, posters). */
+export async function deleteShop(formData: FormData) {
+  const id = String(formData.get('id') ?? '');
+  if (!id) return;
+  await requireAdmin();
+
+  // Grab poster paths first so we can clean storage after the cascade delete.
+  const { data: offers } = await supabaseAdmin
+    .from('offers')
+    .select('poster_path, poster_thumb_path')
+    .eq('business_id', id);
+
+  // Deleting the business cascades to its offers, branches and offer_branches.
+  await supabaseAdmin.from('businesses').delete().eq('id', id);
+
+  for (const o of offers ?? []) {
+    if (o.poster_path || o.poster_thumb_path) {
+      await deletePoster(o.poster_path ?? '', o.poster_thumb_path ?? '').catch(() => {});
+    }
+  }
+  refresh();
+  redirect('/admin/shops');
+}
+
 /** Permanently remove an offer (and its stored poster). */
 export async function removeOffer(formData: FormData) {
   const id = String(formData.get('id') ?? '');

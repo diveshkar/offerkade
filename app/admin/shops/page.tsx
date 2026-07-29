@@ -4,7 +4,7 @@ import { Card, StatusPill, Textarea, Button, ButtonLink } from '@/app/components
 import ConfirmButton from '@/app/components/ConfirmButton';
 import Paginator from '@/app/components/Paginator';
 import { listShops } from '@/lib/queries/admin';
-import { approveShop, suspendShop, reinstateShop } from '@/app/admin/actions';
+import { approveShop, suspendShop, reinstateShop, deleteShop } from '@/app/admin/actions';
 import type { BusinessStatus } from '@/lib/database.types';
 
 export const metadata: Metadata = { title: 'Shops · Admin' };
@@ -130,6 +130,16 @@ export default async function AdminShopsPage({
                 <ButtonLink href={`/admin/shops/${shop.id}/edit`} variant="secondary" size="sm">
                   Edit details
                 </ButtonLink>
+                <ConfirmButton
+                  action={deleteShop}
+                  fields={{ id: shop.id }}
+                  triggerLabel="Delete shop"
+                  triggerClassName="inline-flex h-9 items-center justify-center rounded-xl border border-ember/30 bg-ember/5 px-4 text-[13px] font-semibold text-ember transition hover:bg-ember/10 active:scale-[0.98]"
+                  title={`Delete ${shop.name}?`}
+                  message="This permanently deletes the shop and all of its offers and posters. This cannot be undone."
+                  confirmLabel="Delete shop"
+                  tone="danger"
+                />
               </div>
             </Card>
           ))}
