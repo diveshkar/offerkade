@@ -12,17 +12,19 @@ export default function AboutPage() {
     <PageShell title="About OfferCeylon">
       <p>
         <strong>OfferCeylon</strong> is Sri Lanka&apos;s offers in one place: a free directory of
-        current deals from restaurants, shops, furniture stores, cafés and more, right across the
+        current deals from restaurants, shops, furniture stores, cafes and more, right across the
         island.
       </p>
       <p>
         Businesses post their current offer as a poster. You browse them free by category and city.
         Offers automatically come down the moment they expire, so what you see is always current.
       </p>
+      {/* Olyntox (Pvt) Ltd attribution hidden until the company is registered. Restore:
       <p>
         OfferCeylon is owned and operated by <strong>Olyntox (Pvt) Ltd</strong>, a Sri Lankan
         company.
       </p>
+      */}
       <p>
         Are you a business with a current offer?{' '}
         <Link href="/submit" className="font-medium text-flame-deep hover:underline dark:text-flame-bright">

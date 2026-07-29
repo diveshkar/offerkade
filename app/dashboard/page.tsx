@@ -65,6 +65,11 @@ export default async function DashboardPage({
               {business.rejection_reason}
             </p>
           )}
+          <div className="mt-6">
+            <ButtonLink href="/dashboard/settings" variant="secondary" size="sm">
+              Edit shop details
+            </ButtonLink>
+          </div>
         </Card>
       </div>
     );
@@ -103,7 +108,10 @@ export default async function DashboardPage({
             Offers go live the moment you post them.
           </p>
         </div>
-        <div className="flex items-center gap-2.5">
+        <div className="flex flex-wrap items-center gap-2.5">
+          <ButtonLink href="/dashboard/settings" variant="secondary">
+            Shop details
+          </ButtonLink>
           <ButtonLink href="/dashboard/branches" variant="secondary">
             Branches
           </ButtonLink>

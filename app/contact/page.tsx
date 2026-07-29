@@ -19,8 +19,9 @@ export default function ContactPage() {
         </a>
       </p>
       <p>
-        If you&apos;re a business and would like an offer removed, email us with the offer link and
-        we&apos;ll take it down promptly. See our takedown note in the{' '}
+        Shops can remove their own offers anytime from the dashboard. To report a problem with an
+        offer or request a takedown of content you own, email us the offer link and we&apos;ll review
+        it promptly. See our takedown note in the{' '}
         <a href="/terms" className="font-medium text-flame-deep dark:text-flame-bright hover:underline">
           Terms
         </a>

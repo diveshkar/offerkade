@@ -66,11 +66,9 @@ export default function SiteFooter({
         </div>
 
         <div className="mt-10 flex flex-col items-center gap-2 border-t border-white/10 pt-6 text-center text-xs text-paper/40">
-          <p>
-            © {new Date().getFullYear()} OfferCeylon · An{' '}
-            <span className="font-semibold text-paper/60">Olyntox (Pvt) Ltd</span> company. Made in
-            Sri Lanka 🇱🇰
-          </p>
+          {/* Olyntox (Pvt) Ltd attribution hidden until the company is registered.
+              Restore: "· An Olyntox (Pvt) Ltd company" after the copyright. */}
+          <p>© {new Date().getFullYear()} OfferCeylon · Made in Sri Lanka 🇱🇰</p>
           <p>Offers are posted by businesses and auto-expire on their end date.</p>
         </div>
       </div>

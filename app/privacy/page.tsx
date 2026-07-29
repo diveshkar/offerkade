@@ -11,10 +11,11 @@ export default function PrivacyPage() {
     <PageShell title="Privacy Policy">
       <p className="text-sm text-zinc-400">Last updated: {new Date().toLocaleDateString('en-GB')}</p>
 
+      {/* Olyntox (Pvt) Ltd operator attribution hidden until the company is
+          registered. Restore: "OfferCeylon, operated by Olyntox (Pvt) Ltd (\"we\", \"us\"),…" */}
       <p>
-        OfferCeylon, operated by <strong>Olyntox (Pvt) Ltd</strong> (&quot;we&quot;, &quot;us&quot;),
-        respects your privacy. This policy explains what personal data we collect and how we use it,
-        in line with Sri Lanka&apos;s{' '}
+        OfferCeylon (&quot;we&quot;, &quot;us&quot;) respects your privacy. This policy explains what
+        personal data we collect and how we use it, in line with Sri Lanka&apos;s{' '}
         <strong>Personal Data Protection Act No. 9 of 2022 (PDPA)</strong>.
       </p>
 
@@ -42,10 +43,10 @@ export default function PrivacyPage() {
         .
       </p>
 
-      <h2 className="text-xl font-bold text-zinc-800 dark:text-zinc-100">Cookies &amp; analytics</h2>
+      <h2 className="text-xl font-bold text-zinc-800 dark:text-zinc-100">Cookies</h2>
       <p>
-        We use privacy-friendly, aggregate analytics to understand traffic. We do not use invasive
-        third-party advertising trackers on this site at this time.
+        We only use the essential cookies needed to keep you signed in to a shop or admin account. We
+        do not use analytics or third-party advertising trackers at this time.
       </p>
 
     </PageShell>
