@@ -79,6 +79,13 @@ export default function OnboardingForm() {
     e.preventDefault();
     setFormError('');
 
+    // A submit (e.g. pressing Enter in a field) while not on the final step
+    // should just advance, not run the final-step validation.
+    if (step < STEPS.length - 1) {
+      goNext();
+      return;
+    }
+
     const found = validateLocations();
     setErrors(found);
     if (Object.keys(found).length > 0) {

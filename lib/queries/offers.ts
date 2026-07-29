@@ -151,11 +151,6 @@ export async function getBusinessBySlug(
   };
 }
 
-/** Bump an offer's view_count via the SECURITY DEFINER RPC (Phase 2). */
-export async function bumpViewCount(offerId: string): Promise<void> {
-  await supabase.rpc('bump_view_count', { p_offer_id: offerId });
-}
-
 /** Days until an offer ends. <= 2 → "expiring soon", < 0 → expired. */
 export function daysLeft(endDate: string): number {
   const end = new Date(endDate + 'T23:59:59');

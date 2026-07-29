@@ -31,7 +31,7 @@ export default async function DashboardPage({
   if (!business) {
     return (
       <Alert tone="error" title="No shop linked to this account">
-        Please contact support@offerceylon.lk and we will connect your shop.
+        Please contact support@offerceylon.com and we will connect your shop.
       </Alert>
     );
   }

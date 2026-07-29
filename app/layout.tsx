@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, Fraunces } from "next/font/google";
+import { CANONICAL_URL } from "@/lib/site-url";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -19,7 +20,7 @@ const fraunces = Fraunces({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://offerceylon.lk"),
+  metadataBase: new URL(CANONICAL_URL),
   title: {
     default: "OfferCeylon - Sri Lanka's offers in one place",
     template: "%s",

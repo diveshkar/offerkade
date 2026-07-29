@@ -1,9 +1,10 @@
 import type { MetadataRoute } from 'next';
 import { supabase } from '@/lib/supabase/client';
+import { CANONICAL_URL } from '@/lib/site-url';
 
 export const dynamic = 'force-dynamic';
 
-const BASE = 'https://offerceylon.lk';
+const BASE = CANONICAL_URL;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const staticRoutes: MetadataRoute.Sitemap = [

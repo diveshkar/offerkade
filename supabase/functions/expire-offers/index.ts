@@ -48,7 +48,7 @@ async function sendExpiryReminder(
 
   const from = Deno.env.get('EMAIL_FROM') ?? 'OfferCeylon <onboarding@resend.dev>';
   const site =
-    Deno.env.get('SITE_URL') ?? Deno.env.get('NEXT_PUBLIC_SITE_URL') ?? 'https://offerceylon.lk';
+    Deno.env.get('SITE_URL') ?? Deno.env.get('NEXT_PUBLIC_SITE_URL') ?? 'https://offerceylon.com';
   const pretty = new Date(endDate + 'T00:00:00').toLocaleDateString('en-GB', {
     day: 'numeric',
     month: 'long',

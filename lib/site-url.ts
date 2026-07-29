@@ -16,3 +16,8 @@ export function siteUrl(fallbackOrigin?: string | null): string {
 export function authRedirect(next: string, fallbackOrigin?: string | null): string {
   return `${siteUrl(fallbackOrigin)}/auth/callback?next=${encodeURIComponent(next)}`;
 }
+
+// Canonical production origin for SEO (metadata base, sitemap, robots). Set once
+// via NEXT_PUBLIC_SITE_URL; falls back to the live domain so it never drifts.
+export const CANONICAL_URL =
+  process.env.NEXT_PUBLIC_SITE_URL?.trim().replace(/\/$/, '') || 'https://offerceylon.com';

@@ -15,6 +15,7 @@ import {
 } from '@/app/components/Icons';
 import BranchList from '@/app/components/BranchList';
 import { getOfferById, getOfferBranches, daysLeft } from '@/lib/queries/offers';
+import { CANONICAL_URL } from '@/lib/site-url';
 
 export const dynamic = 'force-dynamic';
 
@@ -59,8 +60,29 @@ export default async function OfferPage({ params }: { params: Promise<{ id: stri
   const urgent = left <= 2;
   const b = offer.business;
 
+  // Structured data (schema.org Offer) for richer Google results. Values are
+  // JSON-encoded and `<` is escaped so shop-provided text can't break out of
+  // the script tag.
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Offer',
+    name: offer.title,
+    description: offer.description ?? undefined,
+    image: offer.poster_url ?? undefined,
+    priceCurrency: 'LKR',
+    availabilityStarts: offer.start_date ?? undefined,
+    availabilityEnds: offer.end_date,
+    url: `${CANONICAL_URL}/offer/${offer.id}`,
+    areaServed: offer.city ?? undefined,
+    seller: b?.name ? { '@type': 'Organization', name: b.name } : undefined,
+  };
+
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, '\\u003c') }}
+      />
       <SiteHeader />
       <ViewCounter offerId={offer.id} />
       <main className="mx-auto w-full max-w-5xl flex-1 px-4 py-8 sm:px-6">

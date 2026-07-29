@@ -486,13 +486,14 @@ Once real traffic exists this is redundant, but it costs nothing to leave runnin
 
 **Deliverable:** Nightly auto-delete live + keep-alive running + emails sending automatically.
 
-### ✅ Phase 7 (DONE — code complete; owner deploys per steps below)
+### ✅ Phase 7 (DONE — deployed & verified live 2026-07-29)
 - **7a Auto-delete on expiry** — `expire-offers` Edge Function (`supabase/functions/expire-offers`): deletes expired posters from Storage, marks offers `expired` + nulls the image columns, then hard-deletes rows expired more than 7 days. Scheduled nightly via `pg_cron` → `pg_net` (migration `014`).
 - **7a-ii Durable lifetime metrics** — migration `013`: `total_published` / `lifetime_views` / `lifetime_leads` on `businesses`, a +1-on-publish trigger and a BEFORE DELETE roll-up trigger, so stats survive both manual delete and auto-expiry. Shop dashboard + admin overview relabelled **"Offers posted (all time)"** and read durable counter + still-live rows.
 - **7b Keep-alive** — folded into the nightly cron (its `net.http_post` keeps the project active); no separate Cloudflare Worker.
 - **7c Transactional emails (Resend)** — `lib/email.ts` + wiring: admin alerted on new shop; shop emailed on approve / reject; "offer ends in 3 days" reminder sent from the Edge Function. Safe no-op until `RESEND_API_KEY` is configured.
 - **Admin polish** — expired offers sort to the bottom of the offers list; the top-views leaderboard excludes expired offers.
-- **Owner deploy steps:** run migrations `013` + `014`; enable `pg_cron` + `pg_net`; deploy the `expire-offers` Edge Function; set email env in **both** Cloudflare (app) and Supabase Edge Function secrets; set `NEXT_PUBLIC_SITE_URL` + Supabase Auth Site URL / Redirect URLs.
+- **Auth email deliverability** — Supabase Auth emails routed through Resend SMTP with branded templates; confirm/reset links switched to the stateless `token_hash` flow so they work cross-device (open on a phone, sign-up device auto-continues via a background poll). Fixed a stray Amazon SES `MX` record that was intercepting inbound mail before Zoho.
+- **Deployment (done):** migrations `013` + `014` applied; `pg_cron` + `pg_net` enabled; `expire-offers` Edge Function deployed; email env set in **both** Cloudflare (app) and Supabase Edge Function secrets; `NEXT_PUBLIC_SITE_URL` + Supabase Auth Site URL / Redirect URLs set. **Verified 2026-07-29:** `cron.job` shows `expire-offers-nightly` active (`0 3 * * *`); the nightly `net._http_response` returns `200 {"ok":true}`.
 - *Deferred to Phase 10: the promo-code "reveal" action that calls `bump_lead_count`, so `lead_count` reads 0 until then.*
 
 **Cost:** LKR 0.
@@ -553,6 +554,8 @@ Once real traffic exists this is redundant, but it costs nothing to leave runnin
 ---
 
 ## Phase 10 - Monetization
+
+> **Status: DRAFT / DEFERRED (decided 2026-07-29).** Launch first with Phases 1-9; build monetization (lead-reveal tracking, AdSense, subscriptions) only after the site has real content and traffic. Kept here as the plan, not scheduled work.
 
 **Goal:** Turn traffic into income - in the right order. Don't monetize an empty site.
 
@@ -616,9 +619,9 @@ Once real traffic exists this is redundant, but it costs nothing to leave runnin
 - [x] Add `businesses.owner_id` + `status`, ownership RLS, "get deal" leads RPC (Phase 5 schema)
 - [x] Build shop signup/login + gated dashboard (post/manage own offers) (Phase 5)
 - [x] Build admin approve/reject **shops** + remove offers + quick-add + stats (Phase 6)
-- [ ] Deploy nightly expiry (pg_cron → Edge Function, delete by path) (Phase 7)
-- [ ] Deploy **keep-alive Worker cron (every 3 days)** (Phase 7)
-- [ ] Wire transactional emails (Phase 7)
+- [x] Deploy nightly expiry (pg_cron → Edge Function, delete by path) (Phase 7)
+- [x] Keep-alive (folded into the nightly expiry cron — no separate Worker) (Phase 7)
+- [x] Wire transactional emails + auth emails via Resend (Phase 7)
 - [ ] Seed 30-50 real offers in one niche (Phase 8)
 - [ ] Add About/Privacy/Terms + submit sitemap to Search Console
 - [ ] Launch + start daily social posting (Phase 9)

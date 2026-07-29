@@ -25,7 +25,7 @@ const db = createClient(env.NEXT_PUBLIC_SUPABASE_URL, env.SUPABASE_SERVICE_ROLE_
   auth: { persistSession: false },
 });
 
-const EMAIL = 'demo@offerceylon.lk';
+const EMAIL = 'demo@offerceylon.com';
 const PASSWORD = 'OfferDemo123!';
 const SLUG = 'seed-demo-kitchen';
 
