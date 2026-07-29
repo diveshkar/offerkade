@@ -25,7 +25,14 @@ export async function GET(request: NextRequest) {
 
   if (tokenHash && type) {
     const { error } = await supabase.auth.verifyOtp({ type, token_hash: tokenHash });
-    if (!error) return NextResponse.redirect(`${origin}${next}`);
+    if (!error) {
+      // Password reset must set the new password on THIS device, so go straight
+      // to the reset form. Signup confirmations instead land on a small
+      // "confirmed" page: the signup device continues onboarding on its own, so
+      // the confirming device (often a phone) is not dragged into it.
+      if (type === 'recovery') return NextResponse.redirect(`${origin}${next}`);
+      return NextResponse.redirect(`${origin}/auth/confirmed?next=${encodeURIComponent(next)}`);
+    }
   } else if (code) {
     const { error } = await supabase.auth.exchangeCodeForSession(code);
     if (!error) return NextResponse.redirect(`${origin}${next}`);
