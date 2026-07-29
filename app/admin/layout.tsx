@@ -68,12 +68,24 @@ export default async function AdminLayout({ children }: { children: ReactNode })
         {/* Mobile top bar */}
         <header className="flex items-center justify-between gap-3 bg-coal-deep px-4 py-3 lg:hidden">
           {asides}
-          <div className="flex items-center gap-2">
+          <div className="flex shrink-0 items-center gap-1">
+            <Link href="/" className="rounded-lg px-2.5 py-1.5 text-[13px] font-medium text-paper/70 hover:text-paper">
+              View site
+            </Link>
             {business && (
               <Link href="/dashboard" className="rounded-lg px-2.5 py-1.5 text-[13px] font-medium text-paper/70 hover:text-paper">
                 Shop
               </Link>
             )}
+            <ConfirmButton
+              action={signOut}
+              triggerLabel="Sign out"
+              triggerClassName="inline-flex h-9 items-center justify-center rounded-lg border border-white/20 bg-white/5 px-3 text-[13px] font-semibold text-paper/90 transition hover:border-white/40 hover:bg-white/10 active:scale-[0.98]"
+              title="Sign out?"
+              message="You’ll be signed out of the admin panel."
+              confirmLabel="Sign out"
+              tone="primary"
+            />
           </div>
         </header>
         <div className="bg-coal-deep px-4 pb-3 lg:hidden">

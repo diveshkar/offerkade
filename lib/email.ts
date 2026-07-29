@@ -65,6 +65,28 @@ export async function sendEmail(to: string, subject: string, html: string): Prom
 }
 
 // ---------- shared HTML shell ----------
+// Shared brand footer / signature for every OfferCeylon email.
+function footer(): string {
+  return `<div style="margin-top:24px;border-top:1px solid rgba(18,13,10,.08);padding-top:18px">
+      <div style="font-size:15px;font-weight:700;letter-spacing:-.01em;color:#120d0a">
+        Offer<span style="color:#f4741c">Ceylon</span>
+      </div>
+      <p style="margin:4px 0 0;font-size:12px;line-height:1.7;color:rgba(18,13,10,.55)">
+        Sri Lanka&rsquo;s offers in one place.<br>
+        <a href="mailto:support@offerceylon.com" style="color:#f4741c;text-decoration:none">support@offerceylon.com</a>
+        &nbsp;&middot;&nbsp;
+        <a href="${SITE}" style="color:#f4741c;text-decoration:none">offerceylon.com</a>
+      </p>
+      <p style="margin:12px 0 0;font-size:11px;line-height:1.6;color:rgba(18,13,10,.4)">
+        You received this email because you have an OfferCeylon account.
+      </p>
+      <p style="margin:6px 0 0;font-size:11px;line-height:1.6;color:rgba(18,13,10,.4)">
+        <!-- OfferCeylon &middot; An Olyntox (Pvt) Ltd company &middot; Made in Sri Lanka -->
+        &copy; ${new Date().getFullYear()} OfferCeylon &middot; Made in Sri Lanka
+      </p>
+    </div>`;
+}
+
 function layout(heading: string, bodyHtml: string): string {
   return `<!doctype html><html><body style="margin:0;background:#faf6f0;font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;color:#221a14">
   <div style="max-width:520px;margin:0 auto;padding:32px 20px">
@@ -75,9 +97,7 @@ function layout(heading: string, bodyHtml: string): string {
       <h1 style="margin:0 0 12px;font-size:18px;color:#120d0a">${heading}</h1>
       ${bodyHtml}
     </div>
-    <p style="margin:20px 2px 0;font-size:12px;color:rgba(18,13,10,.45)">
-      OfferCeylon · An Olyntox (Pvt) Ltd company · Made in Sri Lanka
-    </p>
+    ${footer()}
   </div></body></html>`;
 }
 
