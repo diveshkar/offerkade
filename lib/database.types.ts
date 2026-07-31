@@ -70,9 +70,11 @@ export interface Offer {
   end_date: string;
   status: OfferStatus;
   is_featured: boolean;
+  tourist_friendly: boolean;
   view_count: number;
   lead_count: number;
   redemption_count: number;
+  source_name: string | null;
   submitted_by_email: string | null;
   created_at: string;
   approved_at: string | null;
