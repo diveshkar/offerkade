@@ -5,6 +5,11 @@
   // Serve only the custom domain (offerceylon.com). Keeps the
   // *.workers.dev URL disabled across deploys so it can't re-enable itself.
   "workers_dev": false,
+  // Non-secret public vars. NEXT_PUBLIC_GA_ID is the Google Analytics 4
+  // Measurement ID (safe to commit — it appears in the page source anyway).
+  "vars": {
+    "NEXT_PUBLIC_GA_ID": "G-W9PNKVFZLD"
+  },
   "compatibility_date": "2025-12-01",
   "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
   "assets": {
