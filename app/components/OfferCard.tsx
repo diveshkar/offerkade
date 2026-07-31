@@ -72,8 +72,12 @@ export default function OfferCard({ offer }: { offer: OfferWithRelations }) {
         </h3>
 
         <div className="mt-1.5 flex items-center gap-1.5 text-[13px] text-coal/60 dark:text-paper/60">
-          <span className="min-w-0 flex-1 truncate">{offer.business?.name ?? 'Business'}</span>
-          {offer.business?.verified && <VerifiedBadge />}
+          {/* Curated offers show the real venue name (source_name); the verified
+              tick is only for genuinely registered shops, not curated posts. */}
+          <span className="min-w-0 flex-1 truncate">
+            {offer.source_name ?? offer.business?.name ?? 'Business'}
+          </span>
+          {!offer.source_name && offer.business?.verified && <VerifiedBadge />}
         </div>
 
         {offer.city && (

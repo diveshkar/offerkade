@@ -7,6 +7,10 @@ export const metadata: Metadata = {
 };
 
 export default function PrivacyPage() {
+  // Keeps this section truthful automatically: the analytics disclosure only
+  // shows once Google Analytics is actually switched on (its ID is set).
+  const usesAnalytics = Boolean(process.env.NEXT_PUBLIC_GA_ID);
+
   return (
     <PageShell title="Privacy Policy">
       <p className="text-sm text-zinc-400">Last updated: {new Date().toLocaleDateString('en-GB')}</p>
@@ -43,11 +47,23 @@ export default function PrivacyPage() {
         .
       </p>
 
-      <h2 className="text-xl font-bold text-zinc-800 dark:text-zinc-100">Cookies</h2>
-      <p>
-        We only use the essential cookies needed to keep you signed in to a shop or admin account. We
-        do not use analytics or third-party advertising trackers at this time.
-      </p>
+      <h2 className="text-xl font-bold text-zinc-800 dark:text-zinc-100">
+        Cookies{usesAnalytics ? ' & analytics' : ''}
+      </h2>
+      {usesAnalytics ? (
+        <p>
+          We use essential cookies to keep you signed in, and{' '}
+          <strong>Google Analytics</strong> (which sets its own cookies) to understand traffic — such
+          as which offers are popular and the countries visitors come from. This helps us improve the
+          service and plan advertising. We do not sell your personal data. You can block cookies in
+          your browser settings.
+        </p>
+      ) : (
+        <p>
+          We only use the essential cookies needed to keep you signed in to a shop or admin account.
+          We do not use analytics or third-party advertising trackers at this time.
+        </p>
+      )}
 
     </PageShell>
   );

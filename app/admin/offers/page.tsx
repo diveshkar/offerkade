@@ -5,7 +5,7 @@ import ConfirmButton from '@/app/components/ConfirmButton';
 import Paginator from '@/app/components/Paginator';
 import { PlusIcon, SearchIcon, EyeIcon } from '@/app/components/Icons';
 import { listAllOffers } from '@/lib/queries/admin';
-import { removeOffer, expireOffer, toggleFeatured } from '@/app/admin/actions';
+import { removeOffer, expireOffer, toggleFeatured, toggleTourist } from '@/app/admin/actions';
 import type { OfferStatus } from '@/lib/database.types';
 
 // Shared styling for the compact per-offer action buttons, so Edit / Feature /
@@ -63,10 +63,16 @@ export default async function AdminOffersPage({
     <div className="flex flex-col gap-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h1 className="font-display text-2xl font-semibold tracking-tight text-coal-deep">Offers</h1>
-        <ButtonLink href="/admin/offers/new" size="sm" className="w-full sm:w-auto">
-          <PlusIcon className="h-4 w-4" />
-          Quick-add offer
-        </ButtonLink>
+        <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
+          <ButtonLink href="/admin/offers/curate" variant="secondary" size="sm" className="w-full sm:w-auto">
+            <PlusIcon className="h-4 w-4" />
+            Post as OfferCeylon
+          </ButtonLink>
+          <ButtonLink href="/admin/offers/new" size="sm" className="w-full sm:w-auto">
+            <PlusIcon className="h-4 w-4" />
+            Quick-add (shop)
+          </ButtonLink>
+        </div>
       </div>
 
       {/* Status tabs. Scroll sideways on small screens instead of wrapping. */}
@@ -135,6 +141,9 @@ export default async function AdminOffersPage({
                   {o.is_featured && (
                     <span className="rounded-full bg-flame/15 px-2 py-0.5 text-[11px] font-semibold text-flame-deep">Featured</span>
                   )}
+                  {o.tourist_friendly && (
+                    <span className="rounded-full bg-sky-500/15 px-2 py-0.5 text-[11px] font-semibold text-sky-700 dark:text-sky-300">Tourist</span>
+                  )}
                 </div>
                 <p className="mt-0.5 text-[13px] text-coal/60">
                   {o.business ? (
@@ -158,6 +167,20 @@ export default async function AdminOffersPage({
                   <Link href={`/admin/offers/${o.id}/edit`} className={`${ACTION_BTN} ${ACTION_NEUTRAL}`}>
                     Edit
                   </Link>
+                  {/* Admin-only tourist toggle — works on every offer, incl. shop-posted. */}
+                  <form action={toggleTourist}>
+                    <input type="hidden" name="id" value={o.id} />
+                    <input type="hidden" name="tourist" value={String(o.tourist_friendly)} />
+                    <button
+                      className={`${ACTION_BTN} ${
+                        o.tourist_friendly
+                          ? 'border-sky-400 bg-sky-500/10 text-sky-700 dark:text-sky-300'
+                          : ACTION_NEUTRAL
+                      }`}
+                    >
+                      {o.tourist_friendly ? 'Untag tourist' : 'Tag tourist'}
+                    </button>
+                  </form>
                   <ConfirmButton
                     action={toggleFeatured}
                     fields={{ id: o.id, featured: String(o.is_featured) }}

@@ -151,6 +151,16 @@ export async function toggleFeatured(formData: FormData) {
   refresh();
 }
 
+/** Toggle the tourist / foreign-visitor flag on any offer. Admin only. */
+export async function toggleTourist(formData: FormData) {
+  const id = String(formData.get('id') ?? '');
+  const current = String(formData.get('tourist') ?? '') === 'true';
+  if (!id) return;
+  const supabase = await requireAdmin();
+  await supabase.from('offers').update({ tourist_friendly: !current }).eq('id', id);
+  refresh();
+}
+
 // ============================================================
 // Quick-add / edit an offer as an admin, and edit a shop's details.
 // Writes go through the service role (supabaseAdmin) so an admin can act
@@ -318,6 +328,95 @@ export async function saveAdminOffer(formData: FormData): Promise<AdminFormState
       .from('offer_branches')
       .insert(linked.map((b) => ({ offer_id: savedId, branch_id: b.id })));
   }
+
+  refresh();
+  redirect('/admin/offers');
+}
+
+/** Ensure the "OfferCeylon" house business exists (used for curated offers). */
+async function ensureHouseBusiness(): Promise<string> {
+  const { data } = await supabaseAdmin
+    .from('businesses')
+    .select('id')
+    .eq('slug', 'offerceylon')
+    .maybeSingle();
+  if (data?.id) return data.id as string;
+
+  const { data: created, error } = await supabaseAdmin
+    .from('businesses')
+    .insert({
+      name: 'OfferCeylon',
+      slug: 'offerceylon',
+      contact_email: 'admin@offerceylon.com',
+      status: 'approved',
+    })
+    .select('id')
+    .single();
+  if (error || !created) throw new Error('Could not create the OfferCeylon house account.');
+  return created.id as string;
+}
+
+/**
+ * Post an offer the admin found somewhere, WITHOUT a shop registering.
+ * Owned by the OfferCeylon house account; the real venue goes in source_name,
+ * so the public pages show the venue and attribute the post to OfferCeylon.
+ */
+export async function postCuratedOffer(formData: FormData): Promise<AdminFormState | void> {
+  const admin = await getCurrentAdmin();
+  if (!admin) redirect('/login');
+
+  const title = String(formData.get('title') ?? '').trim();
+  const sourceName = String(formData.get('source_name') ?? '').trim();
+  const categoryId = Number(formData.get('category_id') ?? 0) || null;
+  const city = String(formData.get('city') ?? '').trim();
+  const locationNote = String(formData.get('location_note') ?? '').trim();
+  const description = String(formData.get('description') ?? '').trim();
+  const startDate = String(formData.get('start_date') ?? '').trim();
+  const endDate = String(formData.get('end_date') ?? '').trim();
+  const touristFriendly = String(formData.get('tourist_friendly') ?? '') === 'true';
+  const poster = formData.get('poster');
+  const thumb = formData.get('thumb');
+  const hasPoster = poster instanceof File && thumb instanceof File && poster.size > 0;
+
+  if (title.length < 5) return { error: 'Give the offer a title of at least 5 characters.' };
+  if (!sourceName) return { error: 'Enter the shop / venue name this offer is for.' };
+  if (!categoryId) return { error: 'Choose a category.' };
+  if (!city) return { error: 'Choose a district.' };
+  if (!endDate) return { error: 'Choose the day this offer ends.' };
+  if (endDate < todayStr()) return { error: 'The end date cannot be in the past.' };
+  if (startDate && endDate < startDate) {
+    return { error: 'The end date must be on or after the start date.' };
+  }
+
+  let uploaded: Awaited<ReturnType<typeof uploadPoster>> | null = null;
+  if (hasPoster) {
+    try {
+      uploaded = await uploadPoster(poster as File, thumb as File);
+    } catch {
+      return { error: 'The poster could not be uploaded. Please try again.' };
+    }
+  }
+
+  const houseId = await ensureHouseBusiness();
+
+  const { error } = await supabaseAdmin.from('offers').insert({
+    business_id: houseId,
+    category_id: categoryId,
+    title,
+    description: description || null,
+    source_name: sourceName,
+    tourist_friendly: touristFriendly,
+    city,
+    location_note: locationNote || null,
+    promo_code: promoCode(sourceName),
+    start_date: startDate || todayStr(),
+    end_date: endDate,
+    status: 'approved',
+    approved_at: new Date().toISOString(),
+    submitted_by_email: 'curated@offerceylon.com',
+    ...(uploaded ?? {}),
+  });
+  if (error) return { error: 'The offer could not be saved. Please try again.' };
 
   refresh();
   redirect('/admin/offers');

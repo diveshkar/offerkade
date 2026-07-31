@@ -74,7 +74,11 @@ export default async function OfferPage({ params }: { params: Promise<{ id: stri
     availabilityEnds: offer.end_date,
     url: `${CANONICAL_URL}/offer/${offer.id}`,
     areaServed: offer.city ?? undefined,
-    seller: b?.name ? { '@type': 'Organization', name: b.name } : undefined,
+    seller: offer.source_name
+      ? { '@type': 'Organization', name: offer.source_name }
+      : b?.name
+        ? { '@type': 'Organization', name: b.name }
+        : undefined,
   };
 
   return (
@@ -208,19 +212,28 @@ export default async function OfferPage({ params }: { params: Promise<{ id: stri
               <div className="mt-1 rounded-3xl border border-coal/10 bg-paper-soft p-5 shadow-sm dark:border-white/10 dark:bg-coal-soft">
                 <div className="flex items-center gap-3.5">
                   <span className="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-coal font-display text-lg font-bold text-flame-bright">
-                    {b.name.charAt(0)}
+                    {(offer.source_name ?? b.name).charAt(0)}
                   </span>
                   <div className="min-w-0">
                     <p className="text-[11px] font-semibold uppercase tracking-wider text-coal/40 dark:text-paper/40">
-                      Offered by
+                      {offer.source_name ? 'Venue' : 'Offered by'}
                     </p>
-                    <Link
-                      href={`/business/${b.slug}`}
-                      className="block truncate text-lg font-bold transition hover:text-flame-deep dark:hover:text-flame-bright"
-                    >
-                      {b.name}
-                      {b.verified && <VerifiedBadge size="md" className="ml-1.5 align-middle" />}
-                    </Link>
+                    {offer.source_name ? (
+                      <>
+                        <p className="block truncate text-lg font-bold">{offer.source_name}</p>
+                        <p className="text-[12px] text-coal/50 dark:text-paper/50">
+                          Posted by OfferCeylon
+                        </p>
+                      </>
+                    ) : (
+                      <Link
+                        href={`/business/${b.slug}`}
+                        className="block truncate text-lg font-bold transition hover:text-flame-deep dark:hover:text-flame-bright"
+                      >
+                        {b.name}
+                        {b.verified && <VerifiedBadge size="md" className="ml-1.5 align-middle" />}
+                      </Link>
+                    )}
                   </div>
                 </div>
 
@@ -258,8 +271,9 @@ export default async function OfferPage({ params }: { params: Promise<{ id: stri
             )}
 
             <p className="text-xs leading-5 text-coal/40 dark:text-paper/40">
-              Offer details are provided by the business. Please confirm validity with them before
-              visiting.
+              {offer.source_name
+                ? 'This offer was found and shared by OfferCeylon. Please confirm the details with the venue before visiting.'
+                : 'Offer details are provided by the business. Please confirm validity with them before visiting.'}
             </p>
           </div>
         </div>
