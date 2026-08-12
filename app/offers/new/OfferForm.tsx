@@ -50,6 +50,7 @@ export default function OfferForm({
   const [description, setDescription] = useState(offer?.description ?? '');
   const [startDate, setStartDate] = useState(offer?.start_date ?? today);
   const [endDate, setEndDate] = useState(offer?.end_date ?? '');
+  const [touristFriendly, setTouristFriendly] = useState(offer?.tourist_friendly ?? false);
   const [picked, setPicked] = useState<string[]>(
     initialBranchIds && initialBranchIds.length > 0 ? initialBranchIds : branches.map((b) => b.id),
   );
@@ -175,6 +176,7 @@ export default function OfferForm({
     data.set('start_date', startDate);
     data.set('end_date', endDate);
     data.set('branch_ids', JSON.stringify(picked));
+    data.set('tourist_friendly', String(touristFriendly));
     if (image) {
       data.set('poster', image.poster);
       data.set('thumb', image.thumb);
@@ -251,6 +253,16 @@ export default function OfferForm({
             placeholder="What is included, and any conditions customers should know."
           />
         </Field>
+
+        <label className="flex items-center gap-2.5 text-sm text-coal-deep">
+          <input
+            type="checkbox"
+            checked={touristFriendly}
+            onChange={(e) => setTouristFriendly(e.target.checked)}
+            className="h-4 w-4 rounded border-coal/30 accent-flame"
+          />
+          This offer is for tourists / foreign visitors
+        </label>
 
         {multiBranch && (
           <div>

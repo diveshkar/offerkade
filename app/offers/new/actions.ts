@@ -78,6 +78,7 @@ export async function saveOffer(formData: FormData): Promise<CreateOfferState | 
   const description = String(formData.get('description') ?? '').trim();
   const startDate = String(formData.get('start_date') ?? '').trim();
   const endDate = String(formData.get('end_date') ?? '').trim();
+  const touristFriendly = String(formData.get('tourist_friendly') ?? '') === 'true';
   const poster = formData.get('poster');
   const thumb = formData.get('thumb');
   const hasNewPoster = poster instanceof File && thumb instanceof File && poster.size > 0;
@@ -147,6 +148,7 @@ export async function saveOffer(formData: FormData): Promise<CreateOfferState | 
     location_note: locationNote,
     start_date: startDate || existing?.start_date || today(),
     end_date: resolvedEndDate,
+    tourist_friendly: touristFriendly,
     status: publishing ? 'approved' : 'draft',
     approved_at: publishing ? new Date().toISOString() : null,
     ...(uploaded ?? {}),

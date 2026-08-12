@@ -1,8 +1,8 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import AuthSplit from '@/app/components/AuthSplit';
 import LoginForm from '@/app/login/LoginForm';
+import { ButtonLink } from '@/app/components/ui';
 import { getSessionUser } from '@/lib/supabase/server';
 import { landingPathForCurrentUser } from '@/lib/auth-routing';
 
@@ -27,15 +27,19 @@ export default async function LoginPage({
       title="Welcome back"
       subtitle="Sign in to post and manage your offers."
       footer={
-        <>
-          New to OfferCeylon?{' '}
-          <Link href="/register" className="font-semibold text-flame-deep hover:underline">
-            Create a shop account
-          </Link>
-        </>
+        <p className="text-center text-coal/50">
+          Don&apos;t have a shop account yet? Use the button below.
+        </p>
       }
     >
       <LoginForm notice={notice} />
+
+      <div className="mt-3 border-t border-coal/10 pt-6">
+        <p className="mb-2.5 text-sm font-medium text-coal-deep">New shop owner?</p>
+        <ButtonLink href="/register" variant="secondary" className="w-full">
+          Create a shop account
+        </ButtonLink>
+      </div>
     </AuthSplit>
   );
 }

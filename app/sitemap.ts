@@ -14,10 +14,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     '/privacy',
     '/terms',
     '/register',
+    '/tourist-deals',
   ].map((path) => ({
     url: `${BASE}${path}`,
-    changeFrequency: path === '' ? 'daily' : 'monthly',
-    priority: path === '' ? 1 : 0.5,
+    changeFrequency: path === '' || path === '/tourist-deals' ? 'daily' : 'monthly',
+    priority: path === '' ? 1 : path === '/tourist-deals' ? 0.9 : 0.5,
   }));
 
   // Live offers + businesses (RLS returns only public rows).

@@ -24,6 +24,7 @@ export interface OfferFilters {
   city?: string;
   endingSoon?: boolean; // end_date within 2 days
   search?: string;
+  touristFriendly?: boolean;
   page?: number; // 1-based
   pageSize?: number; // default 8
 }
@@ -72,6 +73,7 @@ export async function listOffers(filters: OfferFilters = {}): Promise<OfferPage>
     .order('created_at', { ascending: false });
 
   if (filters.city) q = q.eq('city', filters.city);
+  if (filters.touristFriendly) q = q.eq('tourist_friendly', true);
   if (filters.endingSoon) {
     const in2days = new Date();
     in2days.setDate(in2days.getDate() + 2);

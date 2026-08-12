@@ -27,6 +27,12 @@ export default function SiteHeader() {
 
         <nav className="flex items-center gap-1 text-sm font-medium">
           <Link
+            href="/tourist-deals"
+            className="hidden rounded-full px-4 py-2 text-paper/75 transition hover:bg-white/10 hover:text-paper sm:block"
+          >
+            For Tourists
+          </Link>
+          <Link
             href="/about"
             className="hidden rounded-full px-4 py-2 text-paper/75 transition hover:bg-white/10 hover:text-paper sm:block"
           >
