@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Field, Input, Select, Textarea } from '@/app/components/ui';
+import { Button, Field, Input, Select, Textarea } from '@/app/components/ui';
 import { PROVINCES, isDistrict } from '@/lib/sri-lanka';
 
 export interface Branch {
@@ -136,14 +136,16 @@ export default function BranchFields({
       <div>
         <div className="mb-1.5 flex items-baseline justify-between gap-3">
           <span className="text-sm font-medium text-coal-deep">Address</span>
-          <button
+          <Button
             type="button"
+            variant="secondary"
+            size="sm"
             onClick={useMyLocation}
             disabled={locating}
-            className="text-xs font-semibold text-flame-deep transition hover:underline disabled:opacity-50"
+            className="h-7 px-3 text-xs"
           >
             {locating ? 'Finding you' : 'Use my current location'}
-          </button>
+          </Button>
         </div>
         <Textarea
           value={branch.address}

@@ -4,8 +4,12 @@ import SiteHeader from '@/app/components/SiteHeader';
 import SiteFooter from '@/app/components/SiteFooter';
 import OfferCard from '@/app/components/OfferCard';
 import VerifiedBadge from '@/app/components/VerifiedBadge';
-import { PinIcon } from '@/app/components/Icons';
+import { PinIcon, WhatsAppIcon, PhoneIcon, GlobeIcon } from '@/app/components/Icons';
 import { getBusinessBySlug } from '@/lib/queries/offers';
+
+function waLink(number: string) {
+  return `https://wa.me/${number.replace(/[^\d]/g, '')}`;
+}
 
 export const dynamic = 'force-dynamic';
 
@@ -69,6 +73,49 @@ export default async function BusinessPage({ params }: { params: Promise<{ slug:
             </div>
           </div>
         </section>
+
+        {/* ===== Contact ===== */}
+        {(b.whatsapp || b.contact_phone || b.website || b.address) && (
+          <section className="mx-auto max-w-6xl px-4 pt-8 sm:px-6">
+            <div className="rounded-3xl border border-coal/10 bg-paper-soft p-5 shadow-[0_1px_2px_rgba(18,13,10,0.04)] dark:border-white/10 dark:bg-coal-soft sm:p-6">
+              {b.address && (
+                <p className="mb-4 flex items-start gap-2 text-sm leading-6 text-coal/70 dark:text-paper/70">
+                  <PinIcon className="mt-0.5 h-4 w-4 shrink-0 text-flame" /> {b.address}
+                </p>
+              )}
+              <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
+                {b.whatsapp && (
+                  <a
+                    href={waLink(b.whatsapp)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex h-11 items-center justify-center gap-2 rounded-full bg-[#25D366] text-sm font-semibold text-white shadow-md shadow-[#25D366]/25 transition hover:brightness-105 active:scale-[0.98]"
+                  >
+                    <WhatsAppIcon className="h-4.5 w-4.5" /> WhatsApp
+                  </a>
+                )}
+                {b.contact_phone && (
+                  <a
+                    href={`tel:${b.contact_phone}`}
+                    className="flex h-11 items-center justify-center gap-2 rounded-full bg-coal text-sm font-semibold text-paper shadow-md shadow-coal/25 transition hover:bg-coal-soft active:scale-[0.98]"
+                  >
+                    <PhoneIcon /> Call now
+                  </a>
+                )}
+                {b.website && (
+                  <a
+                    href={b.website}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex h-11 items-center justify-center gap-2 rounded-full border border-coal/20 text-sm font-semibold text-coal transition hover:border-flame hover:text-flame-deep active:scale-[0.98] dark:border-white/15 dark:text-paper dark:hover:text-flame-bright"
+                  >
+                    <GlobeIcon /> Website
+                  </a>
+                )}
+              </div>
+            </div>
+          </section>
+        )}
 
         {/* ===== Offers ===== */}
         <section className="mx-auto max-w-6xl px-4 py-12 sm:px-6">

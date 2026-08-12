@@ -4,12 +4,12 @@ import type { ComponentProps, ReactNode } from 'react';
 const FOCUS = 'outline-none focus:border-flame focus:ring-2 focus:ring-flame/25';
 // min-w-0 lets native date inputs (which have a wide intrinsic size) shrink
 // to their container instead of forcing horizontal overflow on small screens.
-const CONTROL = `h-11 w-full min-w-0 rounded-xl border border-coal/15 bg-paper-soft px-3.5 text-[15px] text-coal-deep transition placeholder:text-coal/35 ${FOCUS}`;
+const CONTROL = `h-11 w-full min-w-0 rounded-xl border border-coal/15 bg-paper-soft px-3.5 text-[15px] text-coal-deep shadow-[inset_0_1px_2px_rgba(18,13,10,0.03)] transition duration-150 placeholder:text-coal/35 ${FOCUS}`;
 
 const INVALID = 'border-ember/60 focus:border-ember focus:ring-ember/25';
 
 const BUTTON_BASE =
-  'inline-flex items-center justify-center gap-2 rounded-xl font-semibold transition active:scale-[0.98] disabled:pointer-events-none disabled:opacity-50';
+  'inline-flex items-center justify-center gap-2 rounded-xl font-semibold transition duration-150 active:scale-[0.98] disabled:pointer-events-none disabled:opacity-50';
 
 const SIZES = {
   md: 'h-11 px-5 text-sm',
@@ -19,8 +19,8 @@ const SIZES = {
 type Size = keyof typeof SIZES;
 
 const VARIANTS = {
-  primary: 'bg-flame text-coal-deep hover:brightness-105',
-  secondary: 'border border-coal/15 bg-paper-soft text-coal-deep hover:border-coal/30',
+  primary: 'bg-flame text-coal-deep shadow-[0_1px_2px_rgba(18,13,10,0.08),0_8px_20px_-8px_rgba(244,116,28,0.55)] hover:brightness-105 hover:shadow-[0_1px_2px_rgba(18,13,10,0.08),0_12px_24px_-8px_rgba(244,116,28,0.65)]',
+  secondary: 'border border-coal/15 bg-paper-soft text-coal-deep hover:border-coal/30 hover:bg-paper',
   danger: 'border border-ember/30 bg-ember/5 text-ember hover:bg-ember/10',
 } as const;
 
@@ -133,7 +133,9 @@ export function Select({
 
 export function Card({ className = '', children }: { className?: string; children: ReactNode }) {
   return (
-    <div className={`rounded-2xl border border-coal/12 bg-paper-soft p-6 ${className}`}>
+    <div
+      className={`rounded-2xl border border-coal/12 bg-paper-soft p-6 shadow-[0_1px_2px_rgba(18,13,10,0.04)] ${className}`}
+    >
       {children}
     </div>
   );

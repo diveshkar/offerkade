@@ -56,7 +56,7 @@ export async function saveOffer(formData: FormData): Promise<CreateOfferState | 
   const offerId = String(formData.get('offer_id') ?? '').trim();
 
   // When editing, the offer must exist, belong to this shop, and still be a
-  // draft — a published offer can never be edited.
+  // draft: a published offer can never be edited.
   let existing: Offer | null = null;
   if (offerId) {
     const { data } = await supabaseAdmin

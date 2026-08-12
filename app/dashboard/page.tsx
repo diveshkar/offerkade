@@ -145,7 +145,7 @@ export default async function DashboardPage({
           {visible.map((offer) => {
             const left = daysLeft(offer.end_date);
             const isDraft = offer.status === 'draft';
-            // Drafts never read as "expired" — their end date is a placeholder.
+            // Drafts never read as "expired": their end date is a placeholder.
             const expired = !isDraft && (offer.status === 'expired' || left < 0);
 
             return (
@@ -175,7 +175,7 @@ export default async function DashboardPage({
                   </p>
                   <p className="mt-0.5 text-[12px] tabular-nums text-coal/45">
                     {isDraft ? (
-                      'Draft · not published yet'
+                      'Not published yet'
                     ) : (
                       <>
                         Valid until {prettyDate(offer.end_date)}

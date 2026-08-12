@@ -48,7 +48,11 @@ export default function ShopDetailsForm({
 
   return (
     <div className="flex max-w-2xl flex-col gap-8">
-      <form onSubmit={(e) => e.preventDefault()} noValidate className="flex flex-col gap-5">
+      <form
+        onSubmit={(e) => e.preventDefault()}
+        noValidate
+        className="flex flex-col gap-5 rounded-2xl border border-coal/12 bg-paper-soft p-6 shadow-[0_1px_2px_rgba(18,13,10,0.04)] sm:p-7"
+      >
         {saved && <Alert tone="success">Your shop details were saved.</Alert>}
         {error && <Alert tone="error">{error}</Alert>}
 

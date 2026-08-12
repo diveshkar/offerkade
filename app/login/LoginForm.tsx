@@ -1,8 +1,8 @@
 'use client';
 
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import Link from 'next/link';
 import { Alert, Button, Field, Input } from '@/app/components/ui';
 import PasswordInput from '@/app/components/PasswordInput';
 import { createSupabaseBrowserClient } from '@/lib/supabase/browser';

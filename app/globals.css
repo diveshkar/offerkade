@@ -6,7 +6,7 @@
 
 /* ============================================================
    OfferCeylon "Flame" theme
-   Warm charcoal + vivid orange + cream paper. Fraunces serif
+   Warm charcoal + vivid orange + cream paper. Playfair Display serif
    display headings, Geist for UI text. SVG icons, no emoji
    for functional elements.
    ============================================================ */
@@ -30,7 +30,7 @@
 
   /* Fonts */
   --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
-  --font-display: var(--font-fraunces), ui-serif, Georgia, serif;
+  --font-display: var(--font-playfair), ui-serif, Georgia, serif;
   --font-mono: var(--font-geist-mono), ui-monospace, monospace;
 }
 

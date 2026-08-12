@@ -23,15 +23,7 @@ export default async function LoginPage({
     error === 'link_expired' ? 'That link has expired. Sign in or request a new one.' : undefined;
 
   return (
-    <AuthSplit
-      title="Welcome back"
-      subtitle="Sign in to post and manage your offers."
-      footer={
-        <p className="text-center text-coal/50">
-          Don&apos;t have a shop account yet? Use the button below.
-        </p>
-      }
-    >
+    <AuthSplit title="Welcome back" subtitle="Sign in to post and manage your offers.">
       <LoginForm notice={notice} />
 
       <div className="mt-3 border-t border-coal/10 pt-6">

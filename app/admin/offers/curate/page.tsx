@@ -19,7 +19,7 @@ export default async function CuratePage() {
           Post an offer as OfferCeylon
         </h1>
         <p className="mt-1 max-w-2xl text-[15px] text-coal/60">
-          Manually add an offer you found somewhere — no shop registration needed. It&apos;s posted
+          Manually add an offer you found somewhere, no shop registration needed. It&apos;s posted
           under the OfferCeylon account, with the venue name shown to visitors.
         </p>
       </div>

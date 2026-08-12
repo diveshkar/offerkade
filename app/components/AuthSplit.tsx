@@ -1,6 +1,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import type { ReactNode } from 'react';
+import { CheckIcon } from '@/app/components/Icons';
 
 const POINTS = [
   'Reach shoppers across all 25 districts',
@@ -45,9 +46,11 @@ export default function AuthSplit({
             </h1>
             {subtitle && <p className="mt-2 text-[15px] leading-6 text-coal/60">{subtitle}</p>}
 
-            <div className="mt-8">{children}</div>
+            <div className="mt-8 rounded-2xl border border-coal/10 bg-paper-soft/60 p-6 shadow-[0_1px_2px_rgba(18,13,10,0.03),0_20px_45px_-30px_rgba(18,13,10,0.25)] sm:p-7">
+              {children}
+            </div>
 
-            {footer && <div className="mt-7 text-sm text-coal/60">{footer}</div>}
+            {footer && <div className="mt-6 text-sm text-coal/55">{footer}</div>}
           </div>
         </div>
       </section>
@@ -73,13 +76,15 @@ export default function AuthSplit({
               Put your deal in front of the whole island.
             </p>
 
-            <ul className="mt-9 flex flex-col gap-4">
+            <ul className="mt-9 flex flex-col gap-3.5">
               {POINTS.map((point) => (
-                <li key={point} className="flex items-start gap-3 text-[15px] text-white/90">
+                <li key={point} className="flex items-center gap-3 text-[15px] text-white/90">
                   <span
                     aria-hidden
-                    className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-amber-200"
-                  />
+                    className="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-amber-200/15 text-amber-200 ring-1 ring-amber-200/30"
+                  >
+                    <CheckIcon className="h-3.5 w-3.5" />
+                  </span>
                   {point}
                 </li>
               ))}

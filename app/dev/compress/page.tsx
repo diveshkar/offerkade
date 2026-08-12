@@ -1,4 +1,4 @@
-// Phase 3 demo — pick an image, see it compressed to poster + thumb WebP.
+// Phase 3 demo: pick an image, see it compressed to poster + thumb WebP.
 // Dev-only visual check of the browser pipeline. Not linked from the site.
 'use client';
 

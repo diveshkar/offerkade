@@ -270,15 +270,17 @@ export default function OfferForm({
               <span className="text-sm font-medium text-coal-deep">
                 Branches<span className="ml-0.5 text-coal/40" aria-hidden>*</span>
               </span>
-              <button
+              <Button
                 type="button"
+                variant="secondary"
+                size="sm"
                 onClick={() =>
                   setPicked(picked.length === branches.length ? [] : branches.map((b) => b.id))
                 }
-                className="text-xs font-semibold text-flame-deep transition hover:underline"
+                className="h-7 px-3 text-xs"
               >
                 {picked.length === branches.length ? 'Clear all' : 'Select all'}
-              </button>
+              </Button>
             </div>
 
             <div className="flex flex-wrap gap-2">
@@ -340,13 +342,15 @@ export default function OfferForm({
                     <p className="mt-0.5 text-[13px] text-coal/55">Keep it, or replace with a new image.</p>
                   )}
                 </div>
-                <button
+                <Button
                   type="button"
+                  variant="secondary"
+                  size="sm"
                   onClick={() => fileRef.current?.click()}
-                  className="shrink-0 text-[13px] font-semibold text-flame-deep hover:underline"
+                  className="h-8 shrink-0 px-3 text-[13px]"
                 >
                   Replace
-                </button>
+                </Button>
               </div>
             ) : (
               <div className="py-6 text-center">
@@ -418,8 +422,8 @@ export default function OfferForm({
 
         <p className="mt-2.5 text-[12px] leading-5 text-coal/45">
           {editing
-            ? 'Editing a saved draft. Featured is shown as an example.'
-            : 'How your offer looks in the grid. Featured is shown as an example.'}
+            ? 'Editing a saved draft. The badge above is just an example.'
+            : 'How your offer looks in the grid. The badge above is just an example.'}
         </p>
       </div>
     </div>

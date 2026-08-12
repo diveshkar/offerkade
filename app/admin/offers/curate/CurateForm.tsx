@@ -100,7 +100,7 @@ export default function CurateForm({ categories }: { categories: Category[] }) {
         </Field>
       </div>
 
-      <Field label="Location / area" hint="Optional — e.g. Uppuveli, Trincomalee">
+      <Field label="Location / area" hint="Optional, e.g. Uppuveli, Trincomalee">
         <Input name="location_note" placeholder="Area or branch" />
       </Field>
 

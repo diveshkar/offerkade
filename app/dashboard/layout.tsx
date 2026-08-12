@@ -18,7 +18,7 @@ export default async function DashboardLayout({ children }: { children: ReactNod
   // An admin without a shop belongs in the admin panel, not onboarding.
   if (!business) redirect(admin ? '/admin' : '/onboarding');
 
-  // Nav only makes sense once approved — the offer tools redirect otherwise.
+  // Nav only makes sense once approved, since the offer tools redirect otherwise.
   const approved = business.status === 'approved';
 
   const signOutBtn = (
@@ -55,7 +55,7 @@ export default async function DashboardLayout({ children }: { children: ReactNod
 
   return (
     <div className="flex min-h-screen bg-paper">
-      {/* Desktop sidebar — sticky so nav + footer buttons stay reachable */}
+      {/* Desktop sidebar: sticky so nav + footer buttons stay reachable */}
       <aside className="hidden w-64 shrink-0 flex-col justify-between bg-coal-deep p-5 lg:flex lg:sticky lg:top-0 lg:h-screen lg:overflow-y-auto">
         <div className="flex flex-col gap-8">
           {brand}

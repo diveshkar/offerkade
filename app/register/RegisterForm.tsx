@@ -125,20 +125,16 @@ export default function RegisterForm() {
           {verifying ? 'Checking' : 'Verify and continue'}
         </Button>
 
-        <p className="text-center text-sm text-coal/55">
-          Didn&apos;t get a code?{' '}
+        <div className="flex flex-col items-center gap-2">
+          <p className="text-sm text-coal/55">Didn&apos;t get a code?</p>
           {resendIn > 0 ? (
-            <span>Send a new one in {resendIn}s</span>
+            <p className="text-sm text-coal/45">Send a new one in {resendIn}s</p>
           ) : (
-            <button
-              type="button"
-              onClick={onResend}
-              className="font-semibold text-flame-deep hover:underline"
-            >
+            <Button type="button" variant="secondary" size="sm" onClick={onResend}>
               Send a new code
-            </button>
+            </Button>
           )}
-        </p>
+        </div>
       </form>
     );
   }

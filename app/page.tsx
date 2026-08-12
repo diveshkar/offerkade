@@ -4,6 +4,7 @@ import SiteFooter from '@/app/components/SiteFooter';
 import FilterBar from '@/app/components/FilterBar';
 import OfferCard from '@/app/components/OfferCard';
 import Paginator from '@/app/components/Paginator';
+import { CheckIcon } from '@/app/components/Icons';
 import { getCategories, getActiveCities, listOffers } from '@/lib/queries/offers';
 
 // Always render fresh: offers change and expire daily.
@@ -73,35 +74,72 @@ export default async function Home({ searchParams }: { searchParams: Promise<SP>
           />
 
           <div className="relative mx-auto max-w-6xl px-4 sm:px-6">
-            <p className="mb-5 flex items-center gap-3 text-xs font-semibold uppercase tracking-[0.22em] text-orange-100">
-              Sri Lanka&apos;s daily offers hub
-            </p>
+            <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_380px] lg:items-center">
+              <div>
+                <p className="mb-5 flex items-center gap-3 text-xs font-semibold uppercase tracking-[0.22em] text-orange-100">
+                  Sri Lanka&apos;s daily offers hub
+                </p>
 
-            <h1 className="font-display max-w-2xl text-balance text-5xl font-semibold leading-[1.05] text-white sm:text-7xl">
-              The island&apos;s best offers,
-              <br />
-              <em className="text-amber-200">gathered daily.</em>
-            </h1>
+                <h1 className="font-display max-w-2xl text-balance text-5xl font-semibold leading-[1.05] text-white sm:text-7xl">
+                  The island&apos;s best offers,
+                  <br />
+                  <em className="text-amber-200">gathered daily.</em>
+                </h1>
 
-            <p className="mt-6 max-w-xl text-pretty text-base leading-7 text-white/85 sm:text-lg">
-              Restaurants, shops, furniture, coffee. Live deals from real businesses across Sri
-              Lanka, free to browse. When an offer ends, it disappears.
-            </p>
+                <p className="mt-6 max-w-xl text-pretty text-base leading-7 text-white/85 sm:text-lg">
+                  Restaurants, shops, furniture, coffee. Live deals from real businesses across Sri
+                  Lanka, free to browse. When an offer ends, it disappears.
+                </p>
 
-            {/* Trust row */}
-            <div className="mt-8 flex flex-wrap items-center gap-x-7 gap-y-2 text-[13px] text-white/80">
-              <span className="flex items-center gap-2">
-                <span className="h-1.5 w-1.5 rounded-full bg-emerald-300" aria-hidden />
-                {total} live right now
-              </span>
-              <span className="flex items-center gap-2">
-                <span className="h-1.5 w-1.5 rounded-full bg-white" aria-hidden />
-                Free to browse
-              </span>
-              <span className="flex items-center gap-2">
-                <span className="h-1.5 w-1.5 rounded-full bg-sky-200" aria-hidden />
-                Always current
-              </span>
+                {/* Trust row */}
+                <div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-2.5 text-[13px] text-white/85">
+                  {[`${total} live right now`, 'Free to browse', 'Always current'].map((point) => (
+                    <span key={point} className="flex items-center gap-2">
+                      <span
+                        aria-hidden
+                        className="grid h-5 w-5 shrink-0 place-items-center rounded-full bg-amber-200/15 text-amber-200 ring-1 ring-amber-200/30"
+                      >
+                        <CheckIcon className="h-3 w-3" />
+                      </span>
+                      {point}
+                    </span>
+                  ))}
+                </div>
+              </div>
+
+              {/* Poster collage: a few real, live offers, shown as a tilted
+                  stack instead of a stock photo or plain graphic. */}
+              {offers.length > 0 && (
+                <div className="relative hidden h-[340px] lg:block" aria-hidden>
+                  {offers.slice(0, 3).map((o, i) => (
+                    <div
+                      key={o.id}
+                      className="absolute w-[210px] overflow-hidden rounded-2xl border border-white/10 bg-coal-soft shadow-[0_28px_60px_-20px_rgba(0,0,0,0.6)]"
+                      style={{
+                        top: `${i * 34}px`,
+                        left: `${i * 52}px`,
+                        transform: `rotate(${(i - 1) * 5}deg)`,
+                        zIndex: 3 - i,
+                      }}
+                    >
+                      <div className="aspect-[4/3] bg-coal/40">
+                        {o.poster_thumb_url && (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img
+                            src={o.poster_thumb_url}
+                            alt=""
+                            className="h-full w-full object-cover"
+                          />
+                        )}
+                      </div>
+                      <div className="p-2.5">
+                        <p className="truncate text-[13px] font-semibold text-white">{o.title}</p>
+                        <p className="mt-0.5 truncate text-[11px] text-white/50">{o.city}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         </section>
@@ -129,11 +167,14 @@ export default async function Home({ searchParams }: { searchParams: Promise<SP>
 
           {offers.length === 0 ? (
             <div className="rounded-3xl border border-dashed border-coal/20 bg-paper-soft/60 px-6 py-24 text-center dark:border-white/15 dark:bg-white/[0.03]">
-              <p className="font-display text-xl font-semibold text-coal-deep dark:text-paper">
-                No offers found
+              <p className="text-4xl" aria-hidden>
+                🔍
+              </p>
+              <p className="font-display mt-4 text-xl font-semibold text-coal-deep dark:text-paper">
+                Nothing matches yet
               </p>
               <p className="mt-1 text-sm text-coal/50 dark:text-paper/50">
-                Try clearing filters, or check back soon. New deals land daily.
+                Try a different filter, or check back soon. New deals land here every day.
               </p>
             </div>
           ) : (

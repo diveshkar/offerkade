@@ -1,9 +1,11 @@
 import type { Metadata } from 'next';
+import Link from 'next/link';
 import SiteHeader from '@/app/components/SiteHeader';
 import SiteFooter from '@/app/components/SiteFooter';
 import OfferCard from '@/app/components/OfferCard';
 import Paginator from '@/app/components/Paginator';
-import { listOffers } from '@/lib/queries/offers';
+import { CheckIcon } from '@/app/components/Icons';
+import { getCategories, listOffers } from '@/lib/queries/offers';
 import { CANONICAL_URL } from '@/lib/site-url';
 
 // Live offers change and expire daily.
@@ -32,10 +34,21 @@ export default async function TouristDealsPage({
   const sp = await searchParams;
   const one = (v: string | string[] | undefined) => (Array.isArray(v) ? v[0] : v);
   const page = Math.max(1, parseInt(one(sp.page) ?? '1', 10) || 1);
+  const categorySlug = one(sp.category);
 
-  const { offers, total, totalPages } = await listOffers({ touristFriendly: true, page });
+  const [categories, { offers, total, totalPages }] = await Promise.all([
+    getCategories(),
+    listOffers({ touristFriendly: true, categorySlug, page }),
+  ]);
 
-  const hrefFor = (p: number) => (p > 1 ? `/tourist-deals?page=${p}` : '/tourist-deals');
+  const hrefFor = (p: number) => {
+    const params = new URLSearchParams();
+    if (categorySlug) params.set('category', categorySlug);
+    if (p > 1) params.set('page', String(p));
+    const qs = params.toString();
+    return qs ? `/tourist-deals?${qs}` : '/tourist-deals';
+  };
+  const categoryHref = (slug?: string) => (slug ? `/tourist-deals?category=${slug}` : '/tourist-deals');
 
   // ItemList structured data so Google understands this is a curated collection,
   // not a duplicate of the homepage.
@@ -63,10 +76,58 @@ export default async function TouristDealsPage({
             </h1>
             <p className="mt-5 max-w-xl text-pretty text-base leading-7 text-white/85 sm:text-lg">
               Real, live deals from Sri Lankan hotels, restaurants, tours, transport and
-              attractions, picked out for foreign visitors. Free to browse, no booking fees.
+              attractions, picked out for foreign visitors.
             </p>
+
+            <div className="mt-7 flex flex-wrap items-center gap-x-6 gap-y-2.5 text-[13px] text-white/85">
+              {['Free to browse', 'No booking fees', 'Updated daily'].map((point) => (
+                <span key={point} className="flex items-center gap-2">
+                  <span
+                    aria-hidden
+                    className="grid h-5 w-5 shrink-0 place-items-center rounded-full bg-amber-200/15 text-amber-200 ring-1 ring-amber-200/30"
+                  >
+                    <CheckIcon className="h-3 w-3" />
+                  </span>
+                  {point}
+                </span>
+              ))}
+            </div>
           </div>
         </section>
+
+        {/* Category quick-filter: tourist deals span hotels, food, transport
+            and attractions, so letting visitors narrow by type here (this
+            page had no filter at all before) is the actual point of a
+            dedicated tourist page instead of just a homepage copy. */}
+        {categories.length > 0 && (
+          <div className="mx-auto max-w-6xl px-4 pt-6 sm:px-6">
+            <div className="scrollbar-hide -mx-1 flex gap-2 overflow-x-auto px-1 pb-0.5">
+              <Link
+                href={categoryHref()}
+                className={`whitespace-nowrap rounded-full border px-3.5 py-1.5 text-[13px] font-medium transition ${
+                  !categorySlug
+                    ? 'border-coal bg-coal text-paper dark:border-flame dark:bg-flame dark:text-coal-deep'
+                    : 'border-coal/15 bg-paper-soft text-coal/70 hover:border-flame/60 hover:text-coal dark:border-white/10 dark:bg-coal-soft dark:text-paper/70'
+                }`}
+              >
+                All
+              </Link>
+              {categories.map((c) => (
+                <Link
+                  key={c.slug}
+                  href={categoryHref(c.slug)}
+                  className={`whitespace-nowrap rounded-full border px-3.5 py-1.5 text-[13px] font-medium transition ${
+                    categorySlug === c.slug
+                      ? 'border-coal bg-coal text-paper dark:border-flame dark:bg-flame dark:text-coal-deep'
+                      : 'border-coal/15 bg-paper-soft text-coal/70 hover:border-flame/60 hover:text-coal dark:border-white/10 dark:bg-coal-soft dark:text-paper/70'
+                  }`}
+                >
+                  {c.name}
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
 
         <section className="mx-auto max-w-6xl px-4 py-12 sm:px-6">
           <div className="mb-6 flex items-baseline justify-between">

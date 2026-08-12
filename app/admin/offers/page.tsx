@@ -167,7 +167,7 @@ export default async function AdminOffersPage({
                   <Link href={`/admin/offers/${o.id}/edit`} className={`${ACTION_BTN} ${ACTION_NEUTRAL}`}>
                     Edit
                   </Link>
-                  {/* Admin-only tourist toggle — works on every offer, incl. shop-posted. */}
+                  {/* Admin-only tourist toggle: works on every offer, incl. shop-posted. */}
                   <form action={toggleTourist}>
                     <input type="hidden" name="id" value={o.id} />
                     <input type="hidden" name="tourist" value={String(o.tourist_friendly)} />

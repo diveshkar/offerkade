@@ -26,7 +26,7 @@ export default async function EditOfferPage({ params }: { params: Promise<{ id: 
   const editable = await getMyOfferForEdit(business.id, id);
   if (!editable) notFound();
 
-  // Only drafts can be edited — published offers are locked.
+  // Only drafts can be edited: published offers are locked.
   if (editable.offer.status !== 'draft') redirect('/dashboard');
 
   const [categories, branches] = await Promise.all([

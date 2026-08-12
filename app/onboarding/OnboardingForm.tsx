@@ -8,7 +8,7 @@ import { PHONE_HELP, isValidPhone } from '@/lib/phone';
 
 type Errors = Record<string, string>;
 
-const STEPS = ['Your shop', 'Where you trade'] as const;
+const STEPS = ['Shop details', 'Locations'] as const;
 
 export default function OnboardingForm() {
   const [pending, startTransition] = useTransition();

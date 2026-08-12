@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { Card, Textarea, Button } from '@/app/components/ui';
+import { Card, Textarea, Button, ButtonLink } from '@/app/components/ui';
 import ConfirmButton from '@/app/components/ConfirmButton';
 import Paginator from '@/app/components/Paginator';
 import { EyeIcon } from '@/app/components/Icons';
@@ -51,9 +51,9 @@ export default async function AdminOverview({
       <section>
         <div className="mb-4 flex items-baseline justify-between">
           <h2 className="font-display text-xl font-semibold text-coal-deep">Shops awaiting approval</h2>
-          <Link href="/admin/shops" className="text-sm font-medium text-flame-deep hover:underline">
+          <ButtonLink href="/admin/shops" variant="secondary" size="sm">
             All shops
-          </Link>
+          </ButtonLink>
         </div>
 
         {pending.length === 0 ? (
@@ -116,9 +116,9 @@ export default async function AdminOverview({
       <section>
         <div className="mb-4 flex items-baseline justify-between">
           <h2 className="font-display text-xl font-semibold text-coal-deep">Top offers by views</h2>
-          <Link href="/admin/offers" className="text-sm font-medium text-flame-deep hover:underline">
+          <ButtonLink href="/admin/offers" variant="secondary" size="sm">
             All offers
-          </Link>
+          </ButtonLink>
         </div>
 
         {topOffers.length === 0 || topOffers.every((o) => (o.view_count ?? 0) === 0) ? (

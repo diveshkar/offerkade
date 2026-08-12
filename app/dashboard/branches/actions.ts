@@ -47,7 +47,7 @@ export async function saveBranch(formData: FormData): Promise<BranchState> {
 
   if (id) {
     // This editor sets the address by hand and has no map pin, so drop any
-    // stored lat/lng — otherwise Directions would keep pointing at an old,
+    // stored lat/lng, otherwise Directions would keep pointing at an old,
     // geolocated position instead of the address the shop just entered.
     const { error } = await supabaseAdmin
       .from('branches')

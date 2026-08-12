@@ -65,7 +65,7 @@ export default function BranchManager({ branches }: { branches: Branch[] }) {
         {branches.map((b) => (
           <li
             key={b.id}
-            className="flex items-start gap-3 rounded-2xl border border-coal/12 bg-paper-soft p-4"
+            className="flex items-start gap-3 rounded-2xl border border-coal/12 bg-paper-soft p-4 shadow-[0_1px_2px_rgba(18,13,10,0.04)]"
           >
             <span className="mt-0.5 grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-flame/12 text-flame-deep">
               <PinIcon className="h-4 w-4" />
@@ -122,7 +122,7 @@ export default function BranchManager({ branches }: { branches: Branch[] }) {
       {open ? (
         <form
           onSubmit={submit}
-          className="flex flex-col gap-5 rounded-2xl border border-coal/12 bg-paper-soft p-5"
+          className="flex flex-col gap-5 rounded-2xl border border-coal/12 bg-paper-soft p-5 shadow-[0_1px_2px_rgba(18,13,10,0.04)]"
         >
           <p className="text-sm font-semibold text-coal-deep">
             {form.id ? 'Edit branch' : 'New branch'}

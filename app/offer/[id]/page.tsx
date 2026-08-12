@@ -89,7 +89,16 @@ export default async function OfferPage({ params }: { params: Promise<{ id: stri
       />
       <SiteHeader />
       <ViewCounter offerId={offer.id} />
-      <main className="mx-auto w-full max-w-5xl flex-1 px-4 py-8 sm:px-6">
+
+      {/* Urgency strip: only for deals ending very soon, so it stays true to
+          the moment rather than nagging on every page. */}
+      {urgent && (
+        <div className="bg-ember px-4 py-2 text-center text-[13px] font-semibold text-white sm:px-6">
+          {left <= 0 ? "Last day, this offer ends today." : `Only ${left} day${left === 1 ? '' : 's'} left on this offer.`}
+        </div>
+      )}
+
+      <main className="mx-auto w-full max-w-5xl flex-1 px-4 py-8 pb-24 sm:px-6 lg:pb-8">
         {/* Breadcrumb */}
         <nav className="mb-6 flex items-center gap-2 text-sm text-coal/50 dark:text-paper/50">
           <Link href="/" className="transition hover:text-flame-deep dark:hover:text-flame-bright">
@@ -99,7 +108,7 @@ export default async function OfferPage({ params }: { params: Promise<{ id: stri
           <span className="truncate text-coal/35 dark:text-paper/35">{offer.title}</span>
         </nav>
 
-        {/* grid-cols-1 pins the mobile track to the container width — without it
+        {/* grid-cols-1 pins the mobile track to the container width. Without it
             the implicit auto column sizes to max-content and overflows sideways,
             which left the header/footer looking short of the screen edge. */}
         <div className="grid grid-cols-1 gap-8 md:grid-cols-[minmax(0,5fr)_minmax(0,6fr)] md:gap-10">
@@ -178,7 +187,7 @@ export default async function OfferPage({ params }: { params: Promise<{ id: stri
                   </dd>
                 </div>
               )}
-              {/* Only summarise branch count for multi-branch offers — for a
+              {/* Only summarise branch count for multi-branch offers: for a
                   single location the BranchList below already shows it, so this
                   card would just repeat the "Branches" section. */}
               {offer.location_note && branches.length > 1 && (
@@ -278,6 +287,32 @@ export default async function OfferPage({ params }: { params: Promise<{ id: stri
           </div>
         </div>
       </main>
+
+      {/* Sticky mobile action bar: WhatsApp/Call stay one tap away while
+          reading the description, instead of scrolling back to the top. */}
+      {b && (b.whatsapp || b.contact_phone) && (
+        <div className="fixed inset-x-0 bottom-0 z-40 flex gap-2 border-t border-coal/10 bg-paper-soft/95 p-2.5 backdrop-blur-xl dark:border-white/10 dark:bg-coal-soft/95 lg:hidden">
+          {b.whatsapp && (
+            <a
+              href={waLink(b.whatsapp)}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex h-11 flex-1 items-center justify-center gap-2 rounded-full bg-[#25D366] text-sm font-semibold text-white shadow-md shadow-[#25D366]/25 active:scale-[0.98]"
+            >
+              <WhatsAppIcon className="h-4.5 w-4.5" /> WhatsApp
+            </a>
+          )}
+          {b.contact_phone && (
+            <a
+              href={`tel:${b.contact_phone}`}
+              className="flex h-11 flex-1 items-center justify-center gap-2 rounded-full bg-coal text-sm font-semibold text-paper shadow-md shadow-coal/25 active:scale-[0.98]"
+            >
+              <PhoneIcon /> Call now
+            </a>
+          )}
+        </div>
+      )}
+
       <SiteFooter compact />
     </>
   );
