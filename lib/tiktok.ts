@@ -53,7 +53,11 @@ export async function tiktokAuthUrl(
   const { clientKey } = requireCredentials();
   const params = new URLSearchParams({
     client_key: clientKey,
-    scope: 'user.info.basic,video.publish',
+    // video.publish (direct post) needs an audited app; Sandbox/unaudited
+    // apps only have video.upload (post lands as a draft the connected
+    // account finishes posting inside the TikTok app). Switch back to
+    // video.publish once the app is approved for Direct Post.
+    scope: 'user.info.basic,video.upload',
     response_type: 'code',
     redirect_uri: tiktokRedirectUri(fallbackOrigin),
     state,
@@ -178,17 +182,17 @@ export async function postPhotoToTikTok(imageUrl: string, caption: string): Prom
     body: JSON.stringify({
       post_info: {
         title: caption.slice(0, 2200),
-        // Unaudited apps can only post privately to the connected account.
-        // Switch to a public privacy level once TikTok approves the app.
-        privacy_level: 'SELF_ONLY',
-        disable_comment: false,
       },
       source_info: {
         source: 'PULL_FROM_URL',
         photo_cover_index: 0,
         photo_images: [imageUrl],
       },
-      post_mode: 'DIRECT_POST',
+      // MEDIA_UPLOAD matches the video.upload scope: the post lands as a
+      // draft in the connected account's TikTok inbox for them to finish
+      // and publish inside the app. Switch to DIRECT_POST (with
+      // privacy_level) once the app has video.publish (needs approval).
+      post_mode: 'MEDIA_UPLOAD',
       media_type: 'PHOTO',
     }),
   });
