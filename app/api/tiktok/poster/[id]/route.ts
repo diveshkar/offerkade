@@ -19,11 +19,17 @@ export async function GET(_request: NextRequest, { params }: { params: Promise<{
   if (!offer?.poster_url) return new NextResponse('Not found', { status: 404 });
 
   const upstream = await fetch(offer.poster_url);
-  if (!upstream.ok || !upstream.body) return new NextResponse('Not found', { status: 404 });
+  if (!upstream.ok) return new NextResponse('Not found', { status: 404 });
 
-  return new NextResponse(upstream.body, {
+  // Buffer instead of streaming the raw body: TikTok's URL puller needs an
+  // explicit Content-Length up front to validate the file, which a streamed
+  // response here doesn't reliably provide.
+  const bytes = await upstream.arrayBuffer();
+
+  return new NextResponse(bytes, {
     headers: {
       'Content-Type': upstream.headers.get('content-type') ?? 'image/webp',
+      'Content-Length': String(bytes.byteLength),
       'Cache-Control': 'public, max-age=3600',
     },
   });
