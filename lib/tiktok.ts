@@ -182,7 +182,6 @@ export async function postPhotoToTikTok(imageUrl: string, caption: string): Prom
     body: JSON.stringify({
       post_info: {
         title: caption.slice(0, 2200),
-        description: caption.slice(0, 4000),
         privacy_level: 'SELF_ONLY',
         disable_comment: false,
         auto_add_music: true,
@@ -192,11 +191,10 @@ export async function postPhotoToTikTok(imageUrl: string, caption: string): Prom
         photo_cover_index: 0,
         photo_images: [imageUrl],
       },
-      // MEDIA_UPLOAD matches the video.upload scope: the post lands as a
-      // draft in the connected account's TikTok inbox for them to finish
-      // and publish inside the app. Switch to DIRECT_POST (needs
-      // video.publish, which needs an approved app) once audited.
-      post_mode: 'MEDIA_UPLOAD',
+      // TEMPORARY diagnostic: testing whether Photo Mode requires
+      // DIRECT_POST specifically (MEDIA_UPLOAD gave a generic
+      // invalid_params error regardless of post_info content).
+      post_mode: 'DIRECT_POST',
       media_type: 'PHOTO',
     }),
   });
