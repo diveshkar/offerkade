@@ -10,16 +10,25 @@ export const dynamic = 'force-dynamic';
 // /api/tiktok/callback, so the callback can't be triggered by anything
 // other than this exact request.
 export async function GET(request: NextRequest) {
-  const admin = await getCurrentAdmin();
-  if (!admin) return NextResponse.redirect(new URL('/login', request.url));
+  try {
+    const admin = await getCurrentAdmin();
+    if (!admin) return NextResponse.redirect(new URL('/login', request.url));
 
-  const state = crypto.randomUUID();
-  const codeVerifier = generateCodeVerifier();
-  const authUrl = await tiktokAuthUrl(state, codeVerifier, request.nextUrl.origin);
+    const state = crypto.randomUUID();
+    const codeVerifier = generateCodeVerifier();
+    const authUrl = await tiktokAuthUrl(state, codeVerifier, request.nextUrl.origin);
 
-  const response = NextResponse.redirect(authUrl);
-  const cookieOpts = { httpOnly: true, secure: true, sameSite: 'lax' as const, maxAge: 600, path: '/' };
-  response.cookies.set('tiktok_oauth_state', state, cookieOpts);
-  response.cookies.set('tiktok_oauth_verifier', codeVerifier, cookieOpts);
-  return response;
+    const response = NextResponse.redirect(authUrl);
+    const cookieOpts = { httpOnly: true, secure: true, sameSite: 'lax' as const, maxAge: 600, path: '/' };
+    response.cookies.set('tiktok_oauth_state', state, cookieOpts);
+    response.cookies.set('tiktok_oauth_verifier', codeVerifier, cookieOpts);
+    return response;
+  } catch (err) {
+    // TEMPORARY: surface the real error instead of a bare 500 while we
+    // diagnose the production config. Revert once TikTok connect works.
+    return NextResponse.json(
+      { error: err instanceof Error ? err.message : String(err) },
+      { status: 500 },
+    );
+  }
 }
