@@ -53,10 +53,14 @@ export async function tiktokAuthUrl(
   const { clientKey } = requireCredentials();
   const params = new URLSearchParams({
     client_key: clientKey,
-    // Photo Mode posting requires DIRECT_POST, which requires video.publish
-    // (confirmed: MEDIA_UPLOAD + PHOTO is rejected outright, and DIRECT_POST
-    // without this scope fails with scope_not_authorized).
-    scope: 'user.info.basic,video.publish',
+    // Photo posting needs DIRECT_POST + video.publish, but that scope can't
+    // be authorized anywhere pre-approval (not even Sandbox offers it), so
+    // requesting it here would make Connect fail entirely until TikTok
+    // approves the app. video.upload lets you actually connect and record
+    // a demo; the resulting "Post to TikTok" scope error is expected and
+    // fine to show in that demo. Switch to 'user.info.basic,video.publish'
+    // once TikTok approves the app for Direct Post.
+    scope: 'user.info.basic,video.upload',
     response_type: 'code',
     redirect_uri: tiktokRedirectUri(fallbackOrigin),
     state,
