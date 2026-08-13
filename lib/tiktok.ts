@@ -217,10 +217,15 @@ export async function postPhotoToTikTok(imageUrl: string, caption: string): Prom
     },
     body: JSON.stringify({
       post_info: {
-        title: caption.slice(0, 2200),
+        title: caption.slice(0, 90),
+        description: caption.slice(0, 4000),
         privacy_level: 'SELF_ONLY',
         disable_comment: false,
         auto_add_music: true,
+        // Required for photo posts: this is an organic post about a
+        // business's own offer, not paid third-party branded content.
+        brand_content_toggle: false,
+        brand_organic_toggle: false,
       },
       source_info: {
         source: 'PULL_FROM_URL',
