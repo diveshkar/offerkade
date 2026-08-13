@@ -182,6 +182,10 @@ export async function postPhotoToTikTok(imageUrl: string, caption: string): Prom
     body: JSON.stringify({
       post_info: {
         title: caption.slice(0, 2200),
+        description: caption.slice(0, 4000),
+        privacy_level: 'SELF_ONLY',
+        disable_comment: false,
+        auto_add_music: true,
       },
       source_info: {
         source: 'PULL_FROM_URL',
@@ -190,8 +194,8 @@ export async function postPhotoToTikTok(imageUrl: string, caption: string): Prom
       },
       // MEDIA_UPLOAD matches the video.upload scope: the post lands as a
       // draft in the connected account's TikTok inbox for them to finish
-      // and publish inside the app. Switch to DIRECT_POST (with
-      // privacy_level) once the app has video.publish (needs approval).
+      // and publish inside the app. Switch to DIRECT_POST (needs
+      // video.publish, which needs an approved app) once audited.
       post_mode: 'MEDIA_UPLOAD',
       media_type: 'PHOTO',
     }),
