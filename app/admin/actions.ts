@@ -8,6 +8,7 @@ import { uploadPoster, deletePoster } from '@/lib/image/upload';
 import { getCurrentAdmin } from '@/lib/queries/admin';
 import { emailShopApproved, emailShopRejected } from '@/lib/email';
 import { postPhotoToTikTok } from '@/lib/tiktok';
+import { CANONICAL_URL } from '@/lib/site-url';
 import type { Branch, Business, Offer } from '@/lib/database.types';
 
 // Every action re-checks admin on the server. RLS also enforces it, but this
@@ -181,8 +182,13 @@ export async function postOfferToTikTok(formData: FormData): Promise<TikTokPostS
     .filter(Boolean)
     .join('\n\n');
 
+  // TikTok's PULL_FROM_URL requires the image URL's domain to be verified
+  // with TikTok; Supabase's storage domain can't be, so route through our
+  // own verified domain instead.
+  const posterUrl = `${CANONICAL_URL}/api/tiktok/poster/${id}`;
+
   try {
-    await postPhotoToTikTok(data.poster_url, caption);
+    await postPhotoToTikTok(posterUrl, caption);
   } catch (err) {
     return { error: err instanceof Error ? err.message : 'Could not post to TikTok.' };
   }
