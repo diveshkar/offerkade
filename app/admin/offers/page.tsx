@@ -6,6 +6,7 @@ import Paginator from '@/app/components/Paginator';
 import { PlusIcon, SearchIcon, EyeIcon } from '@/app/components/Icons';
 import { listAllOffers } from '@/lib/queries/admin';
 import { removeOffer, expireOffer, toggleFeatured, toggleTourist } from '@/app/admin/actions';
+import PostToTikTokButton from '@/app/admin/offers/PostToTikTokButton';
 import type { OfferStatus } from '@/lib/database.types';
 
 // Shared styling for the compact per-offer action buttons, so Edit / Feature /
@@ -181,6 +182,9 @@ export default async function AdminOffersPage({
                       {o.tourist_friendly ? 'Untag tourist' : 'Tag tourist'}
                     </button>
                   </form>
+                  {o.poster_url && (
+                    <PostToTikTokButton offerId={o.id} posted={Boolean(o.tiktok_posted_at)} />
+                  )}
                   <ConfirmButton
                     action={toggleFeatured}
                     fields={{ id: o.id, featured: String(o.is_featured) }}

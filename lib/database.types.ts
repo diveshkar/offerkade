@@ -78,6 +78,18 @@ export interface Offer {
   submitted_by_email: string | null;
   created_at: string;
   approved_at: string | null;
+  tiktok_posted_at: string | null;
+}
+
+export interface TikTokConnection {
+  id: number;
+  open_id: string | null;
+  access_token: string | null;
+  access_token_expires_at: string | null;
+  refresh_token: string | null;
+  refresh_token_expires_at: string | null;
+  connected_at: string | null;
+  updated_at: string;
 }
 
 export interface Admin {

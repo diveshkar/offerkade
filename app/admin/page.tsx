@@ -1,11 +1,12 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { Card, Textarea, Button, ButtonLink } from '@/app/components/ui';
+import { Alert, Card, Textarea, Button, ButtonLink } from '@/app/components/ui';
 import ConfirmButton from '@/app/components/ConfirmButton';
 import Paginator from '@/app/components/Paginator';
 import { EyeIcon } from '@/app/components/Icons';
 import { getAdminStats, getTopOffers, listShops } from '@/lib/queries/admin';
 import { approveShop, rejectShop } from '@/app/admin/actions';
+import { getTikTokConnection } from '@/lib/tiktok';
 
 export const metadata: Metadata = { title: 'Admin · OfferCeylon' };
 export const dynamic = 'force-dynamic';
@@ -19,14 +20,19 @@ const PER_PAGE = 8;
 export default async function AdminOverview({
   searchParams,
 }: {
-  searchParams: Promise<{ page?: string }>;
+  searchParams: Promise<{ page?: string; tiktok?: string; tiktok_error?: string }>;
 }) {
   const [stats, pending, topOffers] = await Promise.all([
     getAdminStats(),
     listShops('pending'),
     getTopOffers(5),
   ]);
-  const { page: pageParam } = await searchParams;
+  const { page: pageParam, tiktok, tiktok_error } = await searchParams;
+
+  // Guarded: the tiktok_connection table only exists once migration 018 has
+  // been run, and this card should never be able to break the whole
+  // dashboard if TikTok isn't set up yet.
+  const tiktokConnection = await getTikTokConnection().catch(() => null);
 
   const totalPages = Math.max(1, Math.ceil(pending.length / PER_PAGE));
   const page = Math.min(Math.max(1, parseInt(pageParam ?? '1', 10) || 1), totalPages);
@@ -45,6 +51,36 @@ export default async function AdminOverview({
           <Stat label="Total views" value={stats.totalViews} />
           <Stat label="Code reveals" value={stats.totalLeads} />
         </div>
+      </section>
+
+      {/* TikTok connection */}
+      <section>
+        <h2 className="font-display text-xl font-semibold text-coal-deep">TikTok</h2>
+        {tiktok === 'connected' && (
+          <Alert tone="success" title="TikTok connected">
+            You can now post offers to TikTok from the offers list.
+          </Alert>
+        )}
+        {tiktok === 'error' && (
+          <Alert tone="error" title="Could not connect TikTok">
+            {tiktok_error ?? 'Something went wrong. Please try again.'}
+          </Alert>
+        )}
+        <Card className="mt-4 flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
+          <div>
+            <p className="font-semibold text-coal-deep">
+              {tiktokConnection ? 'Connected' : 'Not connected'}
+            </p>
+            <p className="mt-0.5 text-sm text-coal/60">
+              {tiktokConnection
+                ? 'Offers can be posted to TikTok from the offers list.'
+                : 'Connect OfferCeylon’s TikTok account to enable posting offers directly.'}
+            </p>
+          </div>
+          <ButtonLink href="/api/tiktok/connect" variant={tiktokConnection ? 'secondary' : 'primary'}>
+            {tiktokConnection ? 'Reconnect TikTok' : 'Connect TikTok'}
+          </ButtonLink>
+        </Card>
       </section>
 
       {/* Approvals queue */}

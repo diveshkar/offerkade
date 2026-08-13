@@ -7,6 +7,7 @@ import { supabaseAdmin } from '@/lib/supabase/admin';
 import { uploadPoster, deletePoster } from '@/lib/image/upload';
 import { getCurrentAdmin } from '@/lib/queries/admin';
 import { emailShopApproved, emailShopRejected } from '@/lib/email';
+import { postPhotoToTikTok } from '@/lib/tiktok';
 import type { Branch, Business, Offer } from '@/lib/database.types';
 
 // Every action re-checks admin on the server. RLS also enforces it, but this
@@ -148,6 +149,45 @@ export async function toggleFeatured(formData: FormData) {
   if (!id) return;
   const supabase = await requireAdmin();
   await supabase.from('offers').update({ is_featured: !featured }).eq('id', id);
+  refresh();
+}
+
+export interface TikTokPostState {
+  error?: string;
+}
+
+/** Post an offer's poster + a caption built from its details to TikTok. */
+export async function postOfferToTikTok(formData: FormData): Promise<TikTokPostState | void> {
+  const id = String(formData.get('id') ?? '');
+  if (!id) return { error: 'Missing offer id.' };
+  await requireAdmin();
+
+  const { data } = await supabaseAdmin
+    .from('offers')
+    .select('title, description, poster_url, source_name, business:businesses(name)')
+    .eq('id', id)
+    .maybeSingle();
+  if (!data) return { error: 'That offer could not be found.' };
+  if (!data.poster_url) return { error: 'This offer has no poster to post.' };
+
+  const business = (data.business as unknown as { name: string } | null)?.name;
+  const shopName = data.source_name ?? business ?? 'OfferCeylon';
+  const caption = [
+    data.title,
+    `at ${shopName}`,
+    data.description,
+    '#SriLanka #OfferCeylon #Deals',
+  ]
+    .filter(Boolean)
+    .join('\n\n');
+
+  try {
+    await postPhotoToTikTok(data.poster_url, caption);
+  } catch (err) {
+    return { error: err instanceof Error ? err.message : 'Could not post to TikTok.' };
+  }
+
+  await supabaseAdmin.from('offers').update({ tiktok_posted_at: new Date().toISOString() }).eq('id', id);
   refresh();
 }
 
