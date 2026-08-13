@@ -203,6 +203,10 @@ export async function postPhotoToTikTok(imageUrl: string, caption: string): Prom
 
   const data = await res.json();
   if (!res.ok || data.error?.code !== 'ok') {
-    throw new Error(data.error?.message || 'TikTok rejected the post.');
+    // TEMPORARY: include the raw error code/log_id while we diagnose the
+    // exact cause. Trim back to a plain message once posting works.
+    throw new Error(
+      `[${data.error?.code ?? res.status}] ${data.error?.message || 'TikTok rejected the post.'} (log_id: ${data.error?.log_id ?? 'n/a'})`,
+    );
   }
 }
