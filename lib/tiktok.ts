@@ -53,11 +53,10 @@ export async function tiktokAuthUrl(
   const { clientKey } = requireCredentials();
   const params = new URLSearchParams({
     client_key: clientKey,
-    // video.publish (direct post) needs an audited app; Sandbox/unaudited
-    // apps only have video.upload (post lands as a draft the connected
-    // account finishes posting inside the TikTok app). Switch back to
-    // video.publish once the app is approved for Direct Post.
-    scope: 'user.info.basic,video.upload',
+    // Photo Mode posting requires DIRECT_POST, which requires video.publish
+    // (confirmed: MEDIA_UPLOAD + PHOTO is rejected outright, and DIRECT_POST
+    // without this scope fails with scope_not_authorized).
+    scope: 'user.info.basic,video.publish',
     response_type: 'code',
     redirect_uri: tiktokRedirectUri(fallbackOrigin),
     state,
@@ -191,9 +190,8 @@ export async function postPhotoToTikTok(imageUrl: string, caption: string): Prom
         photo_cover_index: 0,
         photo_images: [imageUrl],
       },
-      // TEMPORARY diagnostic: testing whether Photo Mode requires
-      // DIRECT_POST specifically (MEDIA_UPLOAD gave a generic
-      // invalid_params error regardless of post_info content).
+      // Photo Mode only works with DIRECT_POST (MEDIA_UPLOAD is video-only),
+      // which requires the video.publish scope — needs an approved app.
       post_mode: 'DIRECT_POST',
       media_type: 'PHOTO',
     }),
@@ -201,10 +199,10 @@ export async function postPhotoToTikTok(imageUrl: string, caption: string): Prom
 
   const data = await res.json();
   if (!res.ok || data.error?.code !== 'ok') {
-    // TEMPORARY: include the raw error code/log_id while we diagnose the
-    // exact cause. Trim back to a plain message once posting works.
     throw new Error(
-      `[${data.error?.code ?? res.status}] ${data.error?.message || 'TikTok rejected the post.'} (log_id: ${data.error?.log_id ?? 'n/a'})`,
+      data.error?.code
+        ? `[${data.error.code}] ${data.error.message || 'TikTok rejected the post.'}`
+        : data.error?.message || 'TikTok rejected the post.',
     );
   }
 }

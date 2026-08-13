@@ -10,10 +10,10 @@ export const dynamic = 'force-dynamic';
 // /api/tiktok/callback, so the callback can't be triggered by anything
 // other than this exact request.
 export async function GET(request: NextRequest) {
-  try {
-    const admin = await getCurrentAdmin();
-    if (!admin) return NextResponse.redirect(new URL('/login', request.url));
+  const admin = await getCurrentAdmin();
+  if (!admin) return NextResponse.redirect(new URL('/login', request.url));
 
+  try {
     const state = crypto.randomUUID();
     const codeVerifier = generateCodeVerifier();
     const authUrl = await tiktokAuthUrl(state, codeVerifier, request.nextUrl.origin);
@@ -24,11 +24,12 @@ export async function GET(request: NextRequest) {
     response.cookies.set('tiktok_oauth_verifier', codeVerifier, cookieOpts);
     return response;
   } catch (err) {
-    // TEMPORARY: surface the real error instead of a bare 500 while we
-    // diagnose the production config. Revert once TikTok connect works.
-    return NextResponse.json(
-      { error: err instanceof Error ? err.message : String(err) },
-      { status: 500 },
+    const url = new URL('/admin', request.url);
+    url.searchParams.set('tiktok', 'error');
+    url.searchParams.set(
+      'tiktok_error',
+      err instanceof Error ? err.message : 'Could not start the TikTok connection.',
     );
+    return NextResponse.redirect(url);
   }
 }
