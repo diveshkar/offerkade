@@ -172,8 +172,8 @@ function sleep(ms: number) {
 async function waitForPublishStatus(accessToken: string, publishId: string): Promise<void> {
   const processing = new Set(['PROCESSING_DOWNLOAD', 'PROCESSING_UPLOAD', 'PROCESSING']);
 
-  for (let attempt = 0; attempt < 6; attempt++) {
-    await sleep(2000);
+  for (let attempt = 0; attempt < 12; attempt++) {
+    await sleep(2500);
 
     const res = await fetch('https://open.tiktokapis.com/v2/post/publish/status/fetch/', {
       method: 'POST',
@@ -196,7 +196,7 @@ async function waitForPublishStatus(accessToken: string, publishId: string): Pro
       return; // PUBLISH_COMPLETE, SEND_TO_USER_INBOX, etc. — done, not failed.
     }
   }
-  throw new Error('TikTok is still processing the post after 12 seconds. Check the account manually — it may still complete.');
+  throw new Error('TikTok is still processing the post after 30 seconds. Check the account manually — it may still complete.');
 }
 
 /**
