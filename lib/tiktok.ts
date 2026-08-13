@@ -160,9 +160,48 @@ export async function getTikTokConnection(): Promise<TikTokConnection | null> {
   return connection;
 }
 
+function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+/**
+ * Poll TikTok's async publish status until it leaves the "processing"
+ * states, or we give up. Direct Post is asynchronous: the init call only
+ * means TikTok accepted the request into a queue, not that it published.
+ */
+async function waitForPublishStatus(accessToken: string, publishId: string): Promise<void> {
+  const processing = new Set(['PROCESSING_DOWNLOAD', 'PROCESSING_UPLOAD', 'PROCESSING']);
+
+  for (let attempt = 0; attempt < 6; attempt++) {
+    await sleep(2000);
+
+    const res = await fetch('https://open.tiktokapis.com/v2/post/publish/status/fetch/', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: JSON.stringify({ publish_id: publishId }),
+    });
+    const data = await res.json();
+    if (!res.ok || (data.error && data.error.code !== 'ok')) {
+      throw new Error(`[${data.error?.code ?? res.status}] ${data.error?.message || 'Could not check TikTok post status.'}`);
+    }
+
+    const status: string | undefined = data.data?.status;
+    if (status === 'FAILED') {
+      throw new Error(data.data?.fail_reason || 'TikTok failed to publish the post.');
+    }
+    if (status && !processing.has(status)) {
+      return; // PUBLISH_COMPLETE, SEND_TO_USER_INBOX, etc. — done, not failed.
+    }
+  }
+  throw new Error('TikTok is still processing the post after 12 seconds. Check the account manually — it may still complete.');
+}
+
 /**
  * Post an offer's poster image + caption to TikTok as a Photo Mode post.
- * Requires a publicly reachable image URL (Supabase storage URLs already are).
+ * Requires a publicly reachable image URL (our own /api/tiktok/poster proxy).
  */
 export async function postPhotoToTikTok(imageUrl: string, caption: string): Promise<void> {
   const connection = await getTikTokConnection();
@@ -203,4 +242,7 @@ export async function postPhotoToTikTok(imageUrl: string, caption: string): Prom
         : data.error?.message || 'TikTok rejected the post.',
     );
   }
+
+  const publishId: string | undefined = data.data?.publish_id;
+  if (publishId) await waitForPublishStatus(connection.access_token, publishId);
 }
